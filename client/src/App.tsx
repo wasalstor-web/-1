@@ -18,6 +18,7 @@ import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import ServerManager from "@/pages/ServerManager";
 import ClientHome from "@/pages/ClientHome";
+import QuickSSH from "@/pages/QuickSSH";
 import NotFound from "@/pages/not-found";
 
 function AdminRouter() {
@@ -51,6 +52,9 @@ function App() {
           <Switch>
             {/* Client Interface - No Sidebar */}
             <Route path="/" component={ClientHome} />
+            
+            {/* Quick SSH Test - Full Screen */}
+            <Route path="/ssh-test" component={QuickSSH} />
             
             {/* AI Chat - Full Screen */}
             <Route path="/admin/ai-chat" component={AiChat} />
