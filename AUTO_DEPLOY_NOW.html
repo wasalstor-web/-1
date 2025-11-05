@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 رفع تلقائي للموقع</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(90deg, #00f5ff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .status {
+            background: rgba(0, 255, 100, 0.1);
+            border: 2px solid #00ff64;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .status h2 {
+            color: #00ff64;
+            margin-bottom: 10px;
+        }
+        
+        .command-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            direction: rtl;
+            text-align: right;
+            position: relative;
+        }
+        
+        .command-box code {
+            color: #00f5ff;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            display: block;
+            white-space: pre-wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #00f5ff, #00d4ff);
+            color: #1a1a2e;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            box-shadow: 0 5px 20px rgba(0, 245, 255, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 30px rgba(0, 245, 255, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .info {
+            background: rgba(255, 193, 7, 0.1);
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.1);
+            border-right: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 245, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00f5ff;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 نظام الرفع التلقائي</h1>
+        <p class="subtitle">Mubsat AI Platform - SmartOps Deployment</p>
+        
+        <div class="status">
+            <h2>✅ المساعد الذكي جاهز للعمل!</h2>
+            <p>سيتم رفع الموقع الكامل للسيرفر تلقائياً</p>
+        </div>
+        
+        <div class="info">
+            <strong>📋 معلومات النشر:</strong><br>
+            • السيرفر: 46.202.159.100<br>
+            • المجلد: /var/www/mubsat-ai<br>
+            • الوقت المتوقع: 5-10 دقائق<br>
+            • الرابط النهائي: http://46.202.159.100
+        </div>
+        
+        <div class="command-box">
+            <code id="deployCommand">نفذ deployment كامل لمشروع Mubsat AI على السيرفر 46.202.159.100
+
+الخطوات المطلوبة:
+1. اتصل بالسيرفر root@46.202.159.100
+2. أنشئ قاعدة بيانات PostgreSQL (mubsat_ai)
+3. ثبت PM2 globally
+4. أنشئ مجلد /var/www/mubsat-ai
+5. ارفع كل ملفات المشروع من Replit
+6. أنشئ ملفات الإعدادات (.env, ecosystem.config.js)
+7. نفذ: npm install && npm run build && npm run db:push --force
+8. شغل التطبيق: pm2 start ecosystem.config.js
+9. اضبط Nginx reverse proxy على port 5000
+
+أعطني الرابط النهائي عند الانتهاء.</code>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn" onclick="copyCommand()">📋 نسخ الأمر</button>
+            <button class="btn" onclick="openAssistant()">🤖 فتح المساعد الذكي</button>
+            <button class="btn" onclick="sendDirectly()">🚀 إرسال مباشر</button>
+        </div>
+        
+        <div id="result"></div>
+        
+        <div class="success" style="margin-top: 30px;">
+            <strong>💡 كيف يعمل:</strong><br>
+            1. انقر "إرسال مباشر" لإرسال الأمر تلقائياً للمساعد الذكي<br>
+            2. أو انقر "فتح المساعد الذكي" ثم "نسخ الأمر" والصق هناك<br>
+            3. انتظر 5-10 دقائق حتى يكتمل الرفع<br>
+            4. ستحصل على الرابط النهائي للموقع!
+        </div>
+    </div>
+    
+    <script>
+        const command = document.getElementById('deployCommand').textContent;
+        
+        function copyCommand() {
+            navigator.clipboard.writeText(command).then(() => {
+                showResult('✅ تم نسخ الأمر! الصقه في المساعد الذكي', 'success');
+            }).catch(() => {
+                showResult('❌ فشل النسخ. انسخ يدوياً', 'error');
+            });
+        }
+        
+        function openAssistant() {
+            // فتح المساعد الذكي في نافذة جديدة
+            const assistantUrl = window.location.origin + '/admin/intelligent-assistant';
+            window.open(assistantUrl, '_blank');
+            showResult('✅ تم فتح المساعد الذكي في نافذة جديدة', 'success');
+        }
+        
+        async function sendDirectly() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'info';
+            resultDiv.innerHTML = '<div class="loading"></div> جاري إرسال الأمر للمساعد الذكي...';
+            
+            try {
+                const response = await fetch('/api/intelligent-assistant/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: 'auto-deploy-' + Date.now(),
+                        message: command
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <strong>✅ تم إرسال الأمر بنجاح!</strong><br><br>
+                        ${data.message}<br><br>
+                        <a href="/admin/intelligent-assistant" target="_blank" style="color: #00f5ff;">
+                            → افتح المساعد الذكي لمتابعة التقدم
+                        </a>
+                    `;
+                } else {
+                    throw new Error(data.message || 'فشل الإرسال');
+                }
+            } catch (error) {
+                resultDiv.className = 'info';
+                resultDiv.style.background = 'rgba(244, 67, 54, 0.1)';
+                resultDiv.style.borderRight = '4px solid #f44336';
+                resultDiv.innerHTML = `
+                    <strong>⚠️ يرجى استخدام الطريقة اليدوية:</strong><br><br>
+                    1. انقر "نسخ الأمر" أعلاه<br>
+                    2. انقر "فتح المساعد الذكي"<br>
+                    3. الصق الأمر هناك واضغط Enter<br><br>
+                    الخطأ: ${error.message}
+                `;
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = type === 'success' ? 'success' : 'info';
+            resultDiv.textContent = message;
+            
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
