@@ -13,6 +13,7 @@ import {
   orderItems,
   aiConversations,
   aiMessages,
+  telegramUsers,
   type User,
   type InsertUser,
   type Project,
@@ -31,6 +32,8 @@ import {
   type InsertAiConversation,
   type AiMessage,
   type InsertAiMessage,
+  type TelegramUser,
+  type InsertTelegramUser,
 } from '@shared/schema';
 import type { IStorage } from './storage';
 
@@ -268,6 +271,30 @@ export class PostgresStorage implements IStorage {
     // Update conversation's lastMessageAt
     await this.updateAiConversation(message.conversationId, {});
     
+    return result[0];
+  }
+
+  // Telegram User methods
+  async getTelegramUser(telegramUserId: number): Promise<TelegramUser | undefined> {
+    const result = await this.db
+      .select()
+      .from(telegramUsers)
+      .where(eq(telegramUsers.telegramUserId, telegramUserId))
+      .limit(1);
+    return result[0];
+  }
+
+  async createTelegramUser(user: InsertTelegramUser): Promise<TelegramUser> {
+    const result = await this.db.insert(telegramUsers).values(user).returning();
+    return result[0];
+  }
+
+  async updateTelegramUser(telegramUserId: number, updates: Partial<InsertTelegramUser>): Promise<TelegramUser | undefined> {
+    const result = await this.db
+      .update(telegramUsers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(telegramUsers.telegramUserId, telegramUserId))
+      .returning();
     return result[0];
   }
 }
