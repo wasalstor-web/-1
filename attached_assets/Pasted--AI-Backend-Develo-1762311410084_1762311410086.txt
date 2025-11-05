@@ -1,0 +1,2633 @@
+#### الهيكل الكامل
+```
+┌────────────────────────────────────────────────────┐
+│ AI Backend Developer                         [X]   │
+├──────────────┬─────────────────────────────────────┤
+│              │                                     │
+│  Chat        │         Chat Area                   │
+│  History     │                                     │
+│              │  🤖 AI: Welcome! I'm your AI        │
+│  ┌────────┐ │      Backend Developer.             │
+│  │Active  │ │      What would you like to build?  │
+│  │New Chat│ │                                     │
+│  └────────┘ │  You: أبي بوت للواتساب             │
+│              │                                     │
+│  Recent:     │  🤖 AI: Great! Let me ask some     │
+│  • Bot       │      questions...                   │
+│  • API       │                                     │
+│  • Dashboard │  [Code Block Preview]               │
+│              │                                     │
+│  Templates:  │  🤖 AI: Ready to deploy?           │
+│  • WhatsApp  │                                     │
+│  • Content   │  You: نعم                           │
+│  • Analytics │                                     │
+│              │  [Deployment Progress]              │
+│              │                                     │
+├──────────────┼─────────────────────────────────────┤
+│              │ [📎] [🎤] [💬 Type message...]  [➤]│
+└──────────────┴─────────────────────────────────────┘
+```
+
+#### Left Sidebar (Chat History)
+```
+Width: 280px
+Background: Glassmorphism
+Padding: 16px
+
+المكونات:
+
+1. Header
+   "AI Backend Developer"
+   • Online indicator (دائرة خضراء)
+
+2. New Chat Button
+   كبير، Gradient Purple→Pink
+   "+ New Conversation"
+
+3. Recent Chats (Scrollable)
+   ┌────────────────────┐
+   │ 🤖 WhatsApp Bot    │
+   │ 2 hours ago        │
+   │ ● Building...      │
+   └────────────────────┘
+   
+   كل بطاقة:
+   - Hover: خلفية أفتح
+   - Active: Border نيون على اليسار
+   - أيقونة حالة (● Building, ✓ Done)
+   - وقت نسبي
+
+4. Quick Templates
+   قائمة قوالب سريعة:
+   • "Build WhatsApp bot"
+   • "Create REST API"
+   • "Setup database"
+   
+   كل قالب:
+   - أيقونة صغيرة
+   - نص وصفي
+   - Click: يملأ الـ Input
+
+5. Settings (أسفل)
+   أيقونة ⚙️
+   • Model selection
+   • Language preference
+   • Clear history
+```
+
+#### Chat Area (Main)
+```
+Width: Flex (باقي المساحة)
+Background: أغمق قليلاً من Sidebar
+Padding: 24px
+
+Message Design:
+
+AI Messages (Left):
+┌─────────────────────────────────┐
+│ 🤖                              │
+│ ┌───────────────────────────┐   │
+│ │ Welcome! I'm your AI      │   │
+│ │ Backend Developer.        │   │
+│ │ What would you like to    │   │
+│ │ build today?              │   │
+│ └───────────────────────────┘   │
+│ Just now                        │
+└─────────────────────────────────┘
+
+المواصفات:
+- Avatar: دائرة 40px مع أيقونة 🤖
+- البالونة: Glassmorphism + Border Purple
+- Max width: 70%
+- Padding: 16px
+- Border radius: 16px 16px 16px 4px
+- Glow خفيف
+- Typing indicator (3 dots متحركة)
+
+User Messages (Right):
+┌─────────────────────────────────┐
+│                              👤 │
+│   ┌───────────────────────────┐ │
+│   │ أبي بوت للواتساب        │ │
+│   └───────────────────────────┘ │
+│                        Just now │
+└─────────────────────────────────┘
+
+المواصفات:
+- Avatar: دائرة 40px (صورة المستخدم)
+- البالونة: Gradient Purple→Pink
+- Max width: 70%
+- Padding: 16px
+- Border radius: 16px 16px 4px 16px
+- Align: Right
+
+Code Blocks في الرسائل:
+┌───────────────────────────────────┐
+│ 🤖 AI: Here's the code:          │
+│                                   │
+│ ┌─────────────────────────────┐   │
+│ │ ```javascript               │   │
+│ │ const express = require...  │   │
+│ │ const app = express();      │   │
+│ │ ...                         │   │
+│ │ ```                         │   │
+│ │ [Copy] [Explain] [Modify]   │   │
+│ └─────────────────────────────┘   │
+└───────────────────────────────────┘
+
+المواصفات:
+- خلفية أغمق (#1a1a24)
+- Syntax highlighting ملون
+- Line numbers على اليسار
+- أزرار Action في الأعلى
+- Scrollable أفقياً إذا طويل
+
+Progress/Status Messages:
+┌───────────────────────────────────┐
+│ 🤖 AI: Deploying your service... │
+│                                   │
+│ [████████████░░░░] 75%           │
+│                                   │
+│ ✓ Building Docker image           │
+│ ✓ Pushing to registry             │
+│ ⏳ Configuring load balancer      │
+│ ⭕ Running health checks          │
+└───────────────────────────────────┘
+
+المواصفات:
+- Progress bar بتدرج
+- كل خطوة مع أيقونة حالة
+- Animation للخطوة الحالية
+- Update في الوقت الفعلي
+
+Interactive Elements:
+┌───────────────────────────────────┐
+│ 🤖 AI: Which platform?            │
+│                                   │
+│ ┌──────────┐ ┌──────────┐       │
+│ │WhatsApp  │ │Telegram  │       │
+│ │    📱    │ │    ✈️    │       │
+│ └──────────┘ └──────────┘       │
+│ ┌──────────┐ ┌──────────┐       │
+│ │Discord   │ │Custom    │       │
+│ │    💬    │ │    ⚙️    │       │
+│ └──────────┘ └──────────┘       │
+└───────────────────────────────────┘
+
+المواصفات:
+- أزرار قابلة للنقر
+- Hover effect واضح
+- عند النقر: يرسل اختيار تلقائياً
+- Disabled بعد الاختيار
+```
+
+#### Input Area (أسفل)
+```
+Height: 80px (قابل للتوسع)
+Background: Glassmorphism
+Border top: 1px glow
+Padding: 16px
+
+المكونات (من اليمين):
+
+1. 📎 Attach (رفع ملفات)
+2. 🎤 Voice Input (تسجيل صوتي)
+3. Textarea (وسط، قابل للتوسع)
+   - Placeholder: "Describe what you want to build..."
+   - Multi-line
+   - Auto-resize
+   - Max height: 200px
+4. ➤ Send Button (دائرة)
+   - Gradient Purple→Pink
+   - Glow effect
+   - Disabled إذا فارغ
+   - Loading spinner عند الإرسال
+
+Keyboard Shortcuts:
+- Enter: إرسال
+- Shift + Enter: سطر جديد
+- Ctrl/Cmd + K: مسح الشات
+```
+
+#### Quick Actions (فوق Input)
+```
+┌────────────────────────────────────┐
+│ [🔍 Search]  [📋 View Code]  [🚀 Deploy] │
+└────────────────────────────────────┘
+
+أزرار صغيرة:
+- 32px height
+- Icon + نص
+- Glassmorphism
+- Appear based on context
+```
+
+---
+
+### 2.5 Dashboard (للمشترين)
+
+#### Layout
+```
+┌────────────────────────────────────────────────────┐
+│ [Navbar with user menu]                            │
+├──────────────┬─────────────────────────────────────┤
+│              │                                     │
+│   Sidebar    │  Dashboard Content                  │
+│              │                                     │
+│ • Dashboard  │  Welcome back, Ahmed!               │
+│ • Services   │                                     │
+│ • Builder    │  ┌──────┐ ┌──────┐ ┌──────┐       │
+│ • Billing    │  │ KPI  │ │ KPI  │ │ KPI  │       │
+│ • Settings   │  └──────┘ └──────┘ └──────┘       │
+│              │                                     │
+│              │  Active Services                    │
+│              │  ┌─────────────────────────┐       │
+│              │  │ 🤖 WhatsApp Bot         │       │
+│              │  │ ● Running               │       │
+│              │  │ 847/1000 requests       │       │
+│              │  │ [Dashboard] [Settings]  │       │
+│              │  └─────────────────────────┘       │
+│              │                                     │
+│              │  Usage Chart                        │
+│              │  [Line Chart Placeholder]           │
+│              │                                     │
+└──────────────┴─────────────────────────────────────┘
+```
+
+#### Sidebar Navigation
+```
+Width: 240px
+Background: Glassmorphism
+Fixed/Sticky
+
+Items:
+┌────────────────────┐
+│ 🏠 Dashboard       │ ← Active
+│ 📦 My Services     │
+│ 🤖 AI Builder      │
+│ 💳 Billing         │
+│ ⚙️ Settings        │
+│ ❓ Help            │
+└────────────────────┘
+
+Active Item:
+- Background: Gradient Purple→Pink (opacity 0.2)
+- Border left: 3px solid Purple
+- Icon: نيون مضيء
+- Text: Bold
+
+Hover:
+- Background: rgba(255,255,255,0.05)
+- Icon: يتوهج قليلاً
+```
+
+#### KPI Cards (3 في صف)
+```
+┌──────────────────────┐
+│ 📦                   │
+│ Active Services      │
+│ 3                    │
+│ ↑ +1 this month     │
+└──────────────────────┘
+
+┌──────────────────────┐
+│ 📊                   │
+│ API Requests         │
+│ 2,847                │
+│ ↑ +23% this week    │
+└──────────────────────┘
+
+┌──────────────────────┐
+│ 💰                   │
+│ Total Spent          │
+│ $157                 │
+│ This month           │
+└──────────────────────┘
+
+المواصفات لكل بطاقة:
+- Width: Flex (1/3)
+- Height: 140px
+- Glassmorphism
+- Padding: 24px
+- Icon: 48px، في الأعلى
+- العنوان: 14px، Gray
+- الرقم: 36px، Bold، Purple
+- التغيير: 12px، Green/Red
+- Hover: ترتفع قليلاً
+```
+
+#### Active Services List
+```
+عنوان: "My Active Services"
+زر: "+ Add Service"
+
+كل خدمة:
+┌────────────────────────────────────┐
+│ 🤖 WhatsApp Customer Support Bot   │
+│ ● Running                          │
+│                                    │
+│ Usage: [████████░░] 847/1000      │
+│ Renews: Dec 15, 2024              │
+│                                    │
+│ [Dashboard] [Settings] [⋮]        │
+└────────────────────────────────────┘
+
+المواصفات:
+- Glassmorphism card
+- Status indicator (● حي)
+  * Green: Running
+  * Yellow: Warning
+  * Red: Error
+  * Gray: Stopped
+- Progress bar للاستخدام
+- تاريخ التجديد
+- 3 أزرار action
+
+Grid: 2 columns
+Gap: 24px
+```
+
+#### Usage Chart
+```
+عنوان: "API Usage Over Time"
+Timeframe selector: [7d] [30d] [90d] [All]
+
+الرسم:
+- Line chart
+- Gradient fill تحت الخط
+- Grid lines خفيفة
+- Tooltip عند hover
+- Legend للخدمات المختلفة
+- Height: 300px
+
+الألوان:
+- Service 1: Purple
+- Service 2: Pink
+- Service 3: Blue
+```
+
+#### Recent Activity
+```
+عنوان: "Recent Activity"
+
+Timeline:
+┌────────────────────────────────┐
+│ ● Bot responded to 45 messages │
+│   2 hours ago                  │
+├────────────────────────────────┤
+│ ● Payment processed $29        │
+│   Yesterday                    │
+├────────────────────────────────┤
+│ ● New service activated        │
+│   3 days ago                   │
+└────────────────────────────────┘
+
+المواصفات:
+- خط عمودي يربط النقاط
+- كل نقطة: دائرة ملونة
+- Text: 14px
+- Time: 12px، Gray
+- Max: 10 items
+- Scrollable
+```
+
+---
+
+### 2.6 Service Builder/Editor (للبائعين)
+
+#### Layout
+```
+┌────────────────────────────────────────────────────┐
+│ Create New Service                           [Save]│
+├────────────────────────────────────────────────────┤
+│                                                    │
+│ [Basic Info] [Features] [Pricing] [Code] [Publish]│
+│                                                    │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Service Name                                      │
+│  [_______________________________________]         │
+│                                                    │
+│  Category                                          │
+│  [Dropdown: Bots ▼]                               │
+│                                                    │
+│  Icon/Emoji                                        │
+│  [🤖] [Change]                                     │
+│                                                    │
+│  Short Description                                 │
+│  [_______________________________________]         │
+│                                                    │
+│  Full Description                                  │
+│  [Rich Text Editor                     ]           │
+│  [                                     ]           │
+│  [                                     ]           │
+│                                                    │
+│  Upload Images/Videos                              │
+│  [Drag & Drop or Browse]                          │
+│  ┌────┐ ┌────┐ ┌────┐                           │
+│  │Img1│ │Img2│ │+   │                           │
+│  └────┘ └────┘ └────┘                           │
+│                                                    │
+└────────────────────────────────────────────────────┘
+```
+
+#### Tab 1: Basic Info
+```
+الحقول:
+
+1. Service Name *
+   Input field: كبير، بارز
+   Placeholder: "e.g., WhatsApp Customer Bot"
+
+2. Category *
+   Dropdown مع أيقونات:
+   🤖 Bots
+   📝 Content Tools
+   🎨 Creative
+   📊 Analytics
+   ⚙️ Other
+
+3. Icon/Emoji
+   Picker لاختيار emoji أو رفع صورة
+   Preview مباشر
+
+4. Short Description *
+   Max: 120 characters
+   عداد الأحرف
+   يظهر في البطاقة
+
+5. Full Description *
+   Rich text editor (bold, italic, lists, links)
+   Markdown support
+   Preview mode
+
+6. Media Upload
+   Drag & drop zone
+   دعم: Images, Videos
+   Max 10 files
+   Preview gallery
+   Reorder بـ drag
+
+7. Tags
+   Input مع Autocomplete
+   Max: 10 tags
+   مثل: "whatsapp", "chatbot", "ai"
+```
+
+#### Tab 2: Features
+```
+┌────────────────────────────────────┐
+│ What's Included                    │
+│                                    │
+│ • API Access [x]                   │
+│   [+ Add Detail]                   │
+│                                    │
+│ • Webhook Integration [x]          │
+│   [+ Add Detail]                   │
+│                                    │
+│ [+ Add Feature]                    │
+│                                    │
+├────────────────────────────────────┤
+│ Technical Specs                    │
+│                                    │
+│ Max Requests: [1000] /month       │
+│ Response Time: [< 1s]              │
+│ Uptime SLA: [99.9%]               │
+│                                    │
+└────────────────────────────────────┘
+
+كل Feature:
+- Checkbox لتفعيل/تعطيل
+- حقل Description قابل للتوسع
+- أيقونة drag للترتيب
+- زر حذف
+```
+
+#### Tab 3: Pricing
+```
+┌────────────────────────────────────┐
+│ Pricing Model                      │
+│                                    │
+│ ○ Free                             │
+│ ● Subscription                     │
+│   $[29] per [month ▼]             │
+│                                    │
+│ ○ One-time Purchase                │
+│   $[___]                           │
+│                                    │
+│ ○ Pay-per-Use                      │
+│   $[___] per request               │
+│                                    │
+├────────────────────────────────────┤
+│ Free Trial                         │
+│ ☑ Enable free trial               │
+│ Duration: [7] days                 │
+│                                    │
+├────────────────────────────────────┤
+│ Discount                           │
+│ ☐ Launch discount                 │
+│ [20]% off for first [100] users   │
+│                                    │
+└────────────────────────────────────┘
+
+Preview (جانبي):
+┌────────────────────┐
+│ Preview            │
+│                    │
+│ $29/month          │
+│ ✓ Feature 1        │
+│ ✓ Feature 2        │
+│                    │
+│ [Subscribe Now]    │
+└────────────────────┘
+```
+
+#### Tab 4: Code/Configuration
+```
+┌────────────────────────────────────────┐
+│ Service Configuration                  │
+│                                        │
+│ Backend Language                       │
+│ [Node.js ▼]                           │
+│                                        │
+│ AI Model                               │
+│ [GPT-4 ▼] [Claude ▼] [Gemini ▼]     │
+│                                        │
+│ Database                               │
+│ ☑ PostgreSQL                          │
+│ ☑ Redis Cache                         │
+│                                        │
+│ APIs/Integrations                      │
+│ ☑ WhatsApp Business API               │
+│ ☐ Telegram Bot API                    │
+│ ☐ Stripe                               │
+│                                        │
+│ Custom Code (Optional)                 │
+│ [Code Editor with Syntax Highlighting]│
+│ ```javascript                          │
+│ // Your custom logic here              │
+│ ```                                    │
+│                                        │
+│ Environment Variables                  │
+│ Key: [_______] Value: [_______] [Add] │
+│                                        │
+│ [Test Configuration]                   │
+└────────────────────────────────────────┘
+```
+
+#### Tab 5: Publish
+```
+┌────────────────────────────────────┐
+│ Ready to Publish?                  │
+│                                    │
+│ Checklist:                         │
+│ ✓ Basic info completed             │
+│ ✓ At least 1 feature added         │
+│ ✓ Pricing configured               │
+│ ⚠ No images uploaded               │
+│ ○ Code not tested                  │
+│                                    │
+│ Visibility                         │
+│ ○ Draft (Only you)                 │
+│ ● Public (Everyone)                │
+│ ○ Unlisted (With link only)        │
+│                                    │
+│ [Save as Draft] [Publish Service]  │
+└────────────────────────────────────┘
+
+عند Publish:
+- Animation: صاروخ ينطلق 🚀
+- Success message
+- إعادة توجيه لصفحة الخدمة
+- Email confirmation
+```
+
+---
+
+### 2.7 Billing Page
+
+```
+┌────────────────────────────────────────────────┐
+│ Billing & Subscriptions                       │
+├────────────────────────────────────────────────┤
+│                                                │
+│ Current Plan: Pro                              │
+│ $99/month · Renews Dec 15, 2024               │
+│                                                │
+│ [Upgrade] [Change Plan] [Cancel]              │
+│                                                │
+├────────────────────────────────────────────────┤
+│ Usage This Month                               │
+│                                                │
+│ API Requests: 2,847 / 10,000                  │
+│ [████████░░░░░░░░] 28%                       │
+│                                                │
+│ Services: 3 / 5                                │
+│ [██████░░░░░░░░░░] 60%                       │
+│                                                │
+├────────────────────────────────────────────────┤
+│ Payment Method                                 │
+│                                                │
+│ 💳 •••• •••• •••• 4242                       │
+│ Expires 12/25                                  │
+│                                                │
+│ [Update] [Add New]                            │
+│                                                │
+├────────────────────────────────────────────────┤
+│ Billing History                                │
+│                                                │
+│ Dec 1, 2024  $99.00  ✓ Paid  [Invoice]       │
+│ Nov 1, 2024  $99.00  ✓ Paid  [Invoice]       │
+│ Oct 1, 2024  $29.00  ✓ Paid  [Invoice]       │
+│                                                │
+│ [View All]                                     │
+│                                                │
+└────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎨 3. المكونات المشتركة (Shared Components)
+
+### 3.1 أزرار (Buttons)
+
+#### Primary Button
+```css
+Background: linear-gradient(135deg, #667eea, #764ba2)
+Padding: 12px 32px
+Border Radius: 12px
+Font: 16px Bold
+Color: #ffffff
+Box Shadow: 0 8px 24px rgba(102, 126, 234, 0.4)
+
+Hover:
+  Transform: translateY(-2px)
+  Box Shadow: 0 12px 32px rgba(102, 126, 234, 0.6)
+
+Active:
+  Transform: translateY(0)
+  Box Shadow: 0 4px 12px rgba(102, 126, 234, 0.4)
+
+Disabled:
+  Opacity: 0.5
+  Cursor: not-allowed
+```
+
+#### Secondary Button
+```css
+Background: transparent
+Border: 2px solid rgba(255, 255, 255, 0.2)
+Padding: 10px 30px
+Border Radius: 12px
+
+Hover:
+  Border Color: rgba(102, 126, 234, 0.6)
+  Background: rgba(102, 126, 234, 0.1)
+  Glow effect
+```
+
+#### Icon Button
+```css
+Width: 40px
+Height: 40px
+Border Radius: 50%
+Background: rgba(255, 255, 255, 0.05)
+
+Hover:
+  Background: rgba(255, 255, 255, 0.1)
+  Icon scale: 1.1
+```
+
+### 3.2 Cards (بطاقات)
+
+#### Standard Card
+```css
+Background: rgba(255, 255, 255, 0.05)
+Backdrop Filter: blur(10px)
+Border: 1px solid rgba(255, 255, 255, 0.1)
+Border Radius: 16px
+Padding: 24px
+Box Shadow: 0 8px 32px rgba(0, 0, 0, 0.1)
+
+Hover:
+  Transform: translateY(-8px)
+  Border Color: rgba(102, 126, 234, 0.5)
+  Box Shadow: 0 20px 40px rgba(102, 126, 234, 0.3)
+```
+
+### 3.3 Inputs (حقول الإدخال)
+
+#### Text Input
+```css
+Background: rgba(255, 255, 255, 0.05)
+Border: 1px solid rgba(255, 255, 255, 0.1)
+Border Radius: 8px
+Padding: 12px 16px
+Font Size: 16px
+Color: #ffffff
+
+Focus:
+  Border Color: #667eea
+  Box Shadow: 0 0 0 3px rgba(102, 126, 234, 0.2)
+  Glow effect
+
+Placeholder:
+  Color: rgba(255, 255, 255, 0.4)
+```
+
+### 3.4 Modals (نوافذ منبثقة)
+
+```
+┌────────────────────────────────────┐
+│ [×]                                │
+│                                    │
+│ Modal Title                        │
+│                                    │
+│ Modal content goes here...         │
+│                                    │
+│                                    │
+│ [Cancel] [Confirm]                 │
+└────────────────────────────────────┘
+
+المواصفات:
+- Overlay: rgba(0, 0, 0, 0.8) مع Backdrop blur
+- Card: Glassmorphism
+- Width: Max 600px
+- Padding: 32px
+- Animation: Fade in + Scale from 0.9
+- زر ×: أعلى اليمين
+- أزرار Action: أسفل اليمين
+```
+
+### 3.5 Toasts (إشعارات)
+
+```
+┌────────────────────────────────────┐
+│ ✓ Success! Service published       │
+└────────────────────────────────────┘
+
+المواصفات:
+- Position: Top right
+- Width: 350px
+- Glassmorphism
+- Icon حسب النوع:
+  * ✓ Success: أخضر
+  * ⚠ Warning: برتقالي
+  * ✕ Error: أحمر
+  * ℹ Info: أزرق
+- Auto-dismiss بعد 5 ثواني
+- Progress bar في الأسفل
+- Animation: Slide in from right
+```
+
+---
+
+## 🚀 4. Animations & Interactions
+
+### 4.1 Page Transitions
+```
+عند التنقل بين الصفحات:
+
+Fade Out (الصفحة الحالية):
+- Opacity: 1 → 0
+- Duration: 0.2s
+- Ease: ease-out
+
+Fade In (الصفحة الجديدة):
+- Opacity: 0 → 1
+- Transform: translateY(20px) → translateY(0)
+- Duration: 0.3s
+- Ease: ease-out
+- Delay: 0.1s
+```
+
+### 4.2 Scroll Animations
+```
+العناصر تظهر عند Scroll:
+
+Fade + Slide Up:
+- Initial: opacity 0, translateY(40px)
+- Animate: opacity 1, translateY(0)
+- Duration: 0.6s
+- Ease: cubic-bezier(0.4, 0, 0.2, 1)
+- Stagger: 0.1s بين العناصر
+- Trigger: عند 20% من العنصر مرئي
+```
+
+### 4.3 Hover Interactions
+```
+Cards:
+- Transform: translateY(-8px) scale(1.02)
+- Shadow: increase 150%
+- Border: glow effect
+- Duration: 0.3s
+
+Buttons:
+- Transform: translateY(-2px)
+- Shadow: increase
+- Glow: intensify
+- Duration: 0.2s
+
+Links:
+- Color: shift to neon
+- Underline: expand from center
+- Duration: 0.2s
+```
+
+### 4.4 Loading States
+```
+Spinner:
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+Pulse:
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+Skeleton:
+@keyframes shimmer {
+  0% { background-position: -1000px; }
+  100% { background-position: 1000px; }
+}
+```
+
+---
+
+## 📱 5. Responsive Design
+
+### Breakpoints
+```
+Mobile:    < 640px
+Tablet:    640px - 1024px
+Desktop:   1024px - 1440px
+Large:     > 1440px
+```
+
+### Layout Changes
+
+#### Mobile (< 640px)
+```
+- Sidebar: Hidden, toggle via hamburger menu
+- Grid: 1 column
+- Font sizes: Scale down 20%
+- Padding: Reduce to 16px
+- Cards: Full width
+- Bottom navigation: Show
+```
+
+#### Tablet (640px - 1024px)
+```
+- Sidebar: Collapsible
+- Grid: 2 columns
+- Font sizes: Scale down 10%
+- Padding: 20px
+```
+
+#### Desktop (> 1024px)
+```
+- Sidebar: Fixed, always visible
+- Grid: 3-4 columns
+- Full font sizes
+- Padding: 24px+
+```
+
+---
+
+## 🎯 6. البروموت النهائي الموحد
+
+```markdown
+# 🚀 COMPLETE AI MARKETPLACE PLATFORM PROMPT
+
+أنشئ منصة Marketplace متكاملة لبيع وبناء خدمات الذكاء الاصطناعي والبوتات.
+
+---
+
+## 🎨 DESIGN SYSTEM
+
+### Colors:
+- Primary: #667eea (Purple), #f093fb (Pink), #4facfe (Blue)
+- Gradients: Purple→Pink, Blue→Cyan, Multi-color
+- Background: #0a0a0f (Dark), #1a1a24 (Medium), #2a2a34 (Light)
+- Glass: rgba(255,255,255,0.05) + backdrop-filter blur(10px)
+- Neon Glow: 0 0 20px rgba(102,126,234,0.5)
+
+### Typography:
+- Font: Inter (English), Cairo (Arabic), Fira Code (Mono)
+- Sizes: Display 72px, H1 48px, H2 36px, Body 16px
+- Weights: Regular 400, Medium 500, Bold 700
+
+### Spacing:
+- xs:4px, sm:8px, md:16px, lg:24px, xl:32px, 2xl:48px
+
+### Effects:
+- Glassmorphism: rgba(255,255,255,0.05) + blur + border
+- Hover: translateY(-8px) + shadow increase + glow
+- Transitions: 0.3s cubic-bezier(0.4,0,0.2,1)
+
+---
+
+## 📄 PAGES
+
+### 1. LANDING PAGE
+
+**Hero Section:**
+- Gradient background: #0a0a0f → Purple
+- 3 animated glowing circles (Purple, Pink, Blue)
+- Large heading: "Build, Buy, or Customize AI Services"
+- Subheading: "Transform your business with AI. No coding required."
+- 2 CTA buttons: "Browse Services" (gradient), "Talk to AI Dev" (ghost)
+- Stats: "10K+ Users | 47 Services | $2M+ Saved"
+
+**How It Works (3 steps):**
+- 3 glassmorphism cards connected by glowing lines
+- Each card: Number circle + Large emoji + Title + Description
+- Animation: Appear one by one on scroll
+
+**Popular Services (Grid 4 columns):**
+Each service card:
+- Size: 280x360px
+- Glassmorphism + glow border on hover
+- Large emoji (80px) at top
+- Service name (20px Bold)
+- Price (24px Purple)
+- Rating (stars + number)
+- Subscriber count
+- "Try Free" button (gradient)
+- Hover: lift 10px + shadow
+
+**AI Developer Showcase:**
+- Demo chat interface preview
+- Animated typing effect
+- Code preview with syntax highlighting
+- "Start Building Free" CTA
+
+**Testimonials Carousel:**
+- 3 slides, auto-rotate
+- Each: Stars + Quote + Name + Role
+- Glassmorphism cards
+
+**Pricing (3 tiers):**
+- Free, Pro ($99/mo), Enterprise (Custom)
+- Pro card slightly larger + "Most Popular" badge
+- Feature lists
+- "Choose Plan" buttons
+
+**Final CTA:**
+- Full-width section
+- Strong gradient background
+- Large heading + big CTA button
+- "No credit card required" text
+
+**Footer:**
+- 4 columns: Product, Company, Legal, Social
+- Links in gray, glow on hover
+- Copyright text
+
+---
+
+### 2. MARKETPLACE
+
+**Layout:**
+```
+[Navbar]
+[Search + Filters]
+[Sidebar] | [Services Grid]
+```
+
+**Navbar:**
+- Logo + Menu items
+- Search, Cart, Notifications, User avatar
+- Sticky, glassmorphism, 64px height
+
+**Search Bar:**
+- Full width, max 600px
+- Icon on right
+- Autocomplete dropdown
+- Glow on focus
+
+**Sidebar (280px):**
+Filters:
+1. Categories (checkboxes)
+2. Price range (slider)
+3. Rating (star filters)
+4. Features (checkboxes)
+5. Apply/Clear buttons
+
+**Services Grid:**
+- 4 columns on desktop, 2 on tablet, 1 on mobile
+- Gap: 24px
+- Each card: 300x400px
+- Components: Emoji, Name, Description, Price, Rating, Buttons
+- Hover: lift + glow border
+- Load more button at bottom
+
+---
+
+### 3. SERVICE DETAIL PAGE
+
+**Layout:**
+```
+[← Back]
+[Preview 60%] | [Pricing Card 35%]
+[Service Name + Rating]
+[Tabs: Overview, Features, API, Reviews]
+[Tab Content]
+```
+
+**Left: Preview Carousel**
+- 16:9 aspect ratio
+- 5-7 slides
+- Arrows + dots navigation
+- Fullscreen button
+- Glassmorphism frame
+
+**Right: Sticky Pricing Card**
+- Price (48px Purple)
+- Features list (✓ checkmarks)
+- "Subscribe Now" (gradient button)
+- "Try Free 7 Days" (ghost button)
+- "Cancel anytime" text
+
+**Tabs Section:**
+- Horizontal tabs with underline on active
+- Smooth transition between content
+- Each tab: padded content, max-width 900px
+
+**Reviews:**
+- Overall rating display
+- Star distribution bars
+- Individual reviews (cards)
+- Load more button
+
+---
+
+### 4. AI BACKEND DEVELOPER CHAT
+
+**Layout:**
+```
+[Header: AI Backend Developer]
+[Sidebar 280px] | [Chat Area] 
+                 [Input Area 80px]
+```
+
+**Sidebar:**
+- "New Chat" button (gradient)
+- Recent chats (scrollable list)
+- Quick templates
+- Settings icon
+
+**Chat Area:**
+AI Messages (left):
+- Avatar circle (🤖)
+- Glassmorphism bubble
+- Purple border + glow
+- Max width 70%
+- Typing indicator (3 animated dots)
+
+User Messages (right):
+- Avatar circle (user photo)
+- Gradient bubble (Purple→Pink)
+- Max width 70%
+- Align right
+
+Code Blocks:
+- Dark background
+- Syntax highlighting
+- Line numbers
+- Copy/Explain/Modify buttons
+- Scrollable
+
+Progress Messages:
+- Progress bar (gradient)
+- Checkmarks for completed steps
+- Loading icon for current step
+- Real-time updates
+
+Interactive Elements:
+- Button groups for choices
+- Cards for options
+- Instant selection response
+
+**Input Area:**
+- Left: 📎 Attach, 🎤 Voice
+- Center: Textarea (auto-resize, max 200px)
+- Right: ➤ Send button (gradient circle)
+- Keyboard: Enter to send, Shift+Enter new line
+
+**Quick Actions (above input):**
+- Small buttons: Search, View Code, Deploy
+- Context-based appearance
+
+---
+
+### 5. DASHBOARD (Buyer)
+
+**Layout:**
+```
+[Navbar]
+[Sidebar] | [Content]
+```
+
+**Sidebar (240px):**
+- Navigation items with icons
+- Active: gradient bg + left border + glow
+- Hover: subtle highlight
+
+**Content:**
+
+**Welcome + Stats:**
+- "Welcome back, [Name]!"
+- 3 KPI cards in row:
+  * Active Services
+  * API Requests
+  * Total Spent
+- Each: Icon, Title, Big number, Change %
+
+**My Active Services:**
+Grid of service cards:
+- Service name + icon
+- Status indicator (● colored dot)
+- Usage progress bar
+- Renewal date
+- Dashboard/Settings buttons
+- 2 columns
+
+**Usage Chart:**
+- Line chart, 300px height
+- Gradient fill under line
+- Time selector: 7d, 30d, 90d
+- Hover tooltips
+- Multiple lines for different services
+
+**Recent Activity:**
+- Timeline format
+- Colored dots
+- Activity text + timestamp
+- Max 10 items, scrollable
+
+---
+
+### 6. SERVICE BUILDER (Seller)
+
+**Layout:**
+```
+[Header: Create Service + Save button]
+[Tabs: Basic Info, Features, Pricing, Code, Publish]
+[Tab Content]
+```
+
+**Tab 1: Basic Info**
+Fields:
+- Service Name (large input)
+- Category (dropdown with icons)
+- Icon/Emoji (picker)
+- Short Description (120 chars max, counter)
+- Full Description (rich text editor)
+- Media Upload (drag & drop zone, max 10 files)
+- Tags (autocomplete, max 10)
+
+**Tab 2: Features**
+- Dynamic list of features
+- Each: Checkbox, Title, Description
+- Add/Remove/Reorder
+- Technical specs inputs
+
+**Tab 3: Pricing**
+Radio options:
+- Free
+- Subscription (amount + period)
+- One-time purchase
+- Pay-per-use
+
+Additional:
+- Free trial toggle + duration
+- Discount settings
+- Live preview card (sidebar)
+
+**Tab 4: Code/Config**
+- Backend language dropdown
+- AI model selection (multi-select)
+- Database options (checkboxes)
+- API integrations (checkboxes)
+- Code editor (syntax highlighting)
+- Environment variables (key-value pairs)
+- Test button
+
+**Tab 5: Publish**
+- Checklist of completion
+- Visibility options (Draft/Public/Unlisted)
+- Save Draft / Publish buttons
+- On publish: rocket animation 🚀
+- Success message + redirect
+
+---
+
+### 7. BILLING PAGE
+
+**Sections:**
+
+**Current Plan:**
+- Plan name + price + renewal date
+- Upgrade/Change/Cancel buttons
+
+**Usage This Month:**
+- API Requests: number + bar
+- Services: number + bar
+- Percentage indicators
+
+**Payment Method:**
+- Card display (masked number)
+- Expiry date
+- Update/Add buttons
+
+**Billing History:**
+- Table: Date, Amount, Status, Invoice link
+- Last 10 transactions
+- View all button
+
+---
+
+## 🎬 ANIMATIONS
+
+### Page Transitions:
+```
+Exit: opacity 1→0, duration 0.2s
+Enter: opacity 0→1, translateY(20px)→0, duration 0.3s, delay 0.1s
+```
+
+### Scroll Animations:
+```
+Elements: opacity 0, translateY(40px)
+Trigger: 20% visible
+Animate: opacity 1, translateY(0), duration 0.6s
+Stagger: 0.1s between items
+```
+
+### Hover Effects:
+```
+Cards: translateY(-8px) scale(1.02), shadow+, glow+
+Buttons: translateY(-2px), shadow+, glow+
+Links: color shift, underline expand
+Duration: 0.3s ease
+```
+
+### Loading:
+```
+Spinner: rotate 360deg infinite
+Pulse: opacity 1→0.5→1 repeat
+Skeleton: shimmer gradient moving
+```
+
+---
+
+## 📱 RESPONSIVE
+
+### Mobile (< 640px):
+- Sidebar: hamburger menu
+- Grid: 1 column
+- Fonts: -20%
+- Padding: 16px
+- Bottom nav: show
+
+### Tablet (640-1024px):
+- Sidebar: collapsible
+- Grid: 2 columns
+- Fonts: -10%
+- Padding: 20px
+
+### Desktop (> 1024px):
+- Sidebar: fixed
+- Grid: 3-4 columns
+- Full fonts
+- Padding: 24px+
+
+---
+
+## 🎯 KEY FEATURES
+
+### 1. AI BACKEND DEVELOPER CHAT
+- Real-time conversation
+- Code generation with syntax highlighting
+- Progress tracking with visual indicators
+- Deployment automation
+- Interactive choice buttons
+- Template suggestions
+
+### 2. MARKETPLACE
+- 47+ pre-built services
+- Category filtering
+- Price range slider
+- Rating filters
+- Free trial badges
+- One-click subscribe
+
+### 3. SERVICE BUILDER
+- Step-by-step wizard
+- Rich text editor
+- Media upload
+- Live preview
+- Code configuration
+- Instant publish
+
+### 4. DASHBOARD
+- KPI cards
+- Usage charts
+- Active services list
+- Activity timeline
+- Quick actions
+
+### 5. BILLING
+- Subscription management
+- Usage tracking
+- Payment methods
+- Invoice history
+
+---
+
+## 💎 DESIGN PRINCIPLES
+
+1. **Glassmorphism Everywhere**
+   - All cards/containers use glass effect
+   - Blur + semi-transparent background
+   - Subtle borders
+
+2. **Neon Glow on Interaction**
+   - Hover states glow
+   - Active elements pulse
+   - Focus states shine
+
+3. **Smooth Animations**
+   - 0.3s transitions
+   - Ease-out timing
+   - Staggered appearances
+
+4. **Clear Hierarchy**
+   - Large headings
+   - Prominent CTAs
+   - Spaced sections
+
+5. **Consistent Spacing**
+   - Multiples of 8px
+   - Generous padding
+   - Clean layouts
+
+6. **Color Psychology**
+   - Purple: Premium, Creative
+   - Pink: Friendly, Engaging
+   - Blue: Trust, Tech
+   - Green: Success
+   - Red: Error
+
+---
+
+## 🔥 MUST-HAVE ELEMENTS
+
+Every page needs:
+- ✅ Navbar (sticky, glassmorphism)
+- ✅ Consistent spacing (md: 16px, lg: 24px)
+- ✅ Glassmorphism cards
+- ✅ Gradient buttons
+- ✅ Neon glow on hover
+- ✅ Smooth transitions
+- ✅ Loading states
+- ✅ Empty states
+- ✅ Error states
+- ✅ Mobile responsive
+
+---
+
+## 🚀 DEPLOYMENT NOTES
+
+Frontend Stack:
+- React 18 + TypeScript
+- Tailwind CSS (for utilities)
+- Framer Motion (animations)
+- React Query (data fetching)
+
+Backend Stack:
+- Node.js + Express (API)
+- PostgreSQL (database)
+- Redis (caching)
+- Stripe (payments)
+
+AI Integration:
+- OpenAI API (GPT-4)
+- Anthropic (Claude)
+- Hugging Face (open source)
+
+---
+
+## 🎓 USAGE INSTRUCTIONS
+
+1. Use this prompt with AI tools like:
+   - Claude
+   - v0.dev
+   - Cursor
+   - Bolt.new
+
+2. Ask for specific pages:
+   "Create the Landing Page from the AI Marketplace prompt"
+
+3. Request components:
+   "Build the Service Card component with glassmorphism"
+
+4. Iterate and refine:
+   "Add more glow effect to the buttons"
+   "Make the cards bigger"
+   "Change color to more pink"
+
+---
+
+## ✨ FINAL NOTES
+
+This is a COMPLETE design system and prompt for an AI Marketplace platform that:
+- Looks like Dora.ai (modern, glassmorphism, neon)
+- Functions as a marketplace (buy/sell services)
+- Includes AI developer chat (build custom services)
+- Uses open source tech (where possible)
+- Has beautiful animations
+- Is fully responsive
+- Provides great UX
+
+Every element, color, spacing, and interaction has been specified.
+Ready to build! 🚀
+
+```
+
+---
+
+## 📊 7. خريطة المستخدم (User Journey Map)
+
+### رحلة المشتري (Buyer Journey)
+
+```
+1. الوصول للموقع
+   ↓
+   Landing Page
+   - يشاهد Hero
+   - يقرأ How it Works
+   - يرى Popular Services
+   ↓
+   
+2. استكشاف الخدمات
+   ↓
+   Click "Browse Services"
+   ↓
+   Marketplace
+   - يبحث/يفلتر
+   - يتصفح البطاقات
+   - يقارن الأسعار
+   ↓
+   
+3. اختيار خدمة
+   ↓
+   Click على Service Card
+   ↓
+   Service Detail Page
+   - يشاهد Demo
+   - يقرأ Features
+   - يراجع Reviews
+   ↓
+   
+4. التجربة/الشراء
+   ↓
+   Click "Try Free" أو "Subscribe"
+   ↓
+   Checkout (Stripe)
+   - يدخل بيانات الدفع
+   - يؤكد الاشتراك
+   ↓
+   
+5. الاستخدام
+   ↓
+   Redirect to Dashboard
+   - يرى الخدمة النشطة
+   - يحصل على API Key
+   - يبدأ الاستخدام
+   ↓
+   
+6. المتابعة
+   ↓
+   Dashboard
+   - يراقب Usage
+   - يشاهد Analytics
+   - يدير Billing
+```
+
+### رحلة البائع (Seller Journey)
+
+```
+1. الوصول
+   ↓
+   Landing Page
+   - يفهم المفهوم
+   - يرى فرصة الربح (70% revenue share)
+   ↓
+   
+2. التسجيل
+   ↓
+   Sign Up as Seller
+   ↓
+   
+3. إنشاء خدمة
+   ↓
+   Option A: استخدام AI Builder
+   - يفتح AI Chat
+   - يصف الخدمة
+   - AI يبني الكود
+   - يراجع ويوافق
+   
+   Option B: إنشاء يدوي
+   - Create New Service
+   - يملأ النموذج
+   - يكتب الكود
+   - يرفع الوسائط
+   ↓
+   
+4. التسعير
+   ↓
+   - يحدد السعر
+   - يضبط Free Trial
+   - يضيف Discount
+   ↓
+   
+5. النشر
+   ↓
+   Click "Publish"
+   - تأكيد
+   - Service goes live
+   ↓
+   
+6. التسويق
+   ↓
+   - يشارك الرابط
+   - يحصل على Featured badge
+   ↓
+   
+7. البيع
+   ↓
+   Dashboard
+   - يرى المشتركين
+   - يتتبع الأرباح
+   - يحصل على 70%
+```
+
+### رحلة المطور (Developer Journey)
+
+```
+1. فكرة مخصصة
+   ↓
+   "أحتاج خدمة مخصصة لموقعي"
+   ↓
+   
+2. فتح AI Chat
+   ↓
+   Click "Talk to AI Developer"
+   ↓
+   
+3. الوصف
+   ↓
+   "أبي بوت للواتساب يرد على العملاء 
+   ويحفظ المحادثات ويرسل تقارير"
+   ↓
+   
+4. التوضيح
+   ↓
+   AI يسأل أسئلة:
+   - اللغات؟
+   - قاعدة البيانات؟
+   - التكاملات؟
+   ↓
+   
+5. التخطيط
+   ↓
+   AI يعرض:
+   - Architecture diagram
+   - Tech stack
+   - Estimated time
+   - Estimated cost
+   ↓
+   
+6. الموافقة
+   ↓
+   "يبدو رائع، ابدأ"
+   ↓
+   
+7. البناء
+   ↓
+   AI يكتب الكود (5 دقائق)
+   - Real-time progress
+   - Code preview
+   ↓
+   
+8. المراجعة
+   ↓
+   - يشاهد الكود
+   - يطلب تعديلات (optional)
+   - يوافق
+   ↓
+   
+9. الاختبار
+   ↓
+   - Test environment
+   - يرسل رسائل تجريبية
+   - يتأكد من العمل
+   ↓
+   
+10. النشر
+    ↓
+    Click "Deploy to Production"
+    - Automatic deployment
+    - يحصل على API key
+    - يحصل على webhook URL
+    ↓
+    
+11. الاستخدام
+    ↓
+    - يدمج في موقعه
+    - يستخدم مباشرة
+    - Option: ينشر كخدمة للبيع
+```
+
+---
+
+## 🎨 8. Figma Design Tips
+
+### للمصممين الذين يريدون تطبيق هذا في Figma:
+
+#### إعداد الملف
+```
+1. New File: AI Marketplace
+2. Pages:
+   - 🎨 Design System
+   - 🏠 Landing Page
+   - 🛒 Marketplace
+   - 💬 AI Chat
+   - 📊 Dashboard
+   - ⚙️ Builder
+
+3. في Design System:
+   - Colors (كل الألوان)
+   - Typography (Text Styles)
+   - Components (كل المكونات)
+   - Icons (مكتبة الأيقونات)
+```
+
+#### Color Styles
+```
+إنشاء Color Styles:
+- Primary/Purple (#667eea)
+- Primary/Pink (#f093fb)
+- Primary/Blue (#4facfe)
+- Background/Dark (#0a0a0f)
+- Background/Medium (#1a1a24)
+- Text/Primary (#ffffff)
+- Text/Secondary (#e0e0e0)
+... إلخ
+```
+
+#### Text Styles
+```
+إنشاء Text Styles:
+- Display/Bold (72px, Bold)
+- H1/Bold (48px, Bold)
+- H2/Bold (36px, Bold)
+- Body/Regular (16px, Regular)
+... إلخ
+```
+
+#### Components
+```
+إنشاء Components:
+- Button/Primary
+- Button/Secondary
+- Button/Icon
+- Card/Service
+- Card/Glass
+- Input/Text
+- Input/Search
+- Modal/Base
+... إلخ
+
+كل Component مع:
+- Variants (states: default, hover, active, disabled)
+- Auto Layout
+- Constraints
+```
+
+#### Effects
+```
+إنشاء Effects:
+- Glassmorphism:
+  * Background Blur: 10px
+  * Layer Blur: 0px (use separate layer)
+  
+- Neon Glow:
+  * Layer: Outside
+  * X: 0, Y: 0
+  * Blur: 20px
+  * Color: #667eea @ 50%
+  * Duplicate effect مع Blur: 40px @ 30%
+
+- Shadow/Medium:
+  * Layer: Drop Shadow
+  * Y: 8px
+  * Blur: 24px
+  * Color: #000000 @ 15%
+```
+
+#### Plugins مفيدة
+```
+- Glassmorphism: لتطبيق التأثير
+- Blush: للرسوم التوضيحية
+- Iconify: للأيقونات
+- Unsplash: للصور
+- Remove BG: لإزالة الخلفيات
+- Lorem Ipsum: للنصوص التجريبية
+- Stark: لفحص Accessibility
+```
+
+---
+
+## 🔥 9. مكتبة الأيقونات الموصى بها
+
+### Lucide React Icons
+```javascript
+// Navigation
+Home, Settings, User, Bell, MessageSquare
+
+// Actions  
+Plus, Edit, Trash2, Download, Upload, Share2, Copy
+
+// Status
+Check, X, AlertCircle, Info, CheckCircle
+
+// Media
+Image, Film, Music, FileText
+
+// Commerce
+ShoppingCart, CreditCard, DollarSign, Package
+
+// Development
+Code, Terminal, Database, Server, Cpu
+
+// Communication
+Mail, Phone, MessageCircle, Send
+
+// Interface
+Search, Filter, Grid3x3, List, Menu, ChevronRight
+
+// Special
+Sparkles (AI), Wand2 (Magic), Rocket, Zap, Brain
+```
+
+---
+
+## 🎓 10. نصائح التطوير
+
+### للمطورين:
+
+#### React Structure
+```
+src/
+├── components/
+│   ├── common/          (Button, Card, Input, etc.)
+│   ├── layout/          (Navbar, Sidebar, Footer)
+│   ├── marketplace/     (ServiceCard, Filters, etc.)
+│   └── chat/            (Message, ChatInput, etc.)
+├── pages/
+│   ├── Landing.tsx
+│   ├── Marketplace.tsx
+│   ├── ServiceDetail.tsx
+│   ├── AIChat.tsx
+│   └── Dashboard.tsx
+├── styles/
+│   ├── globals.css
+│   └── animations.css
+├── utils/
+│   ├── api.ts
+│   └── helpers.ts
+└── types/
+    └── index.ts
+```
+
+#### Tailwind Config
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          purple: '#667eea',
+          pink: '#f093fb',
+          blue: '#4facfe',
+        },
+        background: {
+          dark: '#0a0a0f',
+          medium: '#1a1a24',
+        }
+      },
+      boxShadow: {
+        'glow-purple': '0 0 20px rgba(102,126,234,0.5)',
+        'glow-pink': '0 0 20px rgba(240,147,251,0.5)',
+      },
+      backdropBlur: {
+        glass: '10px',
+      }
+    }
+  }
+}
+```
+
+#### Framer Motion Variants
+```javascript
+// animations.ts
+export const fadeInUp = {
+  initial: { opacity: 0, y: 40 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
+export const staggerContainer = {
+  animate: {
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+export const glowHover = {
+  hover: {
+    scale: 1.02,
+    boxShadow: '0 0 30px rgba(102,126,234,0.6)'
+  }
+};
+```
+
+---
+
+## ✅ Checklist النهائي
+
+قبل البدء بالتطوير، تأكد من فهم:
+
+- ✅ نظام الألوان الكامل
+- ✅ الطباعة والخطوط
+- ✅ المسافات والأحجام
+- ✅ تأثيرات Glassmorphism
+- ✅ Neon Glow effects
+- ✅ هيكل كل صفحة
+- ✅ مكونات كل صفحة
+- ✅ تدفق المستخدم
+- ✅ الحالات المختلفة (loading, error, empty)
+- ✅ Responsive breakpoints
+- ✅ Animations & transitions
+
+---
+
+# 🎉 النهاية
+
+**هذا البروموت الأكثر شمولاً وتفصيلاً لمنصة AI Marketplace!**
+
+يحتوي على:
+- ✅ نظام تصميم كامل
+- ✅ وصف تفصيلي لكل صفحة
+- ✅ جميع المكونات
+- ✅ كل الألوان والتأثيرات
+- ✅ Animations محددة
+- ✅ Responsive design
+- ✅ User journeys
+- ✅ نصائح Figma
+- ✅ نصائح تطوير
+
+**جاهز للاستخدام مع أي أداة AI أو فريق تطوير! 🚀**# 🏪 AI Marketplace Platform - البروموت النهائي الشامل
+## منصة سوق AI متكاملة بدون أكواد - جاهزة للتنفيذ
+
+---
+
+## 🎯 البروموت الرئيسي (Main Prompt)
+
+```
+أنشئ منصة Marketplace متكاملة لبيع خدمات الذكاء الاصطناعي والبوتات مع مطور AI مدمج يكتب الكود مباشرة.
+
+المنصة تجمع 3 مفاهيم:
+1. متجر لشراء خدمات AI جاهزة
+2. AI Backend Developer يبني خدمات مخصصة عبر الشات
+3. Open Source - كل شيء مبني على مصادر مفتوحة
+
+الألوان: Purple (#667eea) + Pink (#f093fb) + Blue (#4facfe)
+التصميم: Dora.ai style مع Glassmorphism و Neon Glow
+```
+
+---
+
+## 🎨 1. نظام الألوان والتصميم الكامل
+
+### 1.1 لوحة الألوان (Color Palette)
+
+```css
+/* الألوان الأساسية */
+Primary Purple:    #667eea
+Primary Pink:      #f093fb  
+Primary Blue:      #4facfe
+Accent Cyan:       #00f2fe
+Accent Green:      #00ff88
+Accent Orange:     #ff6b6b
+
+/* التدرجات (Gradients) */
+Gradient 1: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+Gradient 2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)
+Gradient 3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)
+Gradient Multi: linear-gradient(135deg, #667eea 0%, #f093fb 50%, #4facfe 100%)
+
+/* الخلفيات */
+Background Primary:    #0a0a0f (أسود عميق)
+Background Secondary:  #1a1a24 (رمادي داكن جداً)
+Background Tertiary:   #2a2a34 (رمادي متوسط)
+Background Overlay:    rgba(0, 0, 0, 0.8)
+
+/* تأثير Glassmorphism */
+Glass Light:   rgba(255, 255, 255, 0.05)
+Glass Medium:  rgba(255, 255, 255, 0.1)
+Glass Heavy:   rgba(255, 255, 255, 0.15)
+Glass Border:  rgba(255, 255, 255, 0.1)
+
+/* النصوص */
+Text Primary:    #ffffff (أبيض نقي)
+Text Secondary:  #e0e0e0 (أبيض مائل للرمادي)
+Text Muted:      #a0a0b0 (رمادي فاتح)
+Text Disabled:   #606070 (رمادي داكن)
+
+/* الحالات */
+Success:  #10b981 (أخضر)
+Warning:  #f59e0b (برتقالي)
+Error:    #ef4444 (أحمر)
+Info:     #3b82f6 (أزرق)
+
+/* الظلال */
+Shadow Small:  0 2px 8px rgba(0, 0, 0, 0.1)
+Shadow Medium: 0 8px 24px rgba(0, 0, 0, 0.15)
+Shadow Large:  0 20px 40px rgba(0, 0, 0, 0.3)
+Shadow XLarge: 0 30px 60px rgba(0, 0, 0, 0.4)
+
+/* Neon Glow */
+Glow Purple: 0 0 20px rgba(102, 126, 234, 0.5),
+             0 0 40px rgba(102, 126, 234, 0.3),
+             0 0 60px rgba(102, 126, 234, 0.2)
+
+Glow Pink:   0 0 20px rgba(240, 147, 251, 0.5),
+             0 0 40px rgba(240, 147, 251, 0.3)
+
+Glow Cyan:   0 0 20px rgba(79, 172, 254, 0.5),
+             0 0 40px rgba(79, 172, 254, 0.3)
+```
+
+### 1.2 الطباعة (Typography)
+
+```
+/* الخطوط */
+Primary Font (English):  'Inter', 'SF Pro Display', sans-serif
+Primary Font (Arabic):   'Cairo', 'Tajawal', sans-serif
+Mono Font:              'Fira Code', 'JetBrains Mono', monospace
+
+/* الأحجام */
+Display:     72px / 4.5rem    (للعناوين الضخمة)
+H1:          48px / 3rem      (العناوين الرئيسية)
+H2:          36px / 2.25rem   (عناوين الأقسام)
+H3:          28px / 1.75rem   (عناوين فرعية)
+H4:          24px / 1.5rem    (عناوين البطاقات)
+H5:          20px / 1.25rem   (عناوين صغيرة)
+Body Large:  18px / 1.125rem  (نص كبير)
+Body:        16px / 1rem      (نص عادي)
+Body Small:  14px / 0.875rem  (نص صغير)
+Caption:     12px / 0.75rem   (تسميات)
+Tiny:        10px / 0.625rem  (نص دقيق)
+
+/* الأوزان */
+Light:       300
+Regular:     400
+Medium:      500
+Semibold:    600
+Bold:        700
+Extrabold:   800
+
+/* تباعد الأسطر */
+Tight:       1.2
+Normal:      1.5
+Relaxed:     1.75
+Loose:       2
+```
+
+### 1.3 المسافات (Spacing Scale)
+
+```
+xs:    4px    (0.25rem)
+sm:    8px    (0.5rem)
+md:    16px   (1rem)
+lg:    24px   (1.5rem)
+xl:    32px   (2rem)
+2xl:   48px   (3rem)
+3xl:   64px   (4rem)
+4xl:   96px   (6rem)
+5xl:   128px  (8rem)
+```
+
+### 1.4 الزوايا المدورة (Border Radius)
+
+```
+None:    0px
+Small:   4px
+Medium:  8px
+Large:   12px
+XLarge:  16px
+2XLarge: 24px
+3XLarge: 32px
+Round:   50%
+Pill:    9999px
+```
+
+### 1.5 التأثيرات البصرية (Visual Effects)
+
+#### Glassmorphism
+```
+Background: rgba(255, 255, 255, 0.05)
+Backdrop Filter: blur(10px) saturate(180%)
+Border: 1px solid rgba(255, 255, 255, 0.1)
+Box Shadow: 0 8px 32px rgba(0, 0, 0, 0.1)
+```
+
+#### Neon Glow (متوهج)
+```
+Purple Glow:
+  box-shadow: 
+    0 0 20px rgba(102, 126, 234, 0.5),
+    0 0 40px rgba(102, 126, 234, 0.3),
+    0 0 60px rgba(102, 126, 234, 0.2),
+    inset 0 0 20px rgba(102, 126, 234, 0.1)
+```
+
+#### Hover Effect (عند التمرير)
+```
+Transform: translateY(-8px) scale(1.02)
+Box Shadow: زيادة الظل بنسبة 150%
+Border Color: تحول للون نيون ساطع
+Transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+```
+
+#### Pulse Animation (نبض)
+```
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+Animation: pulse 2s ease-in-out infinite
+```
+
+---
+
+## 📱 2. الصفحات والواجهات - الوصف التفصيلي
+
+### 2.1 Landing Page (صفحة الهبوط)
+
+#### القسم 1: Hero Section
+```
+الخلفية:
+- Gradient من أسود (#0a0a0f) إلى Purple داكن
+- دوائر متوهجة متحركة (3 دوائر):
+  * دائرة Purple في الربع الأيسر العلوي
+  * دائرة Pink في الربع الأيمن السفلي  
+  * دائرة Blue في المنتصف
+- كل دائرة: width 400px, blur 100px, opacity 0.2, تتحركببطء
+
+المحتوى:
+┌────────────────────────────────────────────┐
+│                                            │
+│  [Logo] AI Marketplace   [Login] [Sign Up]│
+│                                            │
+│         Build, Buy, or Customize           │
+│         AI Services in Minutes             │
+│                                            │
+│  Transform your business with AI-powered   │
+│  services. No coding required.             │
+│                                            │
+│  [🚀 Browse Services]  [💬 Talk to AI Dev] │
+│                                            │
+│         ┌─────────────────────┐            │
+│         │  [Demo Animation    │            │
+│         │   or Video]         │            │
+│         └─────────────────────┘            │
+│                                            │
+│    10K+         47           $2M+          │
+│   Users      Services       Saved          │
+│                                            │
+└────────────────────────────────────────────┘
+
+الأزرار:
+- Browse Services: Gradient Purple→Pink, ارتفاع 56px
+- Talk to AI Dev: خلفية شفافة مع Border نيون
+
+الأرقام (Stats):
+- خط كبير 36px Bold
+- لون نيون مختلف لكل رقم
+- Animation: Count up عند الظهور
+```
+
+#### القسم 2: How It Works
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│          How It Works                      │
+│     Get started in 3 simple steps          │
+│                                            │
+│  ┌──────┐    ┌──────┐    ┌──────┐        │
+│  │  1   │────│  2   │────│  3   │        │
+│  │ 🛒   │    │ 🤖   │    │ 🚀   │        │
+│  │Browse│    │Custom│    │Deploy│        │
+│  │      │    │Build │    │      │        │
+│  └──────┘    └──────┘    └──────┘        │
+│                                            │
+│  Choose from    Chat with AI    Launch    │
+│  47+ services   to build custom  instantly│
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- 3 بطاقات أفقية متصلة بخطوط منقطة
+- كل بطاقة: Glassmorphism + رقم كبير في دائرة مضيئة
+- Emoji كبيرة في المنتصف (64px)
+- خط واصل متوهج بين البطاقات
+- Animation: تظهر واحدة تلو الأخرى عند Scroll
+```
+
+#### القسم 3: Popular Services
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│         Popular Services                   │
+│    Most loved by our community             │
+│                                            │
+│  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐     │
+│  │🤖   │  │📝   │  │🎨   │  │📊   │     │
+│  │Bot  │  │Write│  │Logo │  │Data │     │
+│  │$29  │  │$19  │  │$15  │  │$35  │     │
+│  │⭐4.9│  │⭐4.8│  │⭐4.7│  │⭐4.9│     │
+│  │124↓ │  │89↓  │  │156↓ │  │67↓  │     │
+│  └─────┘  └─────┘  └─────┘  └─────┘     │
+│                                            │
+│  [View All 47 Services →]                 │
+│                                            │
+└────────────────────────────────────────────┘
+
+كل بطاقة خدمة:
+- Width: 280px, Height: 360px
+- Glassmorphism background
+- Border: 1px glow عند hover
+- Emoji كبيرة في الأعلى (80px)
+- اسم الخدمة (20px Bold)
+- السعر (24px، لون Purple)
+- التقييم (نجوم صفراء)
+- عدد المشتركين (مع سهم لأسفل)
+- زر "Try Free" في الأسفل (Gradient)
+- Hover: ترتفع 10px + ظل أكبر
+```
+
+#### القسم 4: AI Developer Showcase
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│    ✨ Build Anything with AI              │
+│    Talk to our AI Backend Developer        │
+│                                            │
+│  ┌──────────────────────────────┐         │
+│  │  Demo Chat Interface Preview  │         │
+│  │                               │         │
+│  │  You: "أبي بوت للواتساب"    │         │
+│  │                               │         │
+│  │  🤖 AI: "سأساعدك! أحتاج..."│         │
+│  │  [Code Preview Animated]      │         │
+│  │                               │         │
+│  └──────────────────────────────┘         │
+│                                            │
+│  • No coding required                      │
+│  • Deploy in 5 minutes                     │
+│  • Full code ownership                     │
+│                                            │
+│  [Start Building Free]                     │
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- محاكاة Chat interface مع رسائل متحركة
+- كود يظهر تدريجياً بتأثير Typing
+- خلفية داكنة جداً
+- نصوص بارزة مع Syntax highlighting
+- زر CTA بارز في الأسفل
+```
+
+#### القسم 5: Testimonials
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│       What Our Users Say                   │
+│                                            │
+│  ┌─────────────────────────────────┐      │
+│  │ ⭐⭐⭐⭐⭐                        │      │
+│  │ "Cut support costs by 60%!"     │      │
+│  │                                 │      │
+│  │ 👤 Ahmed - Founder              │      │
+│  └─────────────────────────────────┘      │
+│                                            │
+│  [← Previous]  1 / 3  [Next →]            │
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- Carousel يتحرك تلقائياً
+- 3 testimonials
+- كل بطاقة: Glassmorphism + Quote كبير
+- نجوم ملونة بالأصفر
+- صورة/emoji للشخص
+- Navigation dots في الأسفل
+```
+
+#### القسم 6: Pricing Preview
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│         Simple Pricing                     │
+│     Start free, scale as you grow          │
+│                                            │
+│  ┌──────┐  ┌──────┐  ┌──────┐            │
+│  │ Free │  │ Pro  │  │Enter.│            │
+│  │  $0  │  │ $99  │  │Custom│            │
+│  │      │  │ ⭐   │  │      │            │
+│  └──────┘  └──────┘  └──────┘            │
+│                                            │
+│  [View Full Pricing]                       │
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- 3 بطاقات جنباً لجنب
+- Pro في المنتصف أكبر قليلاً + Badge "Most Popular"
+- كل بطاقة: السعر بخط ضخم 48px
+- قائمة Features مختصرة (3-4 نقاط)
+- زر "Choose Plan" في أسفل كل بطاقة
+```
+
+#### القسم 7: CTA Final
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│       Ready to Get Started?                │
+│   Join 10,000+ users building with AI      │
+│                                            │
+│     [Start Building Free →]                │
+│                                            │
+│     No credit card required                │
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- خلفية Gradient قوية
+- عنوان ضخم 48px
+- زر CTA كبير جداً (64px height)
+- Glow effect قوي
+- نص صغير تحت الزر
+```
+
+#### Footer
+```
+┌────────────────────────────────────────────┐
+│                                            │
+│  [Logo] AI Marketplace                     │
+│                                            │
+│  Product      Company      Legal           │
+│  Services     About        Privacy         │
+│  Pricing      Blog         Terms           │
+│  API Docs     Careers      Cookies         │
+│                                            │
+│  © 2024 AI Marketplace. All rights reserved│
+│                                            │
+└────────────────────────────────────────────┘
+
+التصميم:
+- خلفية أغمق (#0a0a0f)
+- 3-4 أعمدة من الروابط
+- نص صغير 14px
+- روابط بلون رمادي فاتح
+- Hover: تتحول للنيون
+```
+
+---
+
+### 2.2 Marketplace Page (صفحة المتجر)
+
+#### الهيكل العام
+```
+┌────────────────────────────────────────────────────┐
+│ [Navbar]                                           │
+├────────────────────────────────────────────────────┤
+│                                                    │
+│  Marketplace                                       │
+│  Discover AI services for your business            │
+│                                                    │
+│  [🔍 Search...]  [Category ▼]  [Sort ▼]  [🎛️]    │
+│                                                    │
+├──────────┬─────────────────────────────────────────┤
+│          │                                         │
+│ Sidebar  │         Services Grid                   │
+│ Filters  │         (Main Content)                  │
+│          │                                         │
+│ Category │  ┌────┐ ┌────┐ ┌────┐ ┌────┐         │
+│ □ All    │  │    │ │    │ │    │ │    │         │
+│ □ Bots   │  └────┘ └────┘ └────┘ └────┘         │
+│ □ Content│                                         │
+│ □ Creative│ ┌────┐ ┌────┐ ┌────┐ ┌────┐         │
+│          │  │    │ │    │ │    │ │    │         │
+│ Price    │  └────┘ └────┘ └────┘ └────┘         │
+│ $0-$50   │                                         │
+│ $50-$100 │  [Load More]                           │
+│          │                                         │
+│ Rating   │                                         │
+│ ⭐⭐⭐⭐ │                                         │
+│          │                                         │
+└──────────┴─────────────────────────────────────────┘
+```
+
+#### Navbar
+```
+┌──────────────────────────────────────────────┐
+│ [Logo]  Marketplace  Builder  Pricing       │
+│                                              │
+│                     [🔍] [🛒] [🔔] [👤]    │
+└──────────────────────────────────────────────┘
+
+المواصفات:
+- ارتفاع: 64px
+- خلفية: Glassmorphism مع blur
+- مثبتة في الأعلى (sticky)
+- Border bottom مضيء خفيف
+- الأيقونات: 24px، تتوهج عند hover
+```
+
+#### Search Bar
+```
+┌────────────────────────────────┐
+│ 🔍 Search services...          │
+└────────────────────────────────┘
+
+المواصفات:
+- Width: 100% (max 600px)
+- Height: 48px
+- Glassmorphism background
+- Border يتوهج عند Focus
+- أيقونة بحث على اليمين
+- Autocomplete suggestions تظهر أسفله
+```
+
+#### Sidebar Filters
+```
+Width: 280px
+Background: Glassmorphism
+Padding: 24px
+Border right: 1px glow
+
+الفلاتر:
+
+1. Categories
+   □ All (47)
+   □ Bots (12)
+   □ Content Tools (15)
+   □ Creative (10)
+   □ Analytics (8)
+   □ Other (2)
+
+2. Price Range
+   Slider من $0 إلى $200
+   عرض القيمة الحالية
+
+3. Rating
+   ⭐⭐⭐⭐⭐ & up
+   ⭐⭐⭐⭐ & up
+   ⭐⭐⭐ & up
+
+4. Features
+   ☑ Free Trial
+   ☑ API Access
+   ☐ White Label
+   ☐ Open Source
+
+5. [Apply Filters] [Clear All]
+
+كل checkbox:
+- حجم 20px
+- لون Purple عند التحديد
+- Glow effect خفيف
+```
+
+#### Service Card (في Grid)
+```
+┌────────────────────────┐
+│   🤖                   │
+│                        │
+│ WhatsApp Customer Bot  │
+│                        │
+│ Automated support...   │
+│                        │
+│ $29/month              │
+│ ⭐⭐⭐⭐⭐ 4.9 (124)   │
+│                        │
+│ [Try Free]  [View →]  │
+└────────────────────────┘
+
+المواصفات:
+- Width: 300px
+- Height: 400px
+- Glassmorphism
+- Border: 1px solid rgba(255,255,255,0.1)
+- Border Radius: 16px
+- Padding: 24px
+
+المكونات:
+1. Emoji/Icon (80px، في الأعلى)
+2. العنوان (20px Bold)
+3. الوصف (14px، سطرين max)
+4. السعر (24px Bold، Purple)
+5. التقييم (نجوم + رقم + عدد المراجعات)
+6. Badges (إن وجدت): "🔥 Trending", "⭐ Top Rated"
+7. أزرار CTA
+
+Hover Effect:
+- ترتفع 10px
+- الظل يكبر
+- Border يتوهج
+- Transition: 0.3s
+```
+
+#### Grid Layout
+```
+Display: Grid
+Columns: 4 (Desktop), 3 (Tablet), 1 (Mobile)
+Gap: 24px
+Padding: 24px
+
+عند Scroll:
+- كل صف يظهر بـ Animation
+- Stagger effect (0.1s بين كل بطاقة)
+```
+
+---
+
+### 2.3 Service Detail Page
+
+#### الهيكل
+```
+┌────────────────────────────────────────────────┐
+│ [← Back to Marketplace]                        │
+├────────────────────────────────────────────────┤
+│                                                │
+│  ┌────────────────┐  ┌─────────────────────┐ │
+│  │                │  │  $29/month          │ │
+│  │  Preview/Demo  │  │                     │ │
+│  │  Video/Images  │  │  ✓ 1000 messages    │ │
+│  │                │  │  ✓ Multi-language   │ │
+│  │  [◄] [►]       │  │  ✓ 24/7 support     │ │
+│  │                │  │                     │ │
+│  └────────────────┘  │  [Subscribe Now]    │ │
+│                      │  [Try Free 7 Days]  │ │
+│                      └─────────────────────┘ │
+│                                                │
+│  🤖 WhatsApp Customer Support Bot              │
+│  ⭐⭐⭐⭐⭐ 4.9 (124 reviews)                  │
+│  by AI Marketplace · 1,247 subscribers         │
+│                                                │
+├────────────────────────────────────────────────┤
+│  [Overview] [Features] [API Docs] [Reviews]   │
+├────────────────────────────────────────────────┤
+│                                                │
+│  Description                                   │
+│  Lorem ipsum dolor sit amet...                 │
+│                                                │
+│  What's Included                               │
+│  • API Access with 1000 requests/month         │
+│  • Webhook integration                         │
+│  • Admin dashboard                             │
+│  • Email support                               │
+│                                                │
+│  Perfect For                                   │
+│  • E-commerce stores                           │
+│  • Customer service teams                      │
+│  • Small businesses                            │
+│                                                │
+└────────────────────────────────────────────────┘
+```
+
+#### Left Panel (Preview)
+```
+Width: 60%
+
+Carousel للصور/فيديوهات:
+- 5-7 slides
+- أسهم تنقل على الجانبين
+- Dots في الأسفل
+- Auto-play (اختياري)
+- Fullscreen button
+
+المواصفات:
+- Aspect ratio: 16:9
+- Border radius: 16px
+- Glassmorphism frame
+- Smooth transitions
+```
+
+#### Right Panel (Pricing Card)
+```
+Width: 35%
+Position: Sticky (يبقى عند Scroll)
+
+مكونات:
+
+1. السعر (ضخم 48px، Purple)
+2. Period (/month, /year)
+3. قائمة Features (5-7 نقاط)
+   - كل نقطة: ✓ Icon أخضر + نص
+4. زر "Subscribe Now" (كبير، Gradient)
+5. زر "Try Free" (شفاف مع Border)
+6. نص صغير: "Cancel anytime"
+
+Glassmorphism:
+- خلفية شفافة
+- Border مضيء
+- Backdrop blur
+- Shadow قوي
+```
+
+#### Tabs Section
+```
+Tabs:
+[Overview] [Features] [API Docs] [Reviews] [FAQ]
+
+Tab Design:
+- خط تحت التبويب النشط (Purple، 3px)
+- Glow effect خفيف
+- Transition سلس عند التبديل
+
+المحتوى:
+- Padding: 40px
+- Max width: 900px
+- Line height: 1.8
+- Font size: 16px
+```
+
+#### Reviews Section
+```
+┌────────────────────────────────────┐
+│ Reviews (124)                      │
+│                                    │
+│ ⭐ 4.9 out of 5                   │
+│ Based on 124 reviews               │
+│                                    │
+│ ⭐⭐⭐⭐⭐ 95%                     │
+│ ⭐⭐⭐⭐   4%                      │
+│ ⭐⭐⭐     1%                      │
+│                                    │
+│ ┌──────────────────────────────┐  │
+│ │ ⭐⭐⭐⭐⭐                    │  │
+│ │ "Amazing service!"           │  │
+│ │ Really helped our business   │  │
+│ │                              │  │
+│ │ 👤 Ahmed M. · 2 weeks ago   │  │
+│ └──────────────────────────────┘  │
+│                                    │
+│ [Load More Reviews]                │
+└────────────────────────────────────┘
+
+كل مراجعة:
+- Glassmorphism card
+- نجوم ملونة
+- نص المراجعة
+- اسم + صورة المستخدم
+- التاريخ
+- زر "Helpful" (optional)
+```
+
+---
+
+### 2.4 AI Backend Developer Chat Page
+
+#### الهيكل الكامل
+```
+┌────────────────────────────────────────────────────┐
+│ AI Backend Developer                         [X]   │
+├──────────────┬─────────────────────────────────────┤
+│              │                                     │
+│              │
