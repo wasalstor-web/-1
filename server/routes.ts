@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema, insertServerSchema, insertServerCommandSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema, insertServerSchema, insertServerCommandSchema, contactFormSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -1182,6 +1182,43 @@ The logo should be:
     } catch (error: any) {
       console.error("Error testing server:", error);
       res.json({ success: false, error: error.message });
+    }
+  });
+
+  // Contact Form endpoint
+  app.post("/api/contact", async (req, res) => {
+    try {
+      // Validate request body with schema
+      const validatedData = contactFormSchema.parse(req.body);
+
+      // Log the contact form submission (in production, you'd send email or save to CRM)
+      console.log("📧 Contact Form Submission:", {
+        ...validatedData,
+        timestamp: new Date().toISOString(),
+      });
+
+      // In production, here you would:
+      // - Send an email to sales team
+      // - Save to CRM system
+      // - Trigger notifications
+      // For now, we just log it
+
+      res.json({
+        success: true,
+        message: "Your message has been received. We'll contact you soon!",
+      });
+    } catch (error: any) {
+      console.error("Error handling contact form:", error);
+      
+      // Return validation errors if it's a Zod error
+      if (error.name === "ZodError") {
+        return res.status(400).json({ 
+          error: "Validation failed",
+          details: error.errors 
+        });
+      }
+      
+      res.status(500).json({ error: error.message || "Failed to submit contact form" });
     }
   });
 
