@@ -538,6 +538,233 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Image Generation endpoint (DALL-E)
+  app.post("/api/ai/generate-image", async (req, res) => {
+    try {
+      const { prompt, size = "1024x1024", quality = "standard", style = "vivid" } = req.body;
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: prompt,
+        n: 1,
+        size: size as "1024x1024" | "1792x1024" | "1024x1792",
+        quality: quality as "standard" | "hd",
+        style: style as "vivid" | "natural",
+      });
+
+      res.json({
+        url: response.data[0].url,
+        revised_prompt: response.data[0].revised_prompt,
+      });
+    } catch (error: any) {
+      console.error("Error generating image:", error);
+      res.status(500).json({ error: error.message || "Failed to generate image" });
+    }
+  });
+
+  // Vision/Image Analysis endpoint (GPT-4 Vision)
+  app.post("/api/ai/analyze-image", async (req, res) => {
+    try {
+      const { imageUrl, prompt = "ما الذي تراه في هذه الصورة؟ صفها بالتفصيل." } = req.body;
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image URL is required" });
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              { type: "image_url", image_url: { url: imageUrl } },
+            ],
+          },
+        ],
+        max_tokens: 1000,
+      });
+
+      res.json({
+        analysis: response.choices[0].message.content,
+      });
+    } catch (error: any) {
+      console.error("Error analyzing image:", error);
+      res.status(500).json({ error: error.message || "Failed to analyze image" });
+    }
+  });
+
+  // Speech to Text endpoint (Whisper)
+  app.post("/api/ai/speech-to-text", async (req, res) => {
+    try {
+      const { audioUrl } = req.body;
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      if (!audioUrl) {
+        return res.status(400).json({ error: "Audio URL is required" });
+      }
+
+      // Download audio file
+      const audioResponse = await fetch(audioUrl);
+      const audioBuffer = await audioResponse.arrayBuffer();
+      const audioFile = new File([audioBuffer], "audio.mp3", { type: "audio/mpeg" });
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: audioFile,
+        model: "whisper-1",
+        language: "ar", // Arabic
+      });
+
+      res.json({
+        text: transcription.text,
+      });
+    } catch (error: any) {
+      console.error("Error transcribing audio:", error);
+      res.status(500).json({ error: error.message || "Failed to transcribe audio" });
+    }
+  });
+
+  // Logo & Brand Identity Generator
+  app.post("/api/ai/generate-logo", async (req, res) => {
+    try {
+      const { 
+        businessName, 
+        industry, 
+        style = "modern",
+        colors = "professional",
+        description = "" 
+      } = req.body;
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      if (!businessName || !industry) {
+        return res.status(400).json({ error: "Business name and industry are required" });
+      }
+
+      // Build optimized prompt for logo generation
+      const logoPrompt = `Create a professional logo for "${businessName}", a ${industry} business. 
+Style: ${style}, Colors: ${colors}. ${description}
+The logo should be:
+- Clean and minimalist
+- Suitable for digital and print
+- Memorable and unique
+- Vector-style illustration
+- On white background
+- Professional and modern`;
+
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: logoPrompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "hd",
+        style: "natural",
+      });
+
+      res.json({
+        url: response.data[0].url,
+        revised_prompt: response.data[0].revised_prompt,
+        businessName,
+        industry,
+      });
+    } catch (error: any) {
+      console.error("Error generating logo:", error);
+      res.status(500).json({ error: error.message || "Failed to generate logo" });
+    }
+  });
+
+  // Brand Identity Package Generator
+  app.post("/api/ai/generate-brand-identity", async (req, res) => {
+    try {
+      const { 
+        businessName, 
+        industry, 
+        values = [],
+        targetAudience = "",
+        stylePreferences = ""
+      } = req.body;
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      if (!businessName || !industry) {
+        return res.status(400).json({ error: "Business name and industry are required" });
+      }
+
+      // Generate brand strategy using GPT-4
+      const strategyPrompt = `أنت خبير في تصميم الهوية البصرية والعلامات التجارية.
+
+قم بإنشاء هوية بصرية كاملة لـ:
+- اسم العمل: ${businessName}
+- المجال: ${industry}
+- القيم: ${values.join(", ") || "غير محدد"}
+- الجمهور المستهدف: ${targetAudience || "غير محدد"}
+- التفضيلات: ${stylePreferences || "غير محدد"}
+
+قدم:
+1. **الشعار**: وصف تفصيلي للشعار المقترح
+2. **الألوان**: لوحة ألوان كاملة (Primary, Secondary, Accent) مع أكواد Hex
+3. **الخطوط**: اقتراحات خطوط للعناوين والنصوص
+4. **النمط البصري**: وصف الأسلوب والمزاج العام
+5. **التطبيقات**: كيفية استخدام الهوية (موقع، بطاقات، وسائل تواصل)
+
+قدم الإجابة بتنسيق JSON مع هذه المفاتيح:
+{
+  "logo_description": "...",
+  "color_palette": {
+    "primary": "#000000",
+    "secondary": "#000000",
+    "accent": "#000000"
+  },
+  "fonts": {
+    "heading": "...",
+    "body": "..."
+  },
+  "visual_style": "...",
+  "applications": []
+}`;
+
+      const strategyResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "أنت خبير تصميم هوية بصرية محترف" },
+          { role: "user", content: strategyPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      });
+
+      const brandStrategy = JSON.parse(strategyResponse.choices[0].message.content || "{}");
+
+      res.json({
+        businessName,
+        industry,
+        strategy: brandStrategy,
+      });
+    } catch (error: any) {
+      console.error("Error generating brand identity:", error);
+      res.status(500).json({ error: error.message || "Failed to generate brand identity" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
