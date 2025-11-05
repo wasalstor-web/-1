@@ -99,6 +99,9 @@ export class TelegramAIBot {
 🧠 *المساعد الذكي:*
 /smart - تفعيل المساعد الذكي المتقدم
 
+🖥️ *إدارة السيرفرات:*
+/execute - تنفيذ أوامر على السيرفر
+
 النموذج الحالي: *${MODELS[telegramUser.selectedModel as ModelKey].name}*
 
 أرسل أي رسالة وسأساعدك! 💬
@@ -123,6 +126,9 @@ export class TelegramAIBot {
 *أوامر التصميم:* 🎨
 /image - توليد صورة من وصف
 /logo - توليد شعار احترافي
+
+*إدارة السيرفرات:* 🖥️
+/execute - تنفيذ أوامر على السيرفر (مثال: /execute hostname)
 
 *المساعد الذكي:* 🧠
 /smart - تفعيل المساعد الذكي (فهم النوايا، تنفيذ الأوامر، VPS)
@@ -337,6 +343,56 @@ The logo should be:
       } catch (error: any) {
         console.error('Error in smart command:', error);
         this.bot?.sendMessage(chatId, `❌ حدث خطأ: ${error.message || 'خطأ غير معروف'}`);
+      }
+    });
+
+    // /execute command - Execute commands on VPS servers
+    this.bot.onText(/\/execute (.+)/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const command = match?.[1];
+
+      if (!command) {
+        this.bot?.sendMessage(chatId, '❌ يرجى إدخال الأمر المطلوب تنفيذه\n\nمثال: `/execute hostname`', { parse_mode: 'Markdown' });
+        return;
+      }
+
+      try {
+        const servers = await storage.getAllServers();
+        const activeServer = servers.find(s => s.isActive);
+
+        if (!activeServer) {
+          this.bot?.sendMessage(chatId, '❌ لا يوجد سيرفرات نشطة حالياً');
+          return;
+        }
+
+        const cmd = await storage.createServerCommand({
+          serverId: activeServer.id,
+          command: command.trim()
+        });
+
+        this.bot?.sendMessage(chatId, `✅ تم إرسال الأمر للتنفيذ...\n\n🖥️ السيرفر: ${activeServer.name}\n⚡ الأمر: \`${command}\`\n\n⏳ جاري التنفيذ...`, { parse_mode: 'Markdown' });
+
+        setTimeout(async () => {
+          try {
+            const allCommands = await storage.getPendingCommands(activeServer.id);
+            const executedCmd = allCommands.find(c => c.id === cmd.id);
+
+            if (executedCmd && executedCmd.status === 'completed' && executedCmd.result !== null) {
+              const resultMsg = `✅ *تم التنفيذ بنجاح!*\n\n📤 النتيجة:\n\`\`\`\n${executedCmd.result.substring(0, 3000)}\n\`\`\`\n\n🔢 Exit Code: ${executedCmd.exitCode}`;
+              this.bot?.sendMessage(chatId, resultMsg, { parse_mode: 'Markdown' });
+            } else if (executedCmd && executedCmd.status === 'pending') {
+              this.bot?.sendMessage(chatId, '⏳ الأمر ما زال قيد التنفيذ...');
+            } else {
+              this.bot?.sendMessage(chatId, '⚠️ لم يتم استلام النتيجة. تأكد من تشغيل السكربت على السيرفر.');
+            }
+          } catch (error) {
+            console.error('Error checking command result:', error);
+          }
+        }, 15000);
+
+      } catch (error: any) {
+        console.error('Error in /execute command:', error);
+        this.bot?.sendMessage(chatId, `❌ حدث خطأ: ${error.message}`);
       }
     });
 
