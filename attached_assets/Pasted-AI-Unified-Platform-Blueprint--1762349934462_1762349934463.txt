@@ -1,0 +1,286 @@
+AI Unified Platform — Blueprint كامل لذيبان
+
+ملاحظة: هذا المستند تخطيطي تحليلي تنفيذي شامل لمشروع تحويل المنصة الحالية إلى “عقل” ذكاءٍ مركزي متكامل يُولِّد، يُدير، ويُوزع النماذج والبوتات كمنتجات قابلة للنشر وإعادة الاستخدام. الوثيقة مكتوبة بصيغة أعمال، وتغطي كل طبقات المنتج، البنية التحتية، الأمن، الحوكمة، التشغيل، والهجرة (migration) من الوضع الحالي.
+
+⸻
+
+1. الملخّص التنفيذي (Executive Summary)
+
+الهدف: تحويل الـ GPT-API الموجود إلى AI Orchestrator مركزي يدير دورة حياة النماذج (Generate → Validate → Deploy → Monitor → Improve)، مع لوحة تحكم مركزية لذيبان تسمح بسحب/نسخ/تصدير النماذج إلى مشاريع أخرى. المنصة يجب أن تكون قابلة للتوسع، آمنة ضد الهجمات وprompt-injection، وتدعم نشر المنتجات بسرعة مع مراقبة تكلفة تشغيلية واضحة.
+
+نتيجة الأعمال المتوقعة:
+	•	مكتبة نماذج (Model Registry) قابلة لإعادة الاستخدام.
+	•	مولّد نماذج عند الطلب (On-Demand Generator) يعمل عبر الـ GPT-API الحالي.
+	•	نظام نشر آمن (Canary / Staging / Prod) + آليات Rollback.
+	•	لوحة تحكّم إدارية مركزية (Admin Control Hub) مع RBAC واسطوانة تصدير/استيراد.
+	•	آليات دفاعية متقدمة ضد Prompt Injection وData Leakage.
+
+⸻
+
+2. نطاق العمل (Scope)
+
+يتضمن المستند خطة متكاملة لتعديل المنصة الحالية وتوسيعها لتصبح:
+	1.	مولّد بوتات يعمل أثناء الجلسة (real-time).
+	2.	مخزن وواجهة إدارة للنماذج قابلة للسحب إلى مشاريع منفصلة.
+	3.	طبقة أمنية وسياسات امتثال.
+	4.	خارطة هجرة للموقع والواجهات الحالية بحيث لا تُغير تجربة المستخدم النهائي دون حاجة.
+
+لا يتضمن: كتابة كود برمجي مفصّل (سنزوّد مواصفات تنفيذية قابلة للتسليم)، أو تنفيذ فعلي على البنية التحتية دون موافقتك.
+
+⸻
+
+3. الفرضيات والقيود
+	•	تستخدم المنصة حالياً GPT-API داخلي/خارجي كمصدر الرئيسي للنماذج.
+	•	يوجد موقع مبني (ربما على Hostinger) ويجب تعديله دون إعادة بناء كامل ما لم يُقر خلاف ذلك.
+	•	الوصول إلى بيئة الاستضافة، قواعد البيانات، ومفاتيح API متاح لإدارة المنصة.
+	•	يجب الالتزام بخصوصية البيانات المحلية إن وُجدت متطلبات (KSA/منطقة).
+
+⸻
+
+4. مخرجات المشروع النهائية
+	1.	وثيقة تخطيطية نهائية (هذا الملف) قابلة للتسليم كـ .md/.pdf.
+	2.	مجموعة مواصفات manifest قياسية لكل نموذج (JSON schema).
+	3.	خرائط بيانات (Data Flow Diagrams) وصفية.
+	4.	لوحات تشغيل ومقاييس مقترحة (KPIs & Dashboards).
+	5.	قائمة إجراءات الهجرة (migration checklist) لتعديل الموقع القائم ونشر القدرات الجديدة.
+	6.	سياسات أمنية وعمليات استجابة للحوادث.
+
+⸻
+
+5. تحليل الوضع الحالي (Audit Summary — ما يجب التأكد منه قبل التنفيذ)
+
+قائمة تحقق سريعة:
+	•	وصول لـ: لوحة تحكّم الاستضافة (Hostinger cPanel أو SSH/VPS)، DB credentials، ونقاط النهاية الحالية للـ GPT-API.
+	•	ترخيص النماذج/شروط خدمات مزود الـ GPT.
+	•	أين تُخزن بيانات المحادثات الآن؟ (DB, files, third-party)
+	•	سجل الحوادث الأمني إن وُجد.
+	•	قائمة بالـ Integrations الحالية (CRM, payment gateways, SMS, WhatsApp API…).
+
+أوصي بإجراء جلسة “Audit 48 ساعة” لفريق البنية التحتية قبل البدء في التعديلات.
+
+⸻
+
+6. رؤية معماريّة عالية المستوى (Logical & Physical Architecture)
+
+6.1 المكوّنات (Conceptual Components)
+	•	AI Orchestrator (Brain): الطبقة التي تستخدم GPT-API لصياغة manifests، تنفيذ قرارات الدمج، وتنظيم التدفقات.
+	•	Model Registry / Template Library: تخزن manifests، قوالب intents، مكونات knowledge base، واختبارات جاهزة.
+	•	Generator Pipeline: محلل المدخلات → مُطابق القالب → مُركِّب النموذج → مُحقق الجودة.
+	•	Sandbox Runner: بيئة اختبار مفصّلة لمحاكاة 8+ حالات استخدام.
+	•	Deployment Engine: ينفّذ نشر Canaries/Promote/Rollback.
+	•	Admin Control Hub: لوحة ذيبان حيث يمكن سحب/نسخ/تصدير النماذج وإدارة المشاريع.
+	•	Security Validator: فحوصات PII، فحوص prompt-injection، وسياسات RBAC.
+	•	Monitoring & Observability: Logging, metrics, alerts, and feedback loop (auto-persona tuning).
+
+6.2 البنية المادية المقترحة (Physical / Infra)
+	•	Front-end UI: SPA (React/Tailwind) مستضاف على CDN أو Hostinger static.
+	•	Backend: API gateway + microservices (orchestration, registry, deployment) — يُمكن استضافة بعضها على VPS (Hostinger) أو Cloud (DigitalOcean/AWS) حسب SLA.
+	•	Database: PostgreSQL (manifests, metadata), Redis (cache, sessions).
+	•	Storage: S3-compatible (artifacts, KBs, logs backups).
+	•	Model Execution: استخدام GPT-API خارجياً؛ دعم نماذج محلية (on-prem) كخيار للخصوصية.
+	•	CI/CD: GitHub Actions / GitLab CI لتشغيل اختبارات النماذج والنشر.
+	•	Secrets Management: HashiCorp Vault أو Cloud Secrets.
+
+⸻
+
+7. تصميم Business Flows (رحلات العميل والعمليات الداخلية)
+
+7.1 رحلة إنشاء بوت (Client Journey)
+	1.	المستخدم يَبْدأ في Chat UI بوصف الحاجة.
+	2.	Orchestrator يحلل الوصف ويُنشئ Draft Manifest + خيارين (Economy / Premium).
+	3.	ذيبان يراجع/يعدل في واجهة Admin أو المستخدم يضغط “Generate Sandbox”.
+	4.	Sandbox يعرض 8 سيناريوهات اختبار قابلة للتعديل.
+	5.	الموافقة → Deploy Canary → مراقبة → Promote/Rollback.
+	6.	Post-Deploy: جمع بيانات الأداء → Auto-persona tuning.
+
+7.2 عملية سحب نموذج إلى مشروع آخر (Reusability)
+	•	في لوحة ذيبان: اختيار النموذج → Export as Module (manifest + kb + tests) → اختيار Project Destination → Deploy.
+	•	النسخ يكون مع رقم نسخة (semantic versioning).
+
+⸻
+
+8. Manifest Schema (التفاصيل التي يجب أن يولدها الـ Orchestrator)
+
+هذه الحقول إلزامية أو موصى بها لإنتاج نموذج قابل للنشر.
+
+- bot_id: string
+- display_name: string
+- version: semver
+- owner: user/team id
+- purpose: string
+- channels: [web, whatsapp, telegram, api]
+- primary_model: {name, cost_profile, est_tokens_per_interaction}
+- fallback_model: {name, trigger_conditions}
+- persona: {tone, language, greeting, max_response_tokens}
+- kb_sources: [{type:file/db/url, refresh_policy}]
+- intents: [{id, examples[], required_slots[], webhook?}]
+- security: {pii_fields[], retention_days, encrypt_at_rest/in_transit}
+- testing: {unit_tests[], perf_tests: {p95_latency_ms, max_error_rate}}
+- deployment_policy: {stages:[sandbox,staging,prod], canary_percent, rollback_triggers}
+- billing: {estimated_monthly_cost, unit_cost_per_interaction}
+- audit: {logging_level, redact_rules}
+- exportable_assets: [kb, intents, tests]
+
+
+⸻
+
+9. سياسات الحوكمة والـ RBAC (تفصيلية)
+
+9.1 أدوار أساسية (Roles)
+	•	Owner (ذيبان): كامل الصلاحيات (create, edit, delete, export, billing).
+	•	Admin: نشر، مراقبة، إدارة النماذج، إدارة مستخدمين.
+	•	Developer: إنشاء/تعديل manifests، تشغيل Sandbox، المساهمة بالكود.
+	•	Reviewer: مراجعة واختبار النماذج قبل النشر.
+	•	Viewer: قراءة التقارير والـ KPIs فقط.
+
+9.2 سياسات موافقات (Approval Gates)
+	•	نشر أي نموذج يتعامل مع بيانات حساسة يتطلب موافقة Admin + Owner.
+	•	تغييرات على إعدادات Security/Secrets تتطلب 2FA ومراجعة Owner.
+
+9.3 سجل التغييرات (Decision Log)
+	•	كل إجراء CRUD يُسجل مع user_id، timestamp، وdiff للـ manifest.
+
+⸻
+
+10. الأمن وملفات الوقاية من الهجمات (Anti-Hack & Hardening)
+
+10.1 آليات وقائية تحليلية
+	1.	Prompt Sanitizer: فحص اقترانات المستخدمين لإزالة تعليمات system-level أو محاولات تشغيل أوامر.
+	2.	PII Detection & Masking: تعطيل التخزين التلقائي لحقل مرتبط بـ PII ما لم يُصرّح بخلاف ذلك.
+	3.	Isolated Runtime: تشغيل نماذج المستخدمين في سيناريوهات معزولة لا تسمح باستدعاء أسرار النظام.
+	4.	Intent Whitelisting: أي intent يحمل أثرًا إداريًا يتطلب token تحقق بشري.
+	5.	Rate Limiting & Quotas: حماية طويلة الأمد تجاه هجمات استنزاف التكاليف.
+	6.	Canary Deployments: نشر أولي للتحقق من السلوك قبل ترويج واسع.
+
+10.2 تدابير استجابة للحوادث
+	•	آلية Quarantine: عزل النموذج فور كشف سلوك شاذ.
+	•	Incident Playbook: (detection → isolate → forensic snapshot → rollback → notify stakeholders).
+	•	Immutable Audit Logs ورفع تقارير تلقائية إلى Owner.
+
+⸻
+
+11. تجربة النشر والهجرة للموقع القائم (Migration & Integration with current site)
+
+11.1 مبادئ عامة
+	•	لا تغيّر تجربة المستخدم بدون Feature-Flag.
+	•	اجعل التبديل تدريجيًا (feature toggles): أولاً Sandbox، ثم Beta users، ثم Production.
+	•	احتفظ بنسخة احتياطية كاملة قبل أي تعديل.
+
+11.2 خطوات تفصيلية مقترحة (Checklist)
+	1.	تحضير: تأكد من النسخ الاحتياطية (DB + Files) وقم بتوثيق النسخة الحالية من الموقع.
+	2.	بيئة اختبار محاكاة: استنسخ الموقع على staging VPS (Hostinger VPS أو سحابة) واضف مسارات الاختبار.
+	3.	دمج واجهة Chat UI: أنشئ مكونًا React خفيفًا يُضمّن Chat widget؛ لا تُفعّل إلا في sandbox.
+	4.	توصيل Orchestrator: أضف endpoints آمنة لمخدم الـ GPT-API الحالي (tokens في Vault).
+	5.	اختبارات End-to-End: شغّل 8+ حالات اختبار محاكاة للتأكد من الاستقرار.
+	6.	نشر تدريجي: Beta users (10%) → Monitor metrics → Full rollout.
+	7.	مراقبة ما بعد النشر: 72 ساعة مراقبة مركزة مع alerts للـ KPIs.
+
+11.3 نقاط تقنية خاصة بـ Hostinger
+	•	إن كان الموقع مستضافًا على Hostinger Shared: أنصح بالترقية إلى VPS لتيسير إدارة الخدمات الوسيطة والتكامل مع Redis/Queue/Workers.
+	•	احرص على تفعيل SSH ورفع مفاتيح SSH للمشرفين.
+	•	إذا استخدام PHP-based site: استخدم API proxy خفيف (Node/Python) على VPS يربط الـ frontend بالـ Orchestrator بدلًا من تضمين مفاتيح في client.
+
+⸻
+
+12. المراقبة والقياس (Observability & KPIs)
+
+12.1 KPIs مقترحة
+	•	Self-resolution rate (%)
+	•	Avg response time (p95)
+	•	Escalation rate (%)
+	•	Cost per resolved interaction (SAR)
+	•	Deployment success rate (canary→prod)
+	•	Security incidents per month
+
+12.2 أدوات مقترحة
+	•	Logs: ELK Stack (Elastic) أو Papertrail (خفيف)
+	•	Metrics: Prometheus + Grafana أو SaaS بديل
+	•	Tracing: Jaeger أو OpenTelemetry
+
+⸻
+
+13. جودة وإختبار (QA Strategy)
+	•	Unit Tests (Logic): تحقق من مخرجات الـ Orchestrator (manifests structure).
+	•	Integration Tests: اختبارات Sandbox end-to-end.
+	•	Performance Tests: اختبار حمل لتقدير تكاليف نماذج الـ GPT.
+	•	Security Tests: اختبارات Prompt-Injection، PII leakage، pen-testing محدود.
+	•	Acceptance: قائمة تحقق قبول قبل الترويج (Acceptance Criteria) بناءً على KPIs.
+
+⸻
+
+14. تكلفة تشغيلية مبدئية (High-level Cost Estimation Guidance)
+	•	Model Costs: يعتمد على تقدير tokens شهري. ضع quota افتراضي لكل عميل.
+	•	Hosting: VPS متوسط (2-4 vCPU, 4-8GB RAM) لـ orchestration + storage (S3) ~ SAR 300-1500 / month.
+	•	DB & Storage: DB managed أو self-hosted على VPS. تخطيط نسخ احتياطي منتظم.
+	•	Monitoring & Logging: ~SAR 200-800/month بحسب المزود.
+
+(سأزودك بتقدير أكثر دقة عند مشاركتك بالأعداد التقديرية للترافيك وخصائص النموذج المستخدمة).
+
+⸻
+
+15. قائمة مخاطر ومخطط التخفيف (Risk Register)
+	1.	استنزاف التكاليف بدون رقابة → سياسة Quotas وAlerts
+	2.	تسريب بيانات حساسة → PII Detection وEncryption
+	3.	Prompt Injection → Prompt Sanitizer وIsolated Runtime
+	4.	فشل نشر واسع → Canary + Rollback
+	5.	اعتماد مزود واحد → دعم نماذج بديلة (OSS/on-prem)
+
+⸻
+
+16. حزمة التوصيات التنفيذية (Actionable Recommendations)
+	1.	إجراء Audit تقني 48 ساعة.
+	2.	نقل الموقع إلى VPS إن كان على استضافة مشتركة.
+	3.	بناء Model Registry أولًا ثم Generator Pipeline.
+	4.	تنفيذ Security Validator قبل السماح بالنشر الآلي.
+	5.	تفعيل Sandbox وRollout تدريجيًا مع Feature Flags.
+	6.	تنفيذ آليات مراقبة وتخصيص ميزانية Tokens لكل مشروع.
+
+⸻
+
+17. قائمة تسليمات قابلة للطباعة (Deliverables Checklist)
+	•	ملف Manifest JSON schema
+	•	قائمة Templates أولية (5 قوالب: Support, Sales, Booking, Billing, HR)
+	•	Sandbox Runner spec + 8 test-cases per template
+	•	RBAC matrix and Decision Log template
+	•	Security Playbook (incident response)
+	•	Migration Checklist to Hostinger/VPS
+	•	KPI Dashboard spec
+
+⸻
+
+18. ملحق (Appendices)
+
+A. مثال موجز لِـ Bot Manifest (عينة)
+
+{
+  "bot_id":"sales_car_v1",
+  "display_name":"مبيعات-سيارات",
+  "version":"1.0.0",
+  "owner":"team_sales",
+  "purpose":"الرد على استفسارات السيارات وحجز تجربة قيادة",
+  "channels":["web","whatsapp"],
+  "primary_model": {"name":"gpt-4o-lite","est_tokens":400},
+  "persona":{"tone":"رسمي-ودود","language":"ar-SA","greeting":"مرحباً! كيف أقدر أساعدك؟"}
+}
+
+B. مثال لقاعدة تحذير تلقائي (Validator Rule)
+	•	شرط: إذا احتوى الـ manifest على field pii_fields ثم retention_days>0 ولم يتم تفعيل encrypt_at_rest → WARN: “PII storage without encryption”.
+
+C. نموذج Decision Log entry
+	•	timestamp
+	•	user_id
+	•	change_summary
+	•	old_manifest_hash
+	•	new_manifest_hash
+	•	approval_ids
+
+⸻
+
+19. الخطوة التالية (Next Steps)
+	1.	موافقتك على الوثيقة كمرجع رسمي.
+	2.	تزويدي بمعلومات الوصول (جزءي وآمن) لبدء Audit 48 ساعة: Hostinger access (SSH/VPS details)، DB credentials read-only، وأي مفاتيح API للـ GPT-API.
+	3.	أجهز مخطط migration تفصيلي يتضمن خطوات التنفيذ والموارد المطلوبة (بدون تنفيذ فعلي حتى تتوافق).
+
+⸻
+
+المستند إعدادته بصيغة أعمال تحليلية وتوجيهية كما طلبت — إذا أردت أحوّله لملف PDF أو أضيف جداول زمنية أو أرقام تكلفة مفصلة فأعلمني وسأجهّزه مباشرة.
