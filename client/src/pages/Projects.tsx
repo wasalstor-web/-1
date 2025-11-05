@@ -4,6 +4,10 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { projectsApi } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -11,28 +15,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-//todo: remove mock functionality
-const mockProjects = [
-  { id: '1', name: 'تطبيق الويب الذكي', status: 'in-progress' as const, progress: 65, lastModified: 'منذ ساعتين' },
-  { id: '2', name: 'نظام إدارة المحتوى', status: 'completed' as const, progress: 100, lastModified: 'أمس' },
-  { id: '3', name: 'تطبيق الهاتف المحمول', status: 'draft' as const, progress: 25, lastModified: 'منذ 3 أيام' },
-  { id: '4', name: 'موقع تجارة إلكترونية', status: 'in-progress' as const, progress: 45, lastModified: 'منذ 5 ساعات' },
-  { id: '5', name: 'تطبيق إدارة المهام', status: 'completed' as const, progress: 100, lastModified: 'منذ أسبوع' },
-  { id: '6', name: 'منصة تعليمية', status: 'draft' as const, progress: 10, lastModified: 'منذ يومين' },
-];
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Projects() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectDescription, setNewProjectDescription] = useState('');
 
-  const filteredProjects = mockProjects.filter(project => {
+  const { data: projects = [], isLoading } = useQuery<any[]>({
+    queryKey: ['/api/projects'],
+  });
+
+  const createProjectMutation = useMutation({
+    mutationFn: projectsApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      setIsCreateDialogOpen(false);
+      setNewProjectName('');
+      setNewProjectDescription('');
+      toast({
+        title: "تم إنشاء المشروع",
+        description: "تم إنشاء المشروع بنجاح",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء إنشاء المشروع",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: projectsApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: "تم حذف المشروع",
+        description: "تم حذف المشروع بنجاح",
+      });
+    },
+  });
+
+  const filteredProjects = projects.filter((project: any) => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === 'all' || project.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
+
+  const handleCreateProject = () => {
+    if (!newProjectName.trim()) {
+      toast({
+        title: "خطأ",
+        description: "يرجى إدخال اسم المشروع",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createProjectMutation.mutate({
+      name: newProjectName,
+      description: newProjectDescription || null,
+      status: 'draft',
+      progress: 0,
+      aiModel: null,
+    });
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto" data-testid="page-projects">
@@ -42,7 +105,7 @@ export default function Projects() {
           <p className="text-muted-foreground">جميع مشاريعك في مكان واحد</p>
         </div>
         <Button
-          onClick={() => setLocation('/workspace')}
+          onClick={() => setIsCreateDialogOpen(true)}
           className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700"
           data-testid="button-new-project"
         >
@@ -93,23 +156,81 @@ export default function Projects() {
         </div>
       </div>
 
-      <div className={view === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-        {filteredProjects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            {...project}
-            onOpen={() => setLocation(`/project/${project.id}`)}
-            onEdit={() => console.log('Edit', project.id)}
-            onShare={() => console.log('Share', project.id)}
-          />
-        ))}
-      </div>
-
-      {filteredProjects.length === 0 && (
+      {isLoading ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">لا توجد مشاريع تطابق البحث</p>
+          <p className="text-muted-foreground">جاري التحميل...</p>
+        </div>
+      ) : filteredProjects.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            {searchQuery || filterStatus !== 'all' 
+              ? 'لا توجد مشاريع تطابق البحث'
+              : 'لا توجد مشاريع بعد. ابدأ بإنشاء مشروع جديد!'
+            }
+          </p>
+        </div>
+      ) : (
+        <div className={view === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+          {filteredProjects.map((project: any) => (
+            <ProjectCard
+              key={project.id}
+              id={project.id}
+              name={project.name}
+              status={project.status}
+              progress={project.progress}
+              lastModified={new Date(project.updatedAt).toLocaleDateString('ar')}
+              onOpen={() => setLocation(`/project/${project.id}`)}
+              onEdit={() => console.log('Edit', project.id)}
+              onShare={() => deleteProjectMutation.mutate(project.id)}
+            />
+          ))}
         </div>
       )}
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>إنشاء مشروع جديد</DialogTitle>
+            <DialogDescription>
+              أنشئ مشروعاً جديداً لتنظيم عملك مع الذكاء الاصطناعي
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">اسم المشروع</Label>
+              <Input
+                id="name"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="مثال: تطبيق الويب الذكي"
+                data-testid="input-project-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">الوصف (اختياري)</Label>
+              <Textarea
+                id="description"
+                value={newProjectDescription}
+                onChange={(e) => setNewProjectDescription(e.target.value)}
+                placeholder="وصف قصير للمشروع..."
+                data-testid="textarea-project-description"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleCreateProject}
+              disabled={createProjectMutation.isPending}
+              data-testid="button-create-project"
+            >
+              {createProjectMutation.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
