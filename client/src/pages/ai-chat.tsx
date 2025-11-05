@@ -5,15 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { apiRequest } from '@/lib/queryClient';
-import { Send, Sparkles, Loader2, CheckCircle2, XCircle, Brain, Zap } from 'lucide-react';
+import { Send, Sparkles, Loader2, CheckCircle2, Brain } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -28,13 +21,12 @@ export default function AIChatPage() {
     {
       id: '1',
       role: 'assistant',
-      content: 'مرحباً! أنا الوكيل الذكي لمنصة مبسط AI. لديك 8 نماذج ذكاء اصطناعي تحت تصرفك:\n\n🤖 **OpenAI**: GPT-4, GPT-4 Mini\n🧠 **Anthropic**: Claude 3.5 Sonnet\n✨ **Google**: Gemini 2.0 Flash\n🚀 **Hugging Face**: Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1\n\nاختر النموذج الذي تريده من القائمة أعلاه، وابدأ المحادثة! يمكنك التبديل بين النماذج في أي وقت.\n\nما الذي تحتاج مساعدة فيه اليوم؟',
+      content: '🌟 **مرحباً بك في واجهة AI الموحدة!**\n\nجميع النماذج المتصلة جاهزة للرد عليك في نفس الوقت:\n\n✅ **النماذج المتاحة:**\n🤖 GPT-4, GPT-4 Mini (OpenAI)\n🧠 Claude 3.5 Sonnet (Anthropic)  \n✨ Gemini 2.0 Flash (Google)\n🚀 Qwen 2.5, LLaMA 3.3, Mistral, DeepSeek (Hugging Face)\n\n💡 **كيف يعمل:**\nاكتب سؤالك أو طلبك، وكل النماذج المتصلة ستعطيك الإجابة!\nكل رد سيظهر مع اسم النموذج الذي أجاب.\n\nما الذي تريد أن تسأل عنه؟',
       timestamp: new Date(),
       model: 'system'
     }
   ]);
   const [input, setInput] = useState('');
-  const [selectedModel, setSelectedModel] = useState<string>('gpt-4');
   const [sessionId] = useState(() => `session-${Date.now()}`);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -43,40 +35,54 @@ export default function AIChatPage() {
     queryKey: ['/api/ai-brain/models'],
   });
 
-  // Send message mutation
+  // Send message to ALL connected models
   const sendMessage = useMutation({
     mutationFn: async (userInput: string) => {
-      const response = await apiRequest('POST', '/api/ai-brain/process', {
+      const response = await apiRequest('POST', '/api/ai-brain/process-all', {
         input: userInput,
         sessionId,
         userId: 'user-1',
-        model: selectedModel, // النموذج المختار
         context: {
           previousMessages: messages.slice(-5).map(m => ({
             role: m.role,
             content: m.content
           }))
-        },
-        priority: 'high'
+        }
       });
       return response.json();
     },
     onSuccess: (data: any) => {
-      console.log('AI Brain Response:', data);
-      const assistantMessage: Message = {
-        id: `msg-${Date.now()}`,
-        role: 'assistant',
-        content: data.output || data.response || 'عذراً، لم أتمكن من معالجة طلبك.',
-        timestamp: new Date(),
-        model: data.model || selectedModel
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+      console.log('Multi-Model Response:', data);
+      
+      // إضافة رد من كل نموذج
+      if (data.responses && data.responses.length > 0) {
+        const newMessages: Message[] = data.responses.map((response: any, index: number) => ({
+          id: `msg-${Date.now()}-${index}`,
+          role: 'assistant' as const,
+          content: response.status === 'success' 
+            ? response.output 
+            : `⚠️ ${response.error || 'فشل في الحصول على رد'}`,
+          timestamp: new Date(),
+          model: response.model
+        }));
+        
+        setMessages(prev => [...prev, ...newMessages]);
+      } else {
+        // في حالة عدم وجود نماذج متصلة
+        const errorMessage: Message = {
+          id: `msg-${Date.now()}`,
+          role: 'assistant',
+          content: '⚠️ لا توجد نماذج متصلة حالياً. تحقق من إعدادات API Keys.',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
     },
     onError: (error: any) => {
       const errorMessage: Message = {
         id: `msg-${Date.now()}`,
         role: 'assistant',
-        content: `عذراً، حدث خطأ: ${error.message || 'فشل الاتصال بالخادم'}`,
+        content: `❌ خطأ في الاتصال: ${error.message || 'فشل الاتصال بالخادم'}`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -91,8 +97,7 @@ export default function AIChatPage() {
       id: `msg-${Date.now()}`,
       role: 'user',
       content: input,
-      timestamp: new Date(),
-      model: selectedModel
+      timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -122,7 +127,7 @@ export default function AIChatPage() {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 space-y-4">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
@@ -130,67 +135,20 @@ export default function AIChatPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold flex items-center gap-2">
-                  محادثة AI الموحدة
+                  🌟 محادثة AI الموحدة
                   <Sparkles className="w-5 h-5 text-primary" />
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  8 نماذج + وكلاء أذكياء في واجهة واحدة
+                  جميع النماذج ترد عليك في نفس الوقت - واجهة واحدة، ردود متعددة
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1">
                 <CheckCircle2 className="w-3 h-3 text-green-500" />
-                {connectedModels}/{totalModels} متصل
+                {connectedModels}/{totalModels} نموذج نشط
               </Badge>
             </div>
-          </div>
-          
-          {/* Model Selector */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium whitespace-nowrap">اختر النموذج/الوكيل:</label>
-            <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger className="w-full max-w-md" data-testid="select-model">
-                <SelectValue placeholder="اختر النموذج..." />
-              </SelectTrigger>
-              <SelectContent>
-                {/* AI Models Group */}
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                  🤖 نماذج الذكاء الاصطناعي
-                </div>
-                {(modelsData as any)?.models?.map((model: any) => (
-                  <SelectItem key={model.id} value={model.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{model.name}</span>
-                      {model.status === 'connected' ? (
-                        <CheckCircle2 className="w-3 h-3 text-green-500" />
-                      ) : (
-                        <XCircle className="w-3 h-3 text-red-500" />
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-                
-                {/* Agents Group */}
-                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">
-                  ⚡ الوكلاء الأذكياء
-                </div>
-                <SelectItem value="executive-agent">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-3 h-3" />
-                    <span>AI Executive Agent vMax</span>
-                    <CheckCircle2 className="w-3 h-3 text-green-500" />
-                  </div>
-                </SelectItem>
-                <SelectItem value="smart-agent">
-                  <div className="flex items-center gap-2">
-                    <Brain className="w-3 h-3" />
-                    <span>Smart Agent (متقدم)</span>
-                    <CheckCircle2 className="w-3 h-3 text-green-500" />
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </header>
