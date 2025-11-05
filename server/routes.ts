@@ -1154,7 +1154,7 @@ The logo should be:
         const success = await sshExecutor.testConnection(server);
 
         if (success) {
-          await storage.updateServer(req.params.id, { lastPing: new Date() });
+          await storage.updateServerPing(req.params.id);
         }
 
         return res.json({
@@ -1171,7 +1171,7 @@ The logo should be:
       });
 
       const data = await response.json();
-      await storage.updateServer(req.params.id, { lastPing: new Date() });
+      await storage.updateServerPing(req.params.id);
 
       res.json({
         success: response.ok,
