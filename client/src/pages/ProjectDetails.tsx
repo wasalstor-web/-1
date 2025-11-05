@@ -5,28 +5,61 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation, useParams } from "wouter";
-
-//todo: remove mock functionality
-const mockProject = {
-  id: '1',
-  name: 'تطبيق الويب الذكي',
-  description: 'تطبيق ويب متقدم يستخدم تقنيات الذكاء الاصطناعي لتحسين تجربة المستخدم',
-  status: 'in-progress',
-  progress: 65,
-  aiModel: 'GPT-4',
-  createdAt: '2024-01-15',
-  updatedAt: 'منذ ساعتين',
-};
-
-const mockActivities = [
-  { id: '1', action: 'تم تحديث المشروع', user: 'النظام', time: 'منذ ساعتين' },
-  { id: '2', action: 'تم إضافة ميزة جديدة', user: 'النظام', time: 'منذ 5 ساعات' },
-  { id: '3', action: 'تم إنشاء المشروع', user: 'النظام', time: 'منذ 3 أيام' },
-];
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { projectsApi, conversationsApi, exportApi } from "@/lib/api";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProjectDetails() {
   const [, setLocation] = useLocation();
   const params = useParams();
+  const { toast } = useToast();
+
+  const { data: project, isLoading } = useQuery({
+    queryKey: ['/api/projects', params.id],
+    queryFn: () => projectsApi.getById(params.id!),
+    enabled: !!params.id,
+  });
+
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['/api/projects', params.id, 'conversations'],
+    queryFn: () => conversationsApi.getByProject(params.id!),
+    enabled: !!params.id,
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: () => projectsApi.delete(params.id!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects'] });
+      toast({
+        title: "تم حذف المشروع",
+        description: "تم حذف المشروع بنجاح",
+      });
+      setLocation('/projects');
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">جاري التحميل...</p>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">المشروع غير موجود</p>
+      </div>
+    );
+  }
+
+  const statusMap: any = {
+    'completed': { label: 'مكتمل', class: 'bg-green-500/20 text-green-400' },
+    'in-progress': { label: 'قيد التطوير', class: 'bg-cyan-500/20 text-cyan-400' },
+    'draft': { label: 'مسودة', class: 'bg-muted text-muted-foreground' },
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto" data-testid="page-project-details">
@@ -40,20 +73,30 @@ export default function ProjectDetails() {
           <ArrowRight className="w-5 h-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">{mockProject.name}</h1>
-          <p className="text-muted-foreground">{mockProject.description}</p>
+          <h1 className="text-3xl font-bold">{project.name}</h1>
+          {project.description && (
+            <p className="text-muted-foreground">{project.description}</p>
+          )}
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" data-testid="button-edit-project">
             <Edit className="w-5 h-5" />
           </Button>
-          <Button variant="outline" size="icon" data-testid="button-share-project">
-            <Share2 className="w-5 h-5" />
-          </Button>
-          <Button variant="outline" size="icon" data-testid="button-download-project">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => exportApi.exportProject(project, conversations)}
+            data-testid="button-download-project"
+          >
             <Download className="w-5 h-5" />
           </Button>
-          <Button variant="destructive" size="icon" data-testid="button-delete-project">
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => deleteProjectMutation.mutate()}
+            disabled={deleteProjectMutation.isPending}
+            data-testid="button-delete-project"
+          >
             <Trash2 className="w-5 h-5" />
           </Button>
         </div>
@@ -66,25 +109,24 @@ export default function ProjectDetails() {
               <TabsTrigger value="overview" className="flex-1" data-testid="tab-overview">
                 نظرة عامة
               </TabsTrigger>
-              <TabsTrigger value="activity" className="flex-1" data-testid="tab-activity">
-                النشاط
-              </TabsTrigger>
-              <TabsTrigger value="files" className="flex-1" data-testid="tab-files">
-                الملفات
+              <TabsTrigger value="conversations" className="flex-1" data-testid="tab-conversations">
+                المحادثات ({conversations.length})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>الوصف</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {mockProject.description}
-                  </p>
-                </CardContent>
-              </Card>
+              {project.description && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>الوصف</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {project.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card>
                 <CardHeader>
@@ -93,56 +135,52 @@ export default function ProjectDetails() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">إجمالي التقدم</span>
-                    <span className="text-2xl font-bold text-cyan-400">{mockProject.progress}%</span>
+                    <span className="text-2xl font-bold text-cyan-400">{project.progress}%</span>
                   </div>
-                  <Progress value={mockProject.progress} className="h-3" />
-                  <div className="grid grid-cols-3 gap-4 pt-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">8</p>
-                      <p className="text-xs text-muted-foreground">المهام المكتملة</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">4</p>
-                      <p className="text-xs text-muted-foreground">قيد التنفيذ</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">2</p>
-                      <p className="text-xs text-muted-foreground">متبقية</p>
-                    </div>
-                  </div>
+                  <Progress value={project.progress} className="h-3" />
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="activity" className="space-y-4 mt-6">
+            <TabsContent value="conversations" className="space-y-4 mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>سجل النشاط</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {mockActivities.map((activity) => (
-                    <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0">
-                      <div className="w-2 h-2 rounded-full bg-cyan-400 mt-2 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-muted-foreground">{activity.user}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="files" className="space-y-4 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>الملفات المرفقة</CardTitle>
+                  <CardTitle>المحادثات المحفوظة</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-8">
-                    لا توجد ملفات مرفقة بعد
-                  </p>
+                  {conversations.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      لا توجد محادثات محفوظة بعد
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {conversations.map((conv: any) => (
+                        <div
+                          key={conv.id}
+                          className="p-4 rounded-lg border hover-elevate transition-all"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge>{conv.aiModel}</Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(conv.createdAt).toLocaleDateString('ar')}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {JSON.parse(conv.messages).length} رسالة
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => exportApi.exportConversation(conv)}
+                            className="mt-2"
+                          >
+                            <Download className="w-4 h-4 ml-2" />
+                            تصدير
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -157,21 +195,27 @@ export default function ProjectDetails() {
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">الحالة</p>
-                <Badge className="bg-cyan-500/20 text-cyan-400 mt-1">
-                  قيد التطوير
+                <Badge className={statusMap[project.status]?.class || 'bg-muted'}>
+                  {statusMap[project.status]?.label || project.status}
                 </Badge>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">نموذج AI</p>
-                <p className="font-medium mt-1">{mockProject.aiModel}</p>
-              </div>
+              {project.aiModel && (
+                <div>
+                  <p className="text-sm text-muted-foreground">نموذج AI</p>
+                  <p className="font-medium mt-1">{project.aiModel}</p>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-muted-foreground">تاريخ الإنشاء</p>
-                <p className="font-medium mt-1">{mockProject.createdAt}</p>
+                <p className="font-medium mt-1">
+                  {new Date(project.createdAt).toLocaleDateString('ar')}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">آخر تحديث</p>
-                <p className="font-medium mt-1">{mockProject.updatedAt}</p>
+                <p className="font-medium mt-1">
+                  {new Date(project.updatedAt).toLocaleDateString('ar')}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -192,6 +236,7 @@ export default function ProjectDetails() {
               <Button
                 variant="outline"
                 className="w-full"
+                onClick={() => exportApi.exportProject(project, conversations)}
                 data-testid="button-export-project"
               >
                 <Download className="w-4 h-4 ml-2" />
