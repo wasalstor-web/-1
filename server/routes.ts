@@ -1245,8 +1245,8 @@ The logo should be:
   registerAIBrainRoutes(app);
 
   // Register AI Executive Agent Routes
-  const executiveAgentRoutes = await import("./executive-agent-routes");
-  app.use("/api/executive", executiveAgentRoutes.default);
+  const { default: registerExecutiveAgentRoutes } = await import("./executive-agent-routes");
+  registerExecutiveAgentRoutes(app, storage);
 
   const httpServer = createServer(app);
   return httpServer;
