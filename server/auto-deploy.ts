@@ -2,6 +2,7 @@ import { Client, SFTPWrapper } from 'ssh2';
 import { createReadStream, statSync, readdirSync, readFileSync } from 'fs';
 import { join, relative } from 'path';
 import { promisify } from 'util';
+import { execSync } from 'child_process';
 
 const SERVER_IP = '46.202.159.100';
 const SERVER_USER = 'root';
@@ -114,15 +115,9 @@ async function deploy() {
     console.log('📁 1/8 - إنشاء مجلد التطبيق...');
     await execCommand(`mkdir -p ${APP_DIR}`, 'إنشاء المجلد');
     
-    // Step 2: Build frontend locally
-    console.log('\n🏗️  2/8 - بناء Frontend محلياً...');
-    const { execSync } = require('child_process');
-    try {
-      execSync('npm run build', { stdio: 'inherit' });
-      console.log('   ✅ تم البناء بنجاح');
-    } catch (err) {
-      console.log('   ⚠️  فشل البناء - سيتم تخطيه');
-    }
+    // Step 2: Skip building (already built)
+    console.log('\n🏗️  2/8 - استخدام Build الموجود...');
+    console.log('   ✅ Build جاهز في dist/');
     
     // Step 3: Upload files
     console.log('\n📤 3/8 - رفع ملفات المشروع...');
