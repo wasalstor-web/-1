@@ -346,6 +346,18 @@ export class PostgresStorage implements IStorage {
       ))
       .orderBy(serverCommands.createdAt);
   }
+
+  async getServerCommandHistory(serverId: string, limit: number = 20): Promise<ServerCommand[]> {
+    return await this.db
+      .select()
+      .from(serverCommands)
+      .where(and(
+        eq(serverCommands.serverId, serverId),
+        eq(serverCommands.status, 'completed')
+      ))
+      .orderBy(desc(serverCommands.executedAt))
+      .limit(limit);
+  }
   
   async completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void> {
     await this.db

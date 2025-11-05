@@ -245,10 +245,16 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
         const { sshExecutor } = await import('./ssh-executor');
         const result = await sshExecutor.executeCommand(server, command);
 
-        await storage.createServerCommand({
+        const cmd = await storage.createServerCommand({
           serverId: req.params.id,
           command: command
         });
+
+        await storage.completeServerCommand(
+          cmd.id,
+          result.output || result.error || '',
+          result.exitCode !== undefined ? result.exitCode : -1
+        );
 
         if (result.success) {
           await storage.updateServerPing(server.id);
