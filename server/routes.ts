@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertAiConversationSchema, insertAiMessageSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -247,6 +247,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching product:", error);
       res.status(500).json({ error: "Failed to fetch product" });
+    }
+  });
+
+  // AI Conversation routes
+  app.get("/api/ai/conversations", async (req, res) => {
+    try {
+      const { userId } = req.query;
+      const conversations = await storage.getAllAiConversations(userId as string | undefined);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching AI conversations:", error);
+      res.status(500).json({ error: "Failed to fetch conversations" });
+    }
+  });
+
+  app.post("/api/ai/conversations", async (req, res) => {
+    try {
+      const validatedData = insertAiConversationSchema.parse(req.body);
+      const conversation = await storage.createAiConversation(validatedData);
+      res.status(201).json(conversation);
+    } catch (error) {
+      console.error("Error creating AI conversation:", error);
+      res.status(400).json({ error: "Invalid conversation data" });
+    }
+  });
+
+  app.get("/api/ai/conversations/:id", async (req, res) => {
+    try {
+      const conversation = await storage.getAiConversation(req.params.id);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+      res.json(conversation);
+    } catch (error) {
+      console.error("Error fetching AI conversation:", error);
+      res.status(500).json({ error: "Failed to fetch conversation" });
+    }
+  });
+
+  app.delete("/api/ai/conversations/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteAiConversation(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting AI conversation:", error);
+      res.status(500).json({ error: "Failed to delete conversation" });
+    }
+  });
+
+  app.get("/api/ai/conversations/:id/messages", async (req, res) => {
+    try {
+      const messages = await storage.getMessagesByConversation(req.params.id);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching AI messages:", error);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  app.post("/api/ai/conversations/:id/messages", async (req, res) => {
+    try {
+      const validatedData = insertAiMessageSchema.parse({
+        ...req.body,
+        conversationId: req.params.id,
+      });
+      const message = await storage.createAiMessage(validatedData);
+      res.status(201).json(message);
+    } catch (error) {
+      console.error("Error creating AI message:", error);
+      res.status(400).json({ error: "Invalid message data" });
+    }
+  });
+
+  // AI Chat stream endpoint
+  app.post("/api/ai/chat/stream", async (req, res) => {
+    try {
+      const { messages, context = 'general' } = req.body;
+
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
+        return res.status(400).json({ error: "Messages are required" });
+      }
+
+      if (!openai) {
+        return res.status(503).json({ error: "OpenAI API not available" });
+      }
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      const systemPrompt = context === 'general' 
+        ? "أنت مساعد AI متخصص في البرمجة والتطوير. ساعد المستخدمين في كتابة الكود وحل المشاكل التقنية. قدم إجابات واضحة ودقيقة مع أمثلة عملية."
+        : "أنت مساعد AI ذكي. ساعد المستخدمين وقدم إجابات مفيدة.";
+
+      const stream = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ],
+        stream: true,
+        temperature: 0.7,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (error) {
+      console.error("Error in AI chat stream:", error);
+      res.status(500).json({ error: "Failed to process chat request" });
     }
   });
 

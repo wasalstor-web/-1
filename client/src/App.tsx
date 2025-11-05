@@ -12,6 +12,7 @@ import Workspace from "@/pages/Workspace";
 import ProjectDetails from "@/pages/ProjectDetails";
 import Settings from "@/pages/Settings";
 import Marketplace from "@/pages/Marketplace";
+import AiChat from "@/pages/AiChat";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/marketplace" component={Marketplace} />
+      <Route path="/ai-chat" component={AiChat} />
       <Route path="/projects" component={Projects} />
       <Route path="/workspace" component={Workspace} />
       <Route path="/project/:id" component={ProjectDetails} />
@@ -38,20 +40,27 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          <SidebarProvider style={style as React.CSSProperties}>
-            <div className="flex h-screen w-full">
-              <AppSidebar />
-              <SidebarInset className="flex-1 overflow-auto">
-                <header className="flex items-center gap-4 p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-                  <SidebarTrigger data-testid="button-sidebar-toggle" />
-                  <div className="flex-1" />
-                </header>
-                <main className="flex-1">
-                  <Router />
-                </main>
-              </SidebarInset>
-            </div>
-          </SidebarProvider>
+          <Switch>
+            <Route path="/ai-chat">
+              <AiChat />
+            </Route>
+            <Route>
+              <SidebarProvider style={style as React.CSSProperties}>
+                <div className="flex h-screen w-full">
+                  <AppSidebar />
+                  <SidebarInset className="flex-1 overflow-auto">
+                    <header className="flex items-center gap-4 p-4 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+                      <SidebarTrigger data-testid="button-sidebar-toggle" />
+                      <div className="flex-1" />
+                    </header>
+                    <main className="flex-1">
+                      <Router />
+                    </main>
+                  </SidebarInset>
+                </div>
+              </SidebarProvider>
+            </Route>
+          </Switch>
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
