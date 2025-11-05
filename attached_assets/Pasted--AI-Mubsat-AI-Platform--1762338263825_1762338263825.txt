@@ -1,0 +1,122 @@
+ممتاز 👌 إذاً نثبّت التعريف الرسمي:
+
+الاسم النهائي: منصة مبسط AI | Mubsat AI Platform
+اللغة الأساسية: عربية وإنجليزية
+النموذج المرجعي: واجهة Buraq.ai من حيث البنية،
+وأسلوب Zebra Technologies من حيث الهوية البصرية والخطوط والنغمة المؤسسية.
+الفئة المستهدفة: قطاع الشركات والأعمال (B2B SaaS) مع قابلية خدمة الأفراد لاحقًا.
+
+⸻
+
+الآن أبدأ في المرحلة الأولى من التحليل الكامل 👇
+
+🧠 المرحلة 1: التحليل البنيوي والوظيفي (System Structure & User Flow)
+
+1. خريطة المنصة (Site Map)
+
+الصفحة الرئيسية (Home)
+	•	Hero Section (عنوان تعريفي + CTA واضح مثل “ابدأ الآن” / “Start Now”)
+	•	قسم الحلول (Solutions)
+	•	قسم المنتجات والخدمات (Products & Services)
+	•	قسم حالات الاستخدام (Use Cases)
+	•	قسم التقنيات (AI Models / Integrations)
+	•	قسم العملاء والشركاء (Clients & Partners)
+	•	قسم المقالات أو الموارد (Resources / Blog)
+	•	Footer (روابط الدعم، الشروط، سياسات الخصوصية)
+
+لوحة المستخدم (Dashboard)
+	•	ملخص الحساب (Overview)
+	•	إنشاء مشروع ذكاء صناعي جديد (Create AI Project)
+	•	إدارة النماذج / الوكلاء (AI Agents Management)
+	•	لوحة التدريب (Training Panel)
+	•	تقارير الأداء والتحليلات (Analytics & Insights)
+	•	الربط مع واجهات خارجية (API / Integrations)
+
+صفحات ثانوية
+	•	التسعير (Pricing)
+	•	اتصل بنا (Contact)
+	•	تسجيل الدخول / إنشاء حساب (Auth)
+	•	صفحة الوثائق (Documentation)
+	•	صفحة الدعم (Support)
+
+⸻
+
+🎨 المرحلة 2: التحليل البصري (Visual System)
+
+مبني على مزيج بين Zebra Technologies وBuraq.ai:
+
+العنصر	المرجع	الخصائص المطلوبة
+الخطوط (Fonts)	Zebra	خط هندسي واضح (Sans-Serif) بخطوط مشابهة لـ Inter / Helvetica Neue
+الألوان (Colors)	Zebra	خلفية فاتحة رمادية، عناصر سوداء ونيون أزرق غامق كـ accent
+الهوامش والتقسيم (Layout)	Buraq.ai	تقسيم بثلاث أعمدة مع بطاقات مرتفعة (elevated cards) وظلال ناعمة
+الأنيميشن (Motion)	Buraq.ai	تحريك خفيف عند التمرير (scroll reveal) وانتقالات شفافة
+اللغة البصرية	Zebra	رسمية، مؤسسية، دقيقة التفاصيل
+
+
+⸻
+
+🧩 المرحلة 3: التحليل التجريبي (UX Patterns)
+	•	زر CTA ثابت بالصفحة الرئيسية (Start with Mubsat AI)
+	•	شريط علوي ثابت يحتوي: “المنتجات | الحلول | التسعير | الوثائق | تسجيل الدخول”
+	•	كل قسم من الأقسام الأساسية يحتوي:
+	•	عنوان قوي (Headline)
+	•	وصف قصير (One-liner Value Prop)
+	•	عنصر بصري (Icon / Illustration)
+	•	زر CTA مكرر في النهاية
+
+⸻
+
+🧭 المرحلة 4: لغة البراند (Brand Tone & Messaging)
+
+النغمة: احترافية، ذكية، بسيطة
+المفردات الأساسية:
+
+بالعربية: “الذكاء ببساطة”، “حلول ذكية تُدار بذكاء”، “ابدأ مشروعك الذكي الآن”.
+بالإنجليزية: “AI Made Simple”, “Intelligence. Simplified.”, “Launch your Smart Future.”
+
+⸻
+
+🧱 المرحلة 5: نظام التصميم (Design System)
+	•	Primary Color: مستوحى من الأزرق الصناعي (Zebra Blue)
+	•	Accent: نيون أزرق فاتح للتفاعل (Hover / CTA)
+	•	Neutral Base: أبيض – رمادي ناعم
+	•	Typography Hierarchy:
+	•	Headline: Inter Bold 36–48px
+	•	Body: Inter Regular 16–18px
+	•	Button/Text Links: Medium 14–16px
+	•	Components:
+	•	Cards | Modals | Input Fields | Navigation Bars
+	•	AI Project Cards (تشبه منتجات Buraq)
+
+⸻
+
+🧠 المرحلة 6: البرومبت الشامل (Prompt Blueprint)
+
+Arabic Prompt:
+
+“صمّم واجهة SaaS لمنصة ذكاء صناعي اسمها مبسّط AI.
+تعتمد على أسلوب Zebra Technologies من حيث الخطوط والألوان (أبيض، رمادي، أزرق صناعي)،
+وعلى تقسيم Buraq.ai في البنية.
+اجعل التصميم رسمي ومؤسسي مع لمسة تقنية مستقبلية.
+العناصر الأساسية: Hero Section، حلول، منتجات، واجهات API، لوحة تحكم.
+استخدم خطوط هندسية واضحة وCTAs واضحة مثل ‘ابدأ الآن’ و‘جرّب مجاناً’.”
+
+English Prompt:
+
+“Design a SaaS front-end interface for Mubsat AI Platform inspired by Zebra Technologies (fonts, corporate style, industrial blue palette) and Buraq.ai (layout and component system).
+The theme should be enterprise-grade, futuristic, and highly structured.
+Include: Hero Section, Solutions, Products, Integrations, Dashboard preview.
+Use clean sans-serif typography and clear CTAs like ‘Start Now’ and ‘Try for Free’.”
+
+⸻
+
+🔧 المرحلة 7: مرحلة التنفيذ (Ready-to-Build Output)
+
+المخرجات النهائية تكون جاهزة لتصديرها إلى:
+	•	Figma Layout
+	•	أو Next.js / React UI Components
+	•	أو AI Designer Tools (Galileo / Codia / v0.dev)
+
+⸻
+
+هل ترغب أن أجهز النسخة النهائية بصيغة وثيقة تنفيذية PDF (تحليل + برومبت) لتكون المرجع الرسمي لفريق التصميم الخاص بـ “مبسّط AI”؟
