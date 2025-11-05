@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema, insertServerSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -120,6 +120,126 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
     } catch (error: any) {
       console.error("Error downloading ABI:", error);
       res.status(500).json({ error: error.message || "Failed to download ABI" });
+    }
+  });
+
+  // Server Management routes
+  app.get("/api/servers", async (req, res) => {
+    try {
+      const servers = await storage.getAllServers();
+      res.json(servers);
+    } catch (error) {
+      console.error("Error fetching servers:", error);
+      res.status(500).json({ error: "Failed to fetch servers" });
+    }
+  });
+
+  app.post("/api/servers", async (req, res) => {
+    try {
+      const validatedData = insertServerSchema.parse(req.body);
+      const server = await storage.createServer(validatedData);
+      res.status(201).json(server);
+    } catch (error) {
+      console.error("Error creating server:", error);
+      res.status(400).json({ error: "Invalid server data" });
+    }
+  });
+
+  app.post("/api/servers/:id/test", async (req, res) => {
+    try {
+      const server = await storage.getServer(req.params.id);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+
+      // اختبار الاتصال بالسيرفر
+      const testUrl = `http://${server.host}:${server.port}/health`;
+      const response = await fetch(testUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${server.apiKey}`
+        },
+        signal: AbortSignal.timeout(5000)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // تحديث lastPing
+        await storage.updateServerPing(server.id);
+        res.json({ 
+          success: true, 
+          status: 'online',
+          serverData: data
+        });
+      } else {
+        res.json({ 
+          success: false, 
+          status: 'error',
+          error: `HTTP ${response.status}`
+        });
+      }
+    } catch (error: any) {
+      console.error("Error testing server:", error);
+      res.json({ 
+        success: false, 
+        status: 'offline',
+        error: error.message 
+      });
+    }
+  });
+
+  app.post("/api/servers/:id/execute", async (req, res) => {
+    try {
+      const { command } = req.body;
+      const server = await storage.getServer(req.params.id);
+      
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+
+      if (!server.isActive) {
+        return res.status(403).json({ error: "Server is not active" });
+      }
+
+      // إرسال الأمر للسيرفر
+      const executeUrl = `http://${server.host}:${server.port}/run`;
+      const response = await fetch(executeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${server.apiKey}`
+        },
+        body: JSON.stringify({ 
+          cmd: command,
+          key: server.apiKey 
+        }),
+        signal: AbortSignal.timeout(30000)
+      });
+
+      const data = await response.json();
+      
+      if (data.ok) {
+        // تحديث lastPing عند النجاح
+        await storage.updateServerPing(server.id);
+      }
+
+      res.json(data);
+    } catch (error: any) {
+      console.error("Error executing command on server:", error);
+      res.status(500).json({ error: error.message || "Failed to execute command" });
+    }
+  });
+
+  app.delete("/api/servers/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteServer(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting server:", error);
+      res.status(500).json({ error: "Failed to delete server" });
     }
   });
 

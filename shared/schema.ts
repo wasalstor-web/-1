@@ -112,6 +112,18 @@ export const telegramUsers = pgTable("telegram_users", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const servers = pgTable("servers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  host: text("host").notNull(),
+  port: integer("port").notNull().default(45000),
+  apiKey: text("api_key").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  lastPing: timestamp("last_ping"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -167,6 +179,13 @@ export const insertTelegramUserSchema = createInsertSchema(telegramUsers).omit({
   updatedAt: true,
 });
 
+export const insertServerSchema = createInsertSchema(servers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastPing: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
@@ -187,3 +206,5 @@ export type AiMessage = typeof aiMessages.$inferSelect;
 export type InsertAiMessage = z.infer<typeof insertAiMessageSchema>;
 export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type InsertTelegramUser = z.infer<typeof insertTelegramUserSchema>;
+export type Server = typeof servers.$inferSelect;
+export type InsertServer = z.infer<typeof insertServerSchema>;
