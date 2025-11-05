@@ -12,7 +12,11 @@ import {
   type Order,
   type InsertOrder,
   type OrderItem,
-  type InsertOrderItem
+  type InsertOrderItem,
+  type AiConversation,
+  type InsertAiConversation,
+  type AiMessage,
+  type InsertAiMessage
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -56,6 +60,17 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
   getOrderItems(orderId: string): Promise<OrderItem[]>;
   createOrderItem(item: InsertOrderItem): Promise<OrderItem>;
+
+  // AI Conversation methods
+  getAllAiConversations(userId?: string): Promise<AiConversation[]>;
+  getAiConversation(id: string): Promise<AiConversation | undefined>;
+  createAiConversation(conversation: InsertAiConversation): Promise<AiConversation>;
+  updateAiConversation(id: string, updates: Partial<InsertAiConversation>): Promise<AiConversation | undefined>;
+  deleteAiConversation(id: string): Promise<boolean>;
+  
+  // AI Message methods
+  getMessagesByConversation(conversationId: string): Promise<AiMessage[]>;
+  createAiMessage(message: InsertAiMessage): Promise<AiMessage>;
 }
 
 export class MemStorage implements IStorage {
@@ -66,6 +81,8 @@ export class MemStorage implements IStorage {
   private products: Map<string, Product>;
   private orders: Map<string, Order>;
   private orderItems: Map<string, OrderItem>;
+  private aiConversations: Map<string, AiConversation>;
+  private aiMessages: Map<string, AiMessage>;
 
   constructor() {
     this.users = new Map();
@@ -75,6 +92,8 @@ export class MemStorage implements IStorage {
     this.products = new Map();
     this.orders = new Map();
     this.orderItems = new Map();
+    this.aiConversations = new Map();
+    this.aiMessages = new Map();
     this.seedData();
   }
 
@@ -498,6 +517,85 @@ export class MemStorage implements IStorage {
     };
     this.orderItems.set(id, item);
     return item;
+  }
+
+  // AI Conversation methods
+  async getAllAiConversations(userId?: string): Promise<AiConversation[]> {
+    let convs = Array.from(this.aiConversations.values());
+    if (userId) {
+      convs = convs.filter(c => c.userId === userId);
+    }
+    return convs.sort((a, b) => 
+      new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+    );
+  }
+
+  async getAiConversation(id: string): Promise<AiConversation | undefined> {
+    return this.aiConversations.get(id);
+  }
+
+  async createAiConversation(insertConv: InsertAiConversation): Promise<AiConversation> {
+    const id = randomUUID();
+    const now = new Date();
+    const conversation: AiConversation = {
+      id,
+      userId: insertConv.userId ?? null,
+      title: insertConv.title,
+      context: insertConv.context ?? 'general',
+      lastMessageAt: now,
+      createdAt: now,
+    };
+    this.aiConversations.set(id, conversation);
+    return conversation;
+  }
+
+  async updateAiConversation(id: string, updates: Partial<InsertAiConversation>): Promise<AiConversation | undefined> {
+    const conv = this.aiConversations.get(id);
+    if (!conv) return undefined;
+    
+    const updated: AiConversation = {
+      ...conv,
+      ...updates,
+      lastMessageAt: new Date(),
+    };
+    this.aiConversations.set(id, updated);
+    return updated;
+  }
+
+  async deleteAiConversation(id: string): Promise<boolean> {
+    const deleted = this.aiConversations.delete(id);
+    if (deleted) {
+      Array.from(this.aiMessages.values())
+        .filter(msg => msg.conversationId === id)
+        .forEach(msg => this.aiMessages.delete(msg.id));
+    }
+    return deleted;
+  }
+
+  // AI Message methods
+  async getMessagesByConversation(conversationId: string): Promise<AiMessage[]> {
+    return Array.from(this.aiMessages.values())
+      .filter(msg => msg.conversationId === conversationId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  }
+
+  async createAiMessage(insertMsg: InsertAiMessage): Promise<AiMessage> {
+    const id = randomUUID();
+    const message: AiMessage = {
+      id,
+      conversationId: insertMsg.conversationId,
+      role: insertMsg.role,
+      content: insertMsg.content,
+      codeSnippets: insertMsg.codeSnippets ?? null,
+      interactiveOptions: insertMsg.interactiveOptions ?? null,
+      status: insertMsg.status ?? 'sent',
+      createdAt: new Date(),
+    };
+    this.aiMessages.set(id, message);
+    
+    await this.updateAiConversation(insertMsg.conversationId, {});
+    
+    return message;
   }
 }
 
