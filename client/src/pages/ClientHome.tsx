@@ -296,7 +296,9 @@ export default function ClientHome() {
             <Link href="/admin">
               <Button variant="ghost" data-testid="button-login">Admin Panel</Button>
             </Link>
-            <Button data-testid="button-get-started">Get Started</Button>
+            <Link href="/admin/marketplace">
+              <Button data-testid="button-get-started">Get Started</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -321,13 +323,17 @@ export default function ClientHome() {
               </p>
             </motion.div>
             <motion.div className="flex flex-col sm:flex-row gap-4" variants={fadeInUp}>
-              <Button size="lg" className="h-12 px-8" data-testid="button-start-now">
-                Start Now
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8" data-testid="button-book-demo">
-                Book a Demo
-              </Button>
+              <Link href="/admin/marketplace">
+                <Button size="lg" className="h-12 px-8" data-testid="button-start-now">
+                  Start Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <a href="#contact">
+                <Button size="lg" variant="outline" className="h-12 px-8" data-testid="button-book-demo">
+                  Book a Demo
+                </Button>
+              </a>
             </motion.div>
             <motion.div 
               className="grid grid-cols-4 gap-6 pt-8"
