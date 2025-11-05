@@ -213,6 +213,11 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
   app.post("/api/servers/:id/execute", async (req, res) => {
     try {
       const { command } = req.body;
+      
+      if (!command) {
+        return res.status(400).json({ error: "Command is required" });
+      }
+
       const server = await storage.getServer(req.params.id);
       
       if (!server) {
@@ -223,7 +228,29 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
         return res.status(403).json({ error: "Server is not active" });
       }
 
-      // إرسال الأمر للسيرفر
+      // Use SSH if enabled
+      if (server.sshEnabled) {
+        const { sshExecutor } = await import('./ssh-executor');
+        const result = await sshExecutor.executeCommand(server, command);
+
+        await storage.createServerCommand({
+          serverId: req.params.id,
+          command: command
+        });
+
+        if (result.success) {
+          await storage.updateServerPing(server.id);
+        }
+
+        return res.json({
+          success: result.success,
+          output: result.output,
+          exitCode: result.exitCode,
+          error: result.error
+        });
+      }
+
+      // Fallback to HTTP if SSH not enabled
       const executeUrl = `http://${server.host}:${server.port}/run`;
       const response = await fetch(executeUrl, {
         method: 'POST',
@@ -241,7 +268,6 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
       const data = await response.json();
       
       if (data.ok) {
-        // تحديث lastPing عند النجاح
         await storage.updateServerPing(server.id);
       }
 
@@ -1138,42 +1164,6 @@ The logo should be:
     } catch (error: any) {
       console.error("Error testing server:", error);
       res.json({ success: false, error: error.message });
-    }
-  });
-
-  app.post("/api/servers/:id/execute", async (req, res) => {
-    try {
-      const { command } = req.body;
-      if (!command) {
-        return res.status(400).json({ error: "Command is required" });
-      }
-
-      const server = await storage.getServer(req.params.id);
-      if (!server) {
-        return res.status(404).json({ error: "Server not found" });
-      }
-
-      if (!server.sshEnabled) {
-        return res.status(400).json({ error: "SSH is not enabled for this server" });
-      }
-
-      const { sshExecutor } = await import('./ssh-executor');
-      const result = await sshExecutor.executeCommand(server, command);
-
-      await storage.createServerCommand({
-        serverId: req.params.id,
-        command: command
-      });
-
-      res.json({
-        success: result.success,
-        output: result.output,
-        exitCode: result.exitCode,
-        error: result.error
-      });
-    } catch (error: any) {
-      console.error("Error executing command:", error);
-      res.status(500).json({ error: error.message });
     }
   });
 
