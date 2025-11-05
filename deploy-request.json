@@ -1,0 +1,4 @@
+{
+  "userId": "replit-agent-deploy",
+  "message": "Deploy Mubsat AI project to server 46.202.159.100. Tasks: 1) Setup PostgreSQL database 'mubsat_ai' 2) Install PM2 3) Create /var/www/mubsat-ai 4) Upload all project files 5) Run npm install && npm run build 6) Execute npm run db:push --force 7) Start with PM2 on port 5000 8) Configure Nginx reverse proxy. Give me the live URL when done."
+}
