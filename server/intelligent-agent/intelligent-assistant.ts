@@ -2,6 +2,8 @@ import { IntentAnalyzer, IntentAnalysisResult, Intent } from './intent-analyzer'
 import { VPSExecutor, CommandResult } from './vps-executor';
 import { SelfImprovementEngine } from './self-improvement';
 import { ABIGenerator } from './abi-generator';
+import { storage } from '../storage';
+import { sshExecutor } from '../ssh-executor';
 
 export interface AssistantResponse {
   message: string;
@@ -172,14 +174,12 @@ export class IntelligentAssistant {
     executionPlan?: string[]
   ): Promise<AssistantResponse> {
     try {
-      // اختيار VPS المناسب
-      const vps = intent.vpsTarget 
-        ? this.vpsExecutor.selectVPS(intent.action!, [intent.vpsTarget])
-        : this.vpsExecutor.selectVPS(intent.action!);
+      const servers = await storage.getAllServers();
+      const sshServer = servers.find(s => s.sshEnabled);
 
-      if (!vps) {
+      if (!sshServer) {
         return {
-          message: 'لم أتمكن من العثور على سيرفر مناسب لتنفيذ هذا الأمر.',
+          message: 'لا يوجد سيرفر متصل حالياً. يرجى التأكد من إعداد الاتصال بالسيرفر.',
           intent,
           executed: false,
           needsMoreInfo: false,
@@ -187,9 +187,6 @@ export class IntelligentAssistant {
         };
       }
 
-      console.log(`⚙️ تنفيذ الأمر "${intent.action}" على VPS: ${vps.name}`);
-
-      // تحويل النية إلى أمر قابل للتنفيذ
       const command = this.intentToCommand(intent);
       
       if (!command) {
@@ -202,11 +199,24 @@ export class IntelligentAssistant {
         };
       }
 
-      // تنفيذ الأمر
-      const result = await this.vpsExecutor.executeCommand(vps.id, command);
+      console.log(`⚙️ تنفيذ الأمر "${command}" على السيرفر: ${sshServer.name}`);
+
+      const commandRecord = await storage.createServerCommand({
+        serverId: sshServer.id,
+        command,
+        status: 'pending',
+      });
+
+      const result = await sshExecutor.executeCommand(sshServer, command);
+
+      await storage.completeServerCommand(
+        commandRecord.id,
+        result.output,
+        result.exitCode
+      );
 
       const successMessage = result.success
-        ? `✅ تم التنفيذ بنجاح!\n\n${result.output || 'اكتمل التنفيذ'}`
+        ? `✅ تم التنفيذ بنجاح على ${sshServer.name}!\n\n\`\`\`\n${result.output || 'اكتمل التنفيذ'}\n\`\`\``
         : `❌ فشل التنفيذ: ${result.error}`;
 
       return {
@@ -259,17 +269,31 @@ export class IntelligentAssistant {
   }
 
   private intentToCommand(intent: Intent): string | null {
-    // تحويل النية إلى أمر shell حقيقي
     const commandMap: Record<string, string> = {
-      'check_status': 'ps aux | grep node',
-      'list_files': 'ls -la',
+      'check_status': 'ps aux | head -20',
+      'list_files': 'ls -lah',
       'show_disk': 'df -h',
       'show_memory': 'free -h',
       'current_time': 'date',
       'uptime': 'uptime',
+      'hostname': 'hostname',
+      'system_info': 'uname -a',
+      'network_info': 'ip addr',
+      'check_processes': 'ps aux | head -15',
+      'disk_usage': 'du -sh /* 2>/dev/null | sort -h | tail -10',
+      'who_logged_in': 'who',
+      'last_login': 'last -10',
     };
 
-    return commandMap[intent.action || ''] || null;
+    if (intent.action && commandMap[intent.action]) {
+      return commandMap[intent.action];
+    }
+
+    if (intent.parameters?.raw_command) {
+      return intent.parameters.raw_command;
+    }
+
+    return null;
   }
 
   private formatMissingInfoRequest(intent: Intent): string {
