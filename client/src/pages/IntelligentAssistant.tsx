@@ -69,7 +69,15 @@ export default function IntelligentAssistant() {
   const [abiServerType, setAbiServerType] = useState<'vps' | 'hostinger' | 'shared'>('vps');
   const [abiFiles, setAbiFiles] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const userId = "user-" + Date.now(); // في الإنتاج، استخدم ID المستخدم الحقيقي
+  
+  const userIdRef = useRef<string>(() => {
+    const stored = localStorage.getItem('intelligent-assistant-userId');
+    if (stored) return stored;
+    const newId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('intelligent-assistant-userId', newId);
+    return newId;
+  }());
+  const userId = userIdRef.current;
 
   useEffect(() => {
     if (scrollRef.current) {

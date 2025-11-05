@@ -16,6 +16,27 @@
 
 ---
 
+## 🛡️ الأمان أولاً
+
+**ABI الجديد يأتي مع ميزات أمان متقدمة:**
+
+✅ **API Key Authentication**: كل طلب يحتاج مفتاح API  
+✅ **Command Whitelisting**: فقط الأوامر الآمنة مسموح بها  
+✅ **Input Sanitization**: تنظيف المدخلات من الأحرف الخطرة  
+✅ **Timeout Protection**: حماية من الأوامر التي تستغرق وقتاً طويلاً  
+✅ **Output Size Limits**: حد أقصى لحجم المخرجات
+
+**الأوامر المسموح بها فقط:**
+- `ls`, `pwd`, `whoami`, `date`, `uptime`
+- `df -h`, `free -m`, `top -bn1`, `ps aux`
+- `pm2 list`, `pm2 status`
+- `node --version`, `npm --version`, `git --version`
+- وغيرها من الأوامر الآمنة فقط
+
+⚠️ **أي أمر آخر سيتم رفضه تلقائياً**
+
+---
+
 ## 🚀 طريقة الحصول على ABI
 
 ### الطريقة 1: من خلال الواجهة الرسومية
@@ -27,7 +48,7 @@
    - **نوع السيرفر**: اختر من القائمة (VPS, Hostinger, Shared Hosting)
 4. انقر **"إنشاء ABI"**
 5. ستحصل على ملفين:
-   - `ai-agent.js` - الكود الرئيسي
+   - `ai-agent.js` - الكود الرئيسي (مع الأمان المدمج)
    - `package.json` - ملف الإعدادات
 
 ### الطريقة 2: من خلال المحادثة
@@ -189,30 +210,86 @@ pm2 logs ai-agent
 
 ## 🔌 استخدام ABI بعد التثبيت
 
-### اختبار الاتصال
+### 1. الحصول على API Key
 
-```bash
-# التحقق من أن Agent يعمل
-curl http://localhost:3000/health
+**عند تشغيل Agent لأول مرة، سيطبع API Key في Console:**
 
-# يجب أن ترجع:
-# {"status":"healthy","server":"YOUR-SERVER-NAME"}
+```
+🔑 Generated API Key: abc123def456...
+⚠️  Store this key securely and use it in Authorization header
 ```
 
-### إرسال أمر للتنفيذ
+**أو احصل عليه عبر API:**
 
+```bash
+curl http://localhost:3000/api-key
+```
+
+**⚠️ احفظ هذا المفتاح في مكان آمن!**
+
+### 2. اختبار الاتصال (بدون Auth)
+
+```bash
+curl http://localhost:3000/health
+```
+
+**الرد المتوقع:**
+```json
+{
+  "status": "healthy",
+  "server": "YOUR-SERVER-NAME",
+  "securityEnabled": true
+}
+```
+
+### 3. إرسال أمر للتنفيذ (مع Auth)
+
+**✅ مثال صحيح (أمر مسموح):**
 ```bash
 curl -X POST http://localhost:3000/execute \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"command": "ls -la"}'
 ```
 
-### مثال على الرد:
+**الرد:**
 ```json
 {
   "success": true,
   "output": "total 24\ndrwxr-xr-x 3 user user 4096...",
   "stderr": ""
+}
+```
+
+**❌ محاولة بدون Auth:**
+```bash
+curl -X POST http://localhost:3000/execute \
+  -H "Content-Type: application/json" \
+  -d '{"command": "ls"}'
+```
+
+**الرد:**
+```json
+{
+  "error": "Unauthorized",
+  "reason": "Missing Authorization header"
+}
+```
+
+**❌ محاولة أمر غير مسموح:**
+```bash
+curl -X POST http://localhost:3000/execute \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"command": "rm -rf /"}'
+```
+
+**الرد:**
+```json
+{
+  "success": false,
+  "error": "Command not in whitelist",
+  "allowedCommands": ["ls", "pwd", "whoami", ...]
 }
 ```
 
@@ -246,24 +323,42 @@ this.servers.set('YOUR-SERVER-NAME', {
 
 ---
 
-## 🛡️ تأمين ABI
+## 🛡️ تأمين ABI (متقدم)
 
-### 1. إضافة Authentication
+### 1. تخصيص API Key
 
-عدّل ملف `ai-agent.js` لإضافة مفتاح API:
+**عبر متغير بيئي:**
 
-```javascript
-const API_KEY = process.env.API_KEY || 'your-secret-key';
-
-// في معالج الطلبات
-if (req.headers['authorization'] !== `Bearer ${API_KEY}`) {
-  res.writeHead(401);
-  res.end(JSON.stringify({ error: 'Unauthorized' }));
-  return;
-}
+```bash
+export API_KEY="your-custom-super-secret-key-here"
+node ai-agent.js
 ```
 
-### 2. استخدام HTTPS
+**أو في PM2:**
+
+```bash
+pm2 start ai-agent.js --name "ai-agent" \
+  --env API_KEY="your-custom-key"
+```
+
+**⚠️ لا تشارك مفتاح API مع أحد!**
+
+### 2. إضافة أوامر مخصصة إلى Whitelist
+
+**عدّل `ai-agent.js` لإضافة أوامر جديدة:**
+
+```javascript
+this.allowedCommands = [
+  'ls',
+  'pwd',
+  // أضف أوامرك هنا
+  'docker ps',
+  'kubectl get pods',
+  'systemctl status nginx',
+];
+```
+
+### 3. استخدام HTTPS
 
 ```bash
 # تثبيت Certbot للحصول على شهادة SSL مجانية
