@@ -6,6 +6,7 @@
 import { OpenAI } from "openai";
 import { Anthropic } from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { HfInference } from "@huggingface/inference";
 
 export interface BrainRequest {
   userId?: string;
@@ -40,6 +41,7 @@ export class AIBrainCore {
   private openai: OpenAI | null = null;
   private anthropic: Anthropic | null = null;
   private gemini: GoogleGenerativeAI | null = null;
+  private huggingface: HfInference | null = null;
   
   private models: Map<string, ModelConfig> = new Map();
   private analytics: Map<string, any> = new Map();
@@ -52,14 +54,22 @@ export class AIBrainCore {
   private initializeProviders() {
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      console.log('✅ OpenAI connected');
     }
     
     if (process.env.ANTHROPIC_API_KEY) {
       this.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      console.log('✅ Anthropic connected');
     }
     
     if (process.env.GEMINI_API_KEY) {
       this.gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      console.log('✅ Gemini connected');
+    }
+    
+    if (process.env.HUGGINGFACE_API_KEY) {
+      this.huggingface = new HfInference(process.env.HUGGINGFACE_API_KEY);
+      console.log('✅ Hugging Face connected');
     }
   }
   
@@ -100,6 +110,43 @@ export class AIBrainCore {
       costPerToken: 0.0000001,
       maxTokens: 1000000,
       capabilities: ['chat', 'multimodal', 'fast'],
+      priority: 2,
+    });
+    
+    // Hugging Face Models
+    this.models.set('qwen-2.5-coder', {
+      name: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+      provider: 'huggingface',
+      costPerToken: 0.0000001,
+      maxTokens: 8000,
+      capabilities: ['code', 'reasoning', 'chat'],
+      priority: 2,
+    });
+    
+    this.models.set('llama-3.3', {
+      name: 'meta-llama/Llama-3.3-70B-Instruct',
+      provider: 'huggingface',
+      costPerToken: 0.0000001,
+      maxTokens: 8000,
+      capabilities: ['chat', 'reasoning', 'analysis'],
+      priority: 2,
+    });
+    
+    this.models.set('mistral-large', {
+      name: 'mistralai/Mistral-Large-Instruct-2411',
+      provider: 'huggingface',
+      costPerToken: 0.0000001,
+      maxTokens: 8000,
+      capabilities: ['chat', 'reasoning', 'code'],
+      priority: 2,
+    });
+    
+    this.models.set('deepseek-r1', {
+      name: 'deepseek-ai/DeepSeek-R1',
+      provider: 'huggingface',
+      costPerToken: 0.0000001,
+      maxTokens: 8000,
+      capabilities: ['reasoning', 'analysis', 'code'],
       priority: 2,
     });
   }
@@ -227,6 +274,18 @@ export class AIBrainCore {
         const geminiModel = this.gemini.getGenerativeModel({ model: model.name });
         const result = await geminiModel.generateContent(request.input);
         output = result.response.text();
+        tokens = 500; // تقدير
+      }
+      else if (model.provider === 'huggingface' && this.huggingface) {
+        const response = await this.huggingface.chatCompletion({
+          model: model.name,
+          messages: [
+            { role: 'user', content: request.input }
+          ],
+          max_tokens: 1000,
+        });
+        
+        output = response.choices[0]?.message?.content || '';
         tokens = 500; // تقدير
       }
     } catch (error: any) {
