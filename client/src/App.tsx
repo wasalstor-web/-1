@@ -15,6 +15,7 @@ import Settings from "@/pages/Settings";
 import Marketplace from "@/pages/Marketplace";
 import AiChat from "@/pages/AiChat";
 import ImageGenerator from "@/pages/ImageGenerator";
+import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/products/:slug" component={ProductDetails} />
       <Route path="/ai-chat" component={AiChat} />
       <Route path="/image-generator" component={ImageGenerator} />
+      <Route path="/intelligent-assistant" component={IntelligentAssistant} />
       <Route path="/projects" component={Projects} />
       <Route path="/workspace" component={Workspace} />
       <Route path="/project/:id" component={ProjectDetails} />

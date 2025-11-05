@@ -8,6 +8,7 @@ import OpenAI from "openai";
 import { HfInference } from "@huggingface/inference";
 import { PLATFORM_SYSTEM_PROMPT } from "./ai-system-prompt";
 import type { TelegramAIBot } from "./telegram-bot";
+import { IntelligentAssistant } from "./intelligent-agent/intelligent-assistant";
 
 export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot | null): Promise<Server> {
   // Initialize AI clients only if API keys are available
@@ -31,6 +32,46 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
   if (process.env.HUGGINGFACE_API_KEY) {
     hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
   }
+
+  // Initialize Intelligent Assistant
+  const intelligentAssistant = new IntelligentAssistant();
+
+  // Intelligent Assistant API routes
+  app.post("/api/intelligent-assistant/process", async (req, res) => {
+    try {
+      const { userId, message } = req.body;
+
+      if (!userId || !message) {
+        return res.status(400).json({ error: "userId and message are required" });
+      }
+
+      const response = await intelligentAssistant.processMessage(userId, message);
+      res.json(response);
+    } catch (error: any) {
+      console.error("Error in intelligent assistant:", error);
+      res.status(500).json({ error: error.message || "Failed to process message" });
+    }
+  });
+
+  app.post("/api/intelligent-assistant/clear-history", async (req, res) => {
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      intelligentAssistant.clearHistory(userId);
+      res.json({ success: true, message: "History cleared" });
+    } catch (error: any) {
+      console.error("Error clearing history:", error);
+      res.status(500).json({ error: error.message || "Failed to clear history" });
+    }
+  });
+
+  app.get("/api/intelligent-assistant/system-prompt", (req, res) => {
+    res.json({ systemPrompt: intelligentAssistant.getSystemPrompt() });
+  });
 
   // Project routes
   app.get("/api/projects", async (req, res) => {
