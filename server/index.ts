@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { TelegramAIBot } from "./telegram-bot";
 
 const app = express();
 
@@ -77,5 +78,15 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+  });
+
+  // Initialize Telegram Bot
+  const telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN);
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    log('Shutting down gracefully...');
+    telegramBot.stop();
+    process.exit(0);
   });
 })();

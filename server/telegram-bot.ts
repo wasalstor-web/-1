@@ -1,0 +1,315 @@
+import TelegramBot from 'node-telegram-bot-api';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { storage } from './storage';
+
+// AI Model configurations
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+
+const MODELS = {
+  'gpt-4o-mini': { name: 'GPT-4 Mini', provider: 'openai' as const },
+  'gpt-4o': { name: 'GPT-4', provider: 'openai' as const },
+  'claude-3-5-sonnet-latest': { name: 'Claude 3.5 Sonnet', provider: 'anthropic' as const },
+  'gemini-2.0-flash-exp': { name: 'Gemini 2.0 Flash', provider: 'gemini' as const },
+};
+
+type ModelKey = keyof typeof MODELS;
+
+export class TelegramAIBot {
+  private bot: TelegramBot | null = null;
+
+  constructor(token?: string) {
+    if (!token) {
+      console.log('⚠️ TELEGRAM_BOT_TOKEN not provided. Telegram bot is disabled.');
+      return;
+    }
+
+    this.bot = new TelegramBot(token, { polling: true });
+    this.setupCommands();
+    this.setupMessageHandler();
+    
+    console.log('🤖 Telegram Bot started successfully!');
+  }
+
+  private setupCommands() {
+    if (!this.bot) return;
+
+    // /start command
+    this.bot.onText(/\/start/, async (msg) => {
+      const chatId = msg.chat.id;
+      const user = msg.from;
+      
+      if (!user) return;
+
+      // Get or create Telegram user
+      let telegramUser = await storage.getTelegramUser(user.id);
+      
+      if (!telegramUser) {
+        telegramUser = await storage.createTelegramUser({
+          telegramUserId: user.id,
+          username: user.username,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          selectedModel: 'gpt-4o-mini',
+          conversationHistory: '[]',
+        });
+      }
+
+      const welcomeMessage = `
+🤖 *مرحباً بك في بوت الذكاء الاصطناعي!*
+
+أنا بوت متقدم يستخدم أحدث نماذج الذكاء الاصطناعي لمساعدتك:
+• GPT-4 و GPT-4 Mini من OpenAI
+• Claude 3.5 Sonnet من Anthropic
+• Gemini 2.0 Flash من Google
+
+🎯 *الأوامر المتاحة:*
+/start - بدء المحادثة
+/help - عرض المساعدة
+/model - اختيار نموذج AI
+/clear - مسح سجل المحادثة
+
+النموذج الحالي: *${MODELS[telegramUser.selectedModel as ModelKey].name}*
+
+أرسل أي رسالة وسأساعدك! 💬
+      `;
+
+      this.bot?.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+    });
+
+    // /help command
+    this.bot.onText(/\/help/, async (msg) => {
+      const chatId = msg.chat.id;
+      
+      const helpMessage = `
+📚 *دليل الاستخدام*
+
+*الأوامر الأساسية:*
+/start - بدء محادثة جديدة
+/model - تغيير نموذج AI
+/clear - مسح سجل المحادثة
+/help - عرض هذه المساعدة
+
+*النماذج المتاحة:*
+• GPT-4 Mini - سريع واقتصادي ✨
+• GPT-4 - قوي ودقيق 🚀
+• Claude 3.5 Sonnet - متوازن ومتطور 🎯
+• Gemini 2.0 Flash - سريع ومبتكر ⚡
+
+*كيفية الاستخدام:*
+فقط أرسل رسالتك وسأجيبك مباشرة! أنا أحتفظ بسياق المحادثة لتجربة أفضل.
+
+*مثال:*
+\`اكتب لي كود Python لحساب الفيبوناتشي\`
+      `;
+
+      this.bot?.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+    });
+
+    // /model command
+    this.bot.onText(/\/model/, async (msg) => {
+      const chatId = msg.chat.id;
+      const userId = msg.from?.id;
+      
+      if (!userId) return;
+
+      const keyboard = {
+        inline_keyboard: [
+          [{ text: '✨ GPT-4 Mini', callback_data: 'model:gpt-4o-mini' }],
+          [{ text: '🚀 GPT-4', callback_data: 'model:gpt-4o' }],
+          [{ text: '🎯 Claude 3.5 Sonnet', callback_data: 'model:claude-3-5-sonnet-latest' }],
+          [{ text: '⚡ Gemini 2.0 Flash', callback_data: 'model:gemini-2.0-flash-exp' }],
+        ]
+      };
+
+      this.bot?.sendMessage(chatId, '🤖 *اختر نموذج AI:*', {
+        parse_mode: 'Markdown',
+        reply_markup: keyboard
+      });
+    });
+
+    // /clear command
+    this.bot.onText(/\/clear/, async (msg) => {
+      const chatId = msg.chat.id;
+      const userId = msg.from?.id;
+      
+      if (!userId) return;
+
+      await storage.updateTelegramUser(userId, {
+        conversationHistory: '[]'
+      });
+
+      this.bot?.sendMessage(chatId, '✅ تم مسح سجل المحادثة بنجاح!');
+    });
+
+    // Handle model selection callbacks
+    this.bot.on('callback_query', async (query) => {
+      const chatId = query.message?.chat.id;
+      const userId = query.from.id;
+      const data = query.data;
+
+      if (!chatId || !data) return;
+
+      if (data.startsWith('model:')) {
+        const modelKey = data.replace('model:', '') as ModelKey;
+        
+        await storage.updateTelegramUser(userId, {
+          selectedModel: modelKey
+        });
+
+        this.bot?.answerCallbackQuery(query.id);
+        this.bot?.sendMessage(chatId, `✅ تم تغيير النموذج إلى: *${MODELS[modelKey].name}*`, {
+          parse_mode: 'Markdown'
+        });
+      }
+    });
+  }
+
+  private setupMessageHandler() {
+    if (!this.bot) return;
+
+    this.bot.on('message', async (msg) => {
+      // Skip if it's a command
+      if (msg.text?.startsWith('/')) return;
+
+      const chatId = msg.chat.id;
+      const userId = msg.from?.id;
+      const text = msg.text;
+
+      if (!userId || !text) return;
+
+      // Get user data
+      const telegramUser = await storage.getTelegramUser(userId);
+      if (!telegramUser) {
+        this.bot?.sendMessage(chatId, '⚠️ الرجاء البدء بكتابة /start أولاً');
+        return;
+      }
+
+      // Show typing indicator
+      this.bot?.sendChatAction(chatId, 'typing');
+
+      try {
+        // Get conversation history
+        const history = JSON.parse(telegramUser.conversationHistory || '[]') as Array<{role: string, content: string}>;
+        
+        // Add user message to history
+        history.push({ role: 'user', content: text });
+
+        // Get AI response
+        const response = await this.getAIResponse(
+          telegramUser.selectedModel as ModelKey,
+          history
+        );
+
+        // Add AI response to history
+        history.push({ role: 'assistant', content: response });
+
+        // Keep only last 20 messages (10 exchanges)
+        const trimmedHistory = history.slice(-20);
+
+        // Update user history
+        await storage.updateTelegramUser(userId, {
+          conversationHistory: JSON.stringify(trimmedHistory)
+        });
+
+        // Send response (split if too long)
+        if (response.length > 4096) {
+          const chunks = this.splitMessage(response, 4096);
+          for (const chunk of chunks) {
+            await this.bot?.sendMessage(chatId, chunk, { parse_mode: 'Markdown' });
+          }
+        } else {
+          this.bot?.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+        }
+
+      } catch (error) {
+        console.error('❌ Error handling message:', error);
+        this.bot?.sendMessage(chatId, '⚠️ عذراً، حدث خطأ أثناء معالجة رسالتك. الرجاء المحاولة مرة أخرى.');
+      }
+    });
+  }
+
+  private async getAIResponse(model: ModelKey, history: Array<{role: string, content: string}>): Promise<string> {
+    const modelConfig = MODELS[model];
+
+    try {
+      if (modelConfig.provider === 'openai') {
+        if (!openai) throw new Error('OpenAI API key not configured');
+        
+        const completion = await openai.chat.completions.create({
+          model: model,
+          messages: history as any,
+          temperature: 0.7,
+        });
+
+        return completion.choices[0].message.content || 'لم أتمكن من إنشاء رد.';
+      }
+
+      if (modelConfig.provider === 'anthropic') {
+        if (!anthropic) throw new Error('Anthropic API key not configured');
+
+        // Convert history to Anthropic format (exclude system messages)
+        const messages = history.map(msg => ({
+          role: msg.role === 'assistant' ? 'assistant' : 'user',
+          content: msg.content
+        }));
+
+        const message = await anthropic.messages.create({
+          model: model,
+          max_tokens: 1024,
+          messages: messages as any,
+        });
+
+        const content = message.content[0];
+        return content.type === 'text' ? content.text : 'لم أتمكن من إنشاء رد.';
+      }
+
+      if (modelConfig.provider === 'gemini') {
+        if (!genAI) throw new Error('Gemini API key not configured');
+
+        const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        
+        // Convert to Gemini format (last message is the prompt)
+        const lastMessage = history[history.length - 1];
+        const result = await geminiModel.generateContent(lastMessage.content);
+        
+        return result.response.text() || 'لم أتمكن من إنشاء رد.';
+      }
+
+      throw new Error('Unsupported model provider');
+    } catch (error) {
+      console.error(`❌ Error getting response from ${modelConfig.name}:`, error);
+      throw error;
+    }
+  }
+
+  private splitMessage(text: string, maxLength: number): string[] {
+    const chunks: string[] = [];
+    let currentChunk = '';
+
+    const lines = text.split('\n');
+
+    for (const line of lines) {
+      if ((currentChunk + line + '\n').length > maxLength) {
+        if (currentChunk) chunks.push(currentChunk.trim());
+        currentChunk = line + '\n';
+      } else {
+        currentChunk += line + '\n';
+      }
+    }
+
+    if (currentChunk) chunks.push(currentChunk.trim());
+
+    return chunks;
+  }
+
+  public stop() {
+    if (this.bot) {
+      this.bot.stopPolling();
+      console.log('🛑 Telegram Bot stopped');
+    }
+  }
+}
