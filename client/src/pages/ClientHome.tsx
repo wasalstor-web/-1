@@ -323,8 +323,14 @@ export default function ClientHome() {
               </p>
             </motion.div>
             <motion.div className="flex flex-col sm:flex-row gap-4" variants={fadeInUp}>
+              <Link href="/chat">
+                <Button size="lg" className="h-12 px-8 gap-2" data-testid="button-try-chat">
+                  <Sparkles className="w-5 h-5" />
+                  جرب المحادثة الآن
+                </Button>
+              </Link>
               <Link href="/admin/marketplace">
-                <Button size="lg" className="h-12 px-8" data-testid="button-start-now">
+                <Button size="lg" variant="outline" className="h-12 px-8" data-testid="button-start-now">
                   Start Now
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
