@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema, insertServerSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema, insertServerSchema, insertServerCommandSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -249,6 +249,70 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
     } catch (error: any) {
       console.error("Error executing command on server:", error);
       res.status(500).json({ error: error.message || "Failed to execute command" });
+    }
+  });
+
+  // Server Commands API (for database-based command queue)
+  app.post("/api/servers/:serverId/commands", async (req, res) => {
+    try {
+      const { serverId } = req.params;
+      const { command } = req.body;
+      
+      if (!command) {
+        return res.status(400).json({ error: "command is required" });
+      }
+      
+      const server = await storage.getServer(serverId);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+      
+      const cmdData = { serverId, command };
+      const cmd = await storage.createServerCommand(cmdData);
+      res.status(201).json(cmd);
+    } catch (error: any) {
+      console.error("Error creating command:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  app.get("/api/servers/:serverId/commands/pending", async (req, res) => {
+    try {
+      const { serverId } = req.params;
+      const { apiKey } = req.query;
+      
+      const server = await storage.getServer(serverId);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+      
+      if (apiKey !== server.apiKey) {
+        return res.status(401).json({ error: "Invalid API key" });
+      }
+      
+      const commands = await storage.getPendingCommands(serverId);
+      res.json(commands);
+    } catch (error: any) {
+      console.error("Error fetching commands:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  app.post("/api/servers/:serverId/commands/:commandId/complete", async (req, res) => {
+    try {
+      const { serverId, commandId } = req.params;
+      const { result, exitCode, apiKey } = req.body;
+      
+      const server = await storage.getServer(serverId);
+      if (!server || apiKey !== server.apiKey) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      
+      await storage.completeServerCommand(commandId, result || '', exitCode || 0);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error completing command:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 

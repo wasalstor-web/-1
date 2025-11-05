@@ -124,6 +124,17 @@ export const servers = pgTable("servers", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const serverCommands = pgTable("server_commands", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  serverId: varchar("server_id").notNull().references(() => servers.id),
+  command: text("command").notNull(),
+  status: text("status").notNull().default('pending'),
+  result: text("result"),
+  exitCode: integer("exit_code"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  executedAt: timestamp("executed_at"),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -186,6 +197,15 @@ export const insertServerSchema = createInsertSchema(servers).omit({
   lastPing: true,
 });
 
+export const insertServerCommandSchema = createInsertSchema(serverCommands).omit({
+  id: true,
+  createdAt: true,
+  executedAt: true,
+  result: true,
+  exitCode: true,
+  status: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
@@ -208,3 +228,5 @@ export type TelegramUser = typeof telegramUsers.$inferSelect;
 export type InsertTelegramUser = z.infer<typeof insertTelegramUserSchema>;
 export type Server = typeof servers.$inferSelect;
 export type InsertServer = z.infer<typeof insertServerSchema>;
+export type ServerCommand = typeof serverCommands.$inferSelect;
+export type InsertServerCommand = z.infer<typeof insertServerCommandSchema>;
