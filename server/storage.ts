@@ -94,6 +94,7 @@ export interface IStorage {
   // Server Command methods
   createServerCommand(command: InsertServerCommand): Promise<ServerCommand>;
   getPendingCommands(serverId: string): Promise<ServerCommand[]>;
+  getServerCommandHistory(serverId: string, limit?: number): Promise<ServerCommand[]>;
   completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void>;
 }
 
@@ -938,6 +939,13 @@ export class MemStorage implements IStorage {
     return Array.from(this.serverCommands.values())
       .filter(cmd => cmd.serverId === serverId && cmd.status === 'pending')
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async getServerCommandHistory(serverId: string, limit: number = 20): Promise<ServerCommand[]> {
+    return Array.from(this.serverCommands.values())
+      .filter(cmd => cmd.serverId === serverId && cmd.status === 'completed')
+      .sort((a, b) => (b.executedAt?.getTime() || 0) - (a.executedAt?.getTime() || 0))
+      .slice(0, limit);
   }
   
   async completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void> {
