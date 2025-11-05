@@ -180,8 +180,3 @@ export const PLATFORM_SYSTEM_PROMPT = `أنت مساعد ذكي متخصص في 
 5. **الاحترافية:** حافظ على أسلوب محترف ومفيد
 
 أنت الآن جاهز لمساعدة المستخدمين في منصة AI المتكاملة! 🚀`;
-
-export const getSystemPromptForModel = (modelProvider: 'openai' | 'anthropic' | 'gemini'): string => {
-  // Base prompt that works for all models
-  return PLATFORM_SYSTEM_PROMPT;
-};
