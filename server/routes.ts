@@ -5,6 +5,7 @@ import { insertProjectSchema, insertConversationSchema, insertCategorySchema, in
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
+import { PLATFORM_SYSTEM_PROMPT } from "./ai-system-prompt";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize AI clients only if API keys are available
@@ -395,9 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
-      const systemPrompt = context === 'general' 
-        ? "أنت مساعد AI متخصص في البرمجة والتطوير. ساعد المستخدمين في كتابة الكود وحل المشاكل التقنية. قدم إجابات واضحة ودقيقة مع أمثلة عملية باستخدام Markdown و Code Blocks."
-        : "أنت مساعد AI ذكي. ساعد المستخدمين وقدم إجابات مفيدة.";
+      // Use comprehensive platform system prompt
+      const systemPrompt = PLATFORM_SYSTEM_PROMPT;
 
       // GPT-4 Mini (OpenAI)
       if (model === 'gpt-4o-mini' || model === 'gpt-4') {
