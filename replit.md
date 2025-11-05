@@ -2,6 +2,55 @@
 
 ## Recent Updates (November 5, 2025)
 
+### 🖥️ **SSH Remote Server Management (NEW!)**
+Complete SSH integration for remote VPS server control:
+
+#### SSH Executor
+- **Full SSH Support**: Execute commands on remote servers via SSH protocol
+- **Dual Authentication**: Supports both SSH keys and password authentication
+- **Security**: 30-second timeout protection, comprehensive error handling
+- **Real-time Execution**: Direct command execution with instant results
+- **Command Logging**: All commands logged in `server_commands` table
+
+#### Telegram Bot Integration
+- **`/execute` command**: Execute any command on VPS directly from Telegram
+- **Live Results**: Instant feedback with exit codes and output
+- **Arabic Interface**: Full Arabic support with clear status messages
+- **Multi-Server Support**: Automatic detection of active SSH-enabled servers
+
+#### API Endpoints
+- `POST /api/servers/:id/execute` - Execute command via SSH
+- `POST /api/servers/:id/test` - Test SSH connection
+- `GET /api/servers` - List all registered servers
+- `POST /api/servers` - Register new server
+
+#### Database Schema
+- Extended `servers` table with SSH fields:
+  - `ssh_enabled`, `ssh_host`, `ssh_port`, `ssh_username`
+  - `ssh_password`, `ssh_private_key`
+- `server_commands` table for command history and audit trail
+
+#### Real Production Server
+- **Current Server**: `srv973932.hstgr.cloud` (46.202.159.100)
+- **Status**: ✅ Fully Connected via SSH
+- **Uptime**: 7+ days
+- **Resources**: 199GB storage (49% used), 7.7GB RAM
+- **OS**: Linux 5.14.0-570.46.1.el9_6.x86_64
+
+#### Example Usage
+```bash
+# Via Telegram Bot:
+/execute hostname          # → srv973932.hstgr.cloud
+/execute uptime           # → 7 days, 1:08
+/execute df -h            # → Disk space info
+/execute ps aux | head -10 # → Running processes
+
+# Via API:
+curl -X POST /api/servers/:id/execute \
+  -d '{"command": "hostname"}'
+→ {"success": true, "output": "srv973932.hstgr.cloud\n", "exitCode": 0}
+```
+
 ### 🧠 Advanced Intelligent Assistant System
 The Intelligent Assistant has been significantly enhanced with powerful new capabilities:
 
