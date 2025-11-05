@@ -5,14 +5,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiRequest } from '@/lib/queryClient';
-import { Send, Sparkles, Loader2, CheckCircle2, XCircle, Brain } from 'lucide-react';
+import { Send, Sparkles, Loader2, CheckCircle2, XCircle, Brain, Zap } from 'lucide-react';
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  model?: string;
 }
 
 export default function AIChatPage() {
@@ -20,11 +28,13 @@ export default function AIChatPage() {
     {
       id: '1',
       role: 'assistant',
-      content: 'مرحباً! أنا الوكيل الذكي لمنصة مبسط AI. يمكنني مساعدتك في:\n\n• الإجابة على الأسئلة\n• كتابة وتحليل الأكواد البرمجية\n• إنشاء المحتوى والنصوص\n• تنفيذ الأوامر والمهام\n• تحليل البيانات وحل المشكلات\n\nما الذي تحتاج مساعدة فيه اليوم؟',
-      timestamp: new Date()
+      content: 'مرحباً! أنا الوكيل الذكي لمنصة مبسط AI. لديك 8 نماذج ذكاء اصطناعي تحت تصرفك:\n\n🤖 **OpenAI**: GPT-4, GPT-4 Mini\n🧠 **Anthropic**: Claude 3.5 Sonnet\n✨ **Google**: Gemini 2.0 Flash\n🚀 **Hugging Face**: Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1\n\nاختر النموذج الذي تريده من القائمة أعلاه، وابدأ المحادثة! يمكنك التبديل بين النماذج في أي وقت.\n\nما الذي تحتاج مساعدة فيه اليوم؟',
+      timestamp: new Date(),
+      model: 'system'
     }
   ]);
   const [input, setInput] = useState('');
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-4');
   const [sessionId] = useState(() => `session-${Date.now()}`);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +50,7 @@ export default function AIChatPage() {
         input: userInput,
         sessionId,
         userId: 'user-1',
+        model: selectedModel, // النموذج المختار
         context: {
           previousMessages: messages.slice(-5).map(m => ({
             role: m.role,
@@ -56,7 +67,8 @@ export default function AIChatPage() {
         id: `msg-${Date.now()}`,
         role: 'assistant',
         content: data.output || data.response || 'عذراً، لم أتمكن من معالجة طلبك.',
-        timestamp: new Date()
+        timestamp: new Date(),
+        model: data.model || selectedModel
       };
       setMessages(prev => [...prev, assistantMessage]);
     },
@@ -79,7 +91,8 @@ export default function AIChatPage() {
       id: `msg-${Date.now()}`,
       role: 'user',
       content: input,
-      timestamp: new Date()
+      timestamp: new Date(),
+      model: selectedModel
     };
 
     setMessages(prev => [...prev, userMessage]);
