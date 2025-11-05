@@ -25,7 +25,7 @@ export interface IntentAnalysisResult {
   executionPlan?: string[];
 }
 
-const INTENT_ANALYSIS_PROMPT = `أنت محلل نوايا ذكي جداً. مهمتك تحليل رسائل المستخدم وتحديد النية بدقة عالية.
+const INTENT_ANALYSIS_PROMPT = `أنت محلل نوايا ذكي متخصص في تحليل أوامر السيرفر والأنظمة.
 
 قواعد التحليل:
 1. حدد نوع النية: أمر (command)، سؤال (question)، مهمة (task)، أو غير واضح (unclear)
@@ -34,11 +34,26 @@ const INTENT_ANALYSIS_PROMPT = `أنت محلل نوايا ذكي جداً. مه
 4. قيّم مستوى الثقة من 0 إلى 1
 5. حدد إذا كانت المهمة تحتاج VPS معين أو نموذج AI أقوى
 
+أوامر السيرفر المدعومة:
+- "hostname" أو "ما اسم السيرفر" → action: hostname
+- "uptime" أو "مدة التشغيل" → action: uptime  
+- "df" أو "مساحة القرص" أو "المساحة" → action: show_disk
+- "free" أو "الذاكرة" أو "الرام" → action: show_memory
+- "date" أو "التاريخ" أو "الوقت" → action: current_time
+- "uname" أو "معلومات النظام" → action: system_info
+- "ps" أو "العمليات" → action: check_processes
+- "ip addr" أو "الشبكة" → action: network_info
+- "who" أو "المستخدمين" → action: who_logged_in
+- "ls" أو "الملفات" → action: list_files
+
+إذا كان الأمر مباشر (مثل: hostname, uptime, df -h) ضعه في parameters.raw_command
+
 أمثلة:
-- "ارفع ملف على السيرفر" → command: upload_file, target: server, confidence: 0.9
-- "شغل البوت" → command: start_bot, target: bot_service, confidence: 0.95
+- "hostname" → command: hostname, confidence: 1.0
+- "اعرض مساحة القرص" → command: show_disk, confidence: 0.95
+- "شو وضع الذاكرة" → command: show_memory, confidence: 0.9
+- "df -h" → command: show_disk, parameters: {raw_command: "df -h"}, confidence: 1.0
 - "ابني لي موقع" → task: build_website, confidence: 0.8, needsMoreInfo: true
-- "كيف الحال؟" → question: greeting, confidence: 1.0
 
 الرد بصيغة JSON فقط.`;
 

@@ -124,6 +124,18 @@ export class VPSExecutor {
       'node',
       'npm',
       'pm2',
+      'hostname',
+      'uname',
+      'free',
+      'ip',
+      'who',
+      'last',
+      'top',
+      'htop',
+      'netstat',
+      'ifconfig',
+      'wget',
+      'curl',
     ];
 
     // الأوامر الممنوعة بشدة

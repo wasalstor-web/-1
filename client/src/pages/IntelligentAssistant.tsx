@@ -596,6 +596,72 @@ export default function IntelligentAssistant() {
             </div>
 
             <div className="pt-4 border-t space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">أوامر سريعة:</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("hostname")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-hostname"
+                >
+                  <Terminal className="w-3 h-3 ml-1" />
+                  اسم السيرفر
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("uptime")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-uptime"
+                >
+                  <Activity className="w-3 h-3 ml-1" />
+                  مدة التشغيل
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("df -h")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-disk"
+                >
+                  <HardDrive className="w-3 h-3 ml-1" />
+                  مساحة القرص
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("free -h")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-memory"
+                >
+                  <MemoryStick className="w-3 h-3 ml-1" />
+                  الذاكرة
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("ps aux | head -15")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-processes"
+                >
+                  <Cpu className="w-3 h-3 ml-1" />
+                  العمليات
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("uname -a")}
+                  className="text-xs justify-start"
+                  data-testid="button-quick-sysinfo"
+                >
+                  <Info className="w-3 h-3 ml-1" />
+                  معلومات
+                </Button>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t space-y-2">
               <p className="text-xs font-semibold text-muted-foreground">أمثلة على الأوامر:</p>
               <div className="space-y-1 text-xs text-muted-foreground">
                 <p>• "تحقق من حالة السيرفر"</p>
