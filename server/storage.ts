@@ -18,7 +18,9 @@ import {
   type AiMessage,
   type InsertAiMessage,
   type TelegramUser,
-  type InsertTelegramUser
+  type InsertTelegramUser,
+  type Server,
+  type InsertServer
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./utils/auth";
@@ -79,6 +81,13 @@ export interface IStorage {
   getTelegramUser(telegramUserId: number): Promise<TelegramUser | undefined>;
   createTelegramUser(user: InsertTelegramUser): Promise<TelegramUser>;
   updateTelegramUser(telegramUserId: number, updates: Partial<InsertTelegramUser>): Promise<TelegramUser | undefined>;
+
+  // Server methods
+  getAllServers(): Promise<Server[]>;
+  getServer(id: string): Promise<Server | undefined>;
+  createServer(server: InsertServer): Promise<Server>;
+  updateServerPing(id: string): Promise<void>;
+  deleteServer(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -92,6 +101,7 @@ export class MemStorage implements IStorage {
   private aiConversations: Map<string, AiConversation>;
   private aiMessages: Map<string, AiMessage>;
   private telegramUsers: Map<number, TelegramUser>;
+  private servers: Map<string, Server>;
 
   constructor() {
     this.users = new Map();
@@ -104,6 +114,7 @@ export class MemStorage implements IStorage {
     this.aiConversations = new Map();
     this.aiMessages = new Map();
     this.telegramUsers = new Map();
+    this.servers = new Map();
     this.seedData();
   }
 
@@ -862,6 +873,42 @@ export class MemStorage implements IStorage {
     };
     this.telegramUsers.set(telegramUserId, updated);
     return updated;
+  }
+
+  // Server methods
+  async getAllServers(): Promise<Server[]> {
+    return Array.from(this.servers.values());
+  }
+
+  async getServer(id: string): Promise<Server | undefined> {
+    return this.servers.get(id);
+  }
+
+  async createServer(server: InsertServer): Promise<Server> {
+    const newServer: Server = {
+      id: randomUUID(),
+      ...server,
+      isActive: server.isActive ?? true,
+      port: server.port ?? 45000,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastPing: null,
+    };
+    this.servers.set(newServer.id, newServer);
+    return newServer;
+  }
+
+  async updateServerPing(id: string): Promise<void> {
+    const server = this.servers.get(id);
+    if (server) {
+      server.lastPing = new Date();
+      server.updatedAt = new Date();
+      this.servers.set(id, server);
+    }
+  }
+
+  async deleteServer(id: string): Promise<boolean> {
+    return this.servers.delete(id);
   }
 }
 
