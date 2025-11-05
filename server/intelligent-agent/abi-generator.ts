@@ -201,16 +201,6 @@ class UnifiedAIAgent {
         return;
       }
 
-      // Get API key (public, for initial setup only)
-      if (req.method === 'GET' && req.url === '/api-key') {
-        res.writeHead(200);
-        res.end(JSON.stringify({ 
-          apiKey: this.apiKey,
-          note: 'Store this key securely. Use it as: Authorization: Bearer <key>'
-        }));
-        return;
-      }
-
       // Execute endpoint (requires auth)
       if (req.method === 'POST' && req.url === '/execute') {
         // Authenticate
@@ -253,13 +243,19 @@ class UnifiedAIAgent {
     server.listen(this.port, () => {
       console.log(\`\\n🤖 AI Agent running on port \${this.port}\`);
       console.log(\`📡 Server: ${config.serverName}\`);
+      console.log(\`\\n🔐 IMPORTANT: Save your API Key securely!\`);
       console.log(\`🔑 API Key: \${this.apiKey}\`);
+      console.log(\`\\n⚠️  This key will not be shown again!\`);
+      console.log(\`⚠️  Use it in Authorization header: "Bearer <your-key>"\`);
       console.log(\`\\nEndpoints:\`);
       console.log(\`  GET  /health      - Health check (public)\`);
-      console.log(\`  GET  /api-key     - Get API key (public, setup only)\`);
-      console.log(\`  POST /execute     - Execute command (requires auth)\`);
-      console.log(\`\\n⚠️  SECURITY: Only whitelisted commands are allowed\`);
-      console.log(\`📋 Allowed commands: \${this.allowedCommands.length} commands\`);
+      console.log(\`  POST /execute     - Execute command (requires Authorization header)\`);
+      console.log(\`\\n🛡️  SECURITY FEATURES:\`);
+      console.log(\`  ✅ API Key Authentication required\`);
+      console.log(\`  ✅ Command Whitelisting (\${this.allowedCommands.length} safe commands)\`);
+      console.log(\`  ✅ Input Sanitization\`);
+      console.log(\`  ✅ Timeout Protection (30s)\`);
+      console.log(\`  ✅ Output Size Limits (1MB)\`);
     });
   }
 }

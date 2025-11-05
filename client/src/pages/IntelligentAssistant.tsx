@@ -70,13 +70,17 @@ export default function IntelligentAssistant() {
   const [abiFiles, setAbiFiles] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const userIdRef = useRef<string>(() => {
+  const userIdRef = useRef<string>("");
+  if (!userIdRef.current) {
     const stored = localStorage.getItem('intelligent-assistant-userId');
-    if (stored) return stored;
-    const newId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('intelligent-assistant-userId', newId);
-    return newId;
-  }());
+    if (stored) {
+      userIdRef.current = stored;
+    } else {
+      const newId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('intelligent-assistant-userId', newId);
+      userIdRef.current = newId;
+    }
+  }
   const userId = userIdRef.current;
 
   useEffect(() => {
