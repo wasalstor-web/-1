@@ -1240,6 +1240,10 @@ The logo should be:
   const { registerBotRegistryRoutes } = await import("./bot-registry-routes");
   registerBotRegistryRoutes(app);
 
+  // Register AI Brain Routes
+  const { registerAIBrainRoutes } = await import("./ai-brain-routes");
+  registerAIBrainRoutes(app);
+
   const httpServer = createServer(app);
   return httpServer;
 }

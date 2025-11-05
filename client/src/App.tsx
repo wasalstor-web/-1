@@ -18,6 +18,7 @@ import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import ServerManager from "@/pages/ServerManager";
 import BotRegistry from "@/pages/BotRegistry";
+import AIBrainDashboard from "@/pages/AIBrainDashboard";
 import ClientHome from "@/pages/ClientHome";
 import QuickSSH from "@/pages/QuickSSH";
 import NotFound from "@/pages/not-found";
@@ -32,6 +33,7 @@ function AdminRouter() {
       <Route path="/admin/intelligent-assistant" component={IntelligentAssistant} />
       <Route path="/admin/server-manager" component={ServerManager} />
       <Route path="/admin/bot-registry" component={BotRegistry} />
+      <Route path="/admin/ai-brain" component={AIBrainDashboard} />
       <Route path="/admin/projects" component={Projects} />
       <Route path="/admin/workspace" component={Workspace} />
       <Route path="/admin/project/:id" component={ProjectDetails} />
