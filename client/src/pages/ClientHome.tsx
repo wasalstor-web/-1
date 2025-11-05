@@ -26,14 +26,24 @@ import {
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { contactFormSchema, type ContactForm } from '@shared/schema';
+import { contactFormSchema, type ContactForm, type Product } from '@shared/schema';
 import { motion } from 'framer-motion';
 
 export default function ClientHome() {
   const { toast } = useToast();
+  
+  // Fetch featured products from database
+  const { data: featuredProducts, isLoading: productsLoading } = useQuery<Product[]>({
+    queryKey: ['/api/products', 'featured'],
+    queryFn: async () => {
+      const response = await fetch('/api/products?featured=true');
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return response.json();
+    },
+  });
   
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactFormSchema),
@@ -456,8 +466,96 @@ export default function ClientHome() {
         </div>
       </section>
 
-      {/* API Integrations */}
+      {/* Featured Products Section */}
       <section className="container py-24 bg-muted/50">
+        <motion.div 
+          className="text-center space-y-4 mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeInUp}
+        >
+          <h2 className="text-4xl font-bold" data-testid="text-featured-products-title">
+            Featured AI Products
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover our most popular AI solutions
+          </p>
+        </motion.div>
+        
+        {productsLoading ? (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="p-8 animate-pulse">
+                <div className="h-48 bg-muted rounded-md" />
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <motion.div 
+            className="grid lg:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            {featuredProducts?.map((product, index) => (
+              <motion.div key={product.id} variants={scaleIn}>
+                <Card 
+                  className="p-8 hover-elevate active-elevate-2 transition-all h-full flex flex-col" 
+                  data-testid={`featured-product-${index}`}
+                >
+                  <CardHeader className="p-0 mb-6">
+                    <motion.div 
+                      className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Sparkles className="w-7 h-7 text-primary" />
+                    </motion.div>
+                    <CardTitle className="text-xl">{product.name}</CardTitle>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-3xl font-bold text-primary">${product.price}</span>
+                      {product.rating && (
+                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                          ⭐ {product.rating}
+                        </span>
+                      )}
+                    </div>
+                    <CardDescription className="text-base mt-4">
+                      {product.shortDescription || product.description?.substring(0, 100)}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0 flex-1 flex flex-col justify-between gap-6">
+                    {product.features && product.features.length > 0 && (
+                      <ul className="space-y-2">
+                        {product.features.slice(0, 4).map((feature, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-sm">
+                            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div>
+                      <Button 
+                        variant="default" 
+                        className="w-full" 
+                        data-testid={`button-view-product-${index}`}
+                      >
+                        View Details <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </section>
+
+      {/* API Integrations */}
+      <section className="container py-24">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-4xl font-bold" data-testid="text-integrations-title">
             Trusted Integrations
