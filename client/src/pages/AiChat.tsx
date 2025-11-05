@@ -14,9 +14,24 @@ import {
   Trash2,
   Code2,
   Zap,
-  Bot
+  Bot,
+  Bug,
+  FileCode,
+  TestTube,
+  Gauge,
+  BookOpen,
+  Search,
+  Brain
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { AiConversation, AiMessage } from '@shared/schema';
+import { MessageContent } from '@/components/MessageContent';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -28,6 +43,8 @@ export default function AiChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversations = [] } = useQuery<AiConversation[]>({
@@ -83,6 +100,37 @@ export default function AiChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + Enter to send
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (input.trim() && !isStreaming) {
+          handleSendMessage();
+        }
+      }
+      
+      // Ctrl/Cmd + N for new conversation
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        createConversationMutation.mutate('محادثة جديدة');
+      }
+      
+      // Esc to stop streaming or clear input
+      if (e.key === 'Escape') {
+        if (isStreaming) {
+          setIsStreaming(false);
+        } else if (input) {
+          setInput('');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [input, isStreaming, selectedConversationId]);
+
   const handleSendMessage = async () => {
     if (!input.trim() || isStreaming) return;
 
@@ -116,6 +164,7 @@ export default function AiChat() {
         body: JSON.stringify({
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
           context: 'general',
+          model: selectedModel,
         }),
       });
 
@@ -179,11 +228,16 @@ export default function AiChat() {
     createConversationMutation.mutate('محادثة جديدة');
   };
 
+  const filteredConversations = conversations.filter(conv =>
+    conv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (conv.context && conv.context.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="flex h-screen bg-[#0A0A0F] text-white" dir="rtl">
       {/* Sidebar */}
       <div className="w-80 border-l border-white/10 bg-[#0F0F14] flex flex-col">
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6 border-b border-white/10 space-y-3">
           <Button
             onClick={handleNewChat}
             disabled={createConversationMutation.isPending}
@@ -193,11 +247,28 @@ export default function AiChat() {
             <Plus className="w-5 h-5 ml-2" />
             محادثة جديدة
           </Button>
+          
+          {/* Search Box */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Input
+              placeholder="ابحث في المحادثات..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pr-10 bg-[#16161D] border-white/20 text-sm focus:border-cyan-500"
+              data-testid="input-search-conversations"
+            />
+          </div>
         </div>
 
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-2">
-            {conversations.map((conv) => (
+            {filteredConversations.length === 0 ? (
+              <div className="text-center py-8 text-white/40 text-sm">
+                {searchQuery ? 'لا توجد نتائج' : 'لا توجد محادثات'}
+              </div>
+            ) : (
+              filteredConversations.map((conv) => (
               <Card
                 key={conv.id}
                 onClick={() => setSelectedConversationId(conv.id)}
@@ -235,7 +306,8 @@ export default function AiChat() {
                   </Button>
                 </div>
               </Card>
-            ))}
+              ))
+            )}
           </div>
         </ScrollArea>
 
@@ -266,7 +338,43 @@ export default function AiChat() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Model Selector */}
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-48 bg-[#16161D] border-white/20 h-10" data-testid="select-model">
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-cyan-400" />
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-[#16161D] border-white/20">
+                <SelectItem value="gpt-4o-mini" className="hover:bg-white/10">
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold">GPT-4 Mini</span>
+                    <span className="text-xs text-white/50">سريع وذكي</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="gpt-4" className="hover:bg-white/10">
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold">GPT-4</span>
+                    <span className="text-xs text-white/50">الأكثر ذكاءً</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="claude-3.5-sonnet" className="hover:bg-white/10">
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold">Claude 3.5 Sonnet</span>
+                    <span className="text-xs text-white/50">متميز في الكود</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="gemini-2.0-flash" className="hover:bg-white/10">
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold">Gemini 2.0 Flash</span>
+                    <span className="text-xs text-white/50">سريع البرق</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
             <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse ml-2" />
               متصل
@@ -284,18 +392,81 @@ export default function AiChat() {
                 </div>
                 <h2 className="text-3xl font-bold mb-4 neon-text-gradient">مرحباً بك في AI Developer Assistant</h2>
                 <p className="text-white/60 text-lg mb-8">
-                  ابدأ محادثة جديدة للحصول على مساعدة في البرمجة، كتابة الكود، وحل المشاكل التقنية
+                  اختر قالب جاهز أو ابدأ محادثة جديدة للحصول على مساعدة في البرمجة
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="p-6 bg-[#16161D] border-white/10 hover-elevate cursor-pointer" data-testid="template-code-review">
-                    <Zap className="w-8 h-8 text-cyan-400 mb-3" />
-                    <h3 className="font-semibold mb-2">مراجعة الكود</h3>
-                    <p className="text-sm text-white/50">احصل على تحليل واقتراحات لتحسين الكود</p>
+                
+                {/* Templates Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-code-review"
+                    onClick={() => {
+                      setInput("مرحباً! أريد مراجعة كود برمجي. هل يمكنك مساعدتي في تحليل الكود وإعطائي اقتراحات للتحسين؟");
+                    }}
+                  >
+                    <Zap className="w-10 h-10 text-cyan-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">مراجعة الكود</h3>
+                    <p className="text-sm text-white/50">تحليل الكود واقتراحات التحسين</p>
                   </Card>
-                  <Card className="p-6 bg-[#16161D] border-white/10 hover-elevate cursor-pointer" data-testid="template-debug-help">
-                    <Code2 className="w-8 h-8 text-purple-400 mb-3" />
-                    <h3 className="font-semibold mb-2">حل المشاكل التقنية</h3>
-                    <p className="text-sm text-white/50">اكتشف الأخطاء واحصل على حلول فورية</p>
+                  
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-debug-help"
+                    onClick={() => {
+                      setInput("أواجه مشكلة في الكود. هل يمكنك مساعدتي في اكتشاف الأخطاء وحلها؟");
+                    }}
+                  >
+                    <Bug className="w-10 h-10 text-red-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">Debug المشاكل</h3>
+                    <p className="text-sm text-white/50">اكتشاف وحل الأخطاء البرمجية</p>
+                  </Card>
+                  
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-explain-code"
+                    onClick={() => {
+                      setInput("عندي كود ولا أفهم كيف يعمل. هل يمكنك شرحه لي بالتفصيل؟");
+                    }}
+                  >
+                    <BookOpen className="w-10 h-10 text-purple-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">شرح الكود</h3>
+                    <p className="text-sm text-white/50">فهم وشرح الأكواد المعقدة</p>
+                  </Card>
+                  
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-generate-tests"
+                    onClick={() => {
+                      setInput("أريد إنشاء Unit Tests لكودي. هل يمكنك مساعدتي؟");
+                    }}
+                  >
+                    <TestTube className="w-10 h-10 text-green-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">إنشاء Tests</h3>
+                    <p className="text-sm text-white/50">كتابة اختبارات تلقائية</p>
+                  </Card>
+                  
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-optimize-code"
+                    onClick={() => {
+                      setInput("الكود يعمل لكنه بطيء. كيف يمكنني تحسين الأداء؟");
+                    }}
+                  >
+                    <Gauge className="w-10 h-10 text-yellow-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">تحسين الأداء</h3>
+                    <p className="text-sm text-white/50">تسريع وتحسين الكود</p>
+                  </Card>
+                  
+                  <Card 
+                    className="p-6 bg-[#16161D] border-white/10 hover-elevate active-elevate-2 cursor-pointer transition-all" 
+                    data-testid="template-add-docs"
+                    onClick={() => {
+                      setInput("أريد إضافة documentation للكود. كيف أبدأ؟");
+                    }}
+                  >
+                    <FileCode className="w-10 h-10 text-blue-400 mb-3" />
+                    <h3 className="font-bold mb-2 text-lg">إضافة Documentation</h3>
+                    <p className="text-sm text-white/50">توثيق الكود والدوال</p>
                   </Card>
                 </div>
               </div>
@@ -328,14 +499,14 @@ export default function AiChat() {
                       <p className="text-sm font-medium mb-2 text-white/70">
                         {msg.role === 'user' ? 'أنت' : 'AI Developer'}
                       </p>
-                      <div className="text-base leading-relaxed whitespace-pre-wrap">
-                        {msg.content || (
-                          <div className="flex items-center gap-2 text-cyan-400">
-                            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                            <span>جاري الكتابة...</span>
-                          </div>
-                        )}
-                      </div>
+                      {msg.content ? (
+                        <MessageContent content={msg.content} role={msg.role} />
+                      ) : (
+                        <div className="flex items-center gap-2 text-cyan-400">
+                          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                          <span>جاري الكتابة...</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

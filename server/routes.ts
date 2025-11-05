@@ -323,17 +323,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Chat stream endpoint
+  // AI Chat stream endpoint with Multi-Model Support
   app.post("/api/ai/chat/stream", async (req, res) => {
     try {
-      const { messages, context = 'general' } = req.body;
+      const { messages, context = 'general', model = 'gpt-4o-mini' } = req.body;
 
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: "Messages are required" });
-      }
-
-      if (!openai) {
-        return res.status(503).json({ error: "OpenAI API not available" });
       }
 
       res.setHeader('Content-Type', 'text/event-stream');
@@ -341,24 +337,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader('Connection', 'keep-alive');
 
       const systemPrompt = context === 'general' 
-        ? "أنت مساعد AI متخصص في البرمجة والتطوير. ساعد المستخدمين في كتابة الكود وحل المشاكل التقنية. قدم إجابات واضحة ودقيقة مع أمثلة عملية."
+        ? "أنت مساعد AI متخصص في البرمجة والتطوير. ساعد المستخدمين في كتابة الكود وحل المشاكل التقنية. قدم إجابات واضحة ودقيقة مع أمثلة عملية باستخدام Markdown و Code Blocks."
         : "أنت مساعد AI ذكي. ساعد المستخدمين وقدم إجابات مفيدة.";
 
-      const stream = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages
-        ],
-        stream: true,
-        temperature: 0.7,
-      });
-
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
-        if (content) {
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      // GPT-4 Mini (OpenAI)
+      if (model === 'gpt-4o-mini' || model === 'gpt-4') {
+        if (!openai) {
+          return res.status(503).json({ error: "OpenAI API not available" });
         }
+
+        const stream = await openai.chat.completions.create({
+          model: model === 'gpt-4' ? 'gpt-4o' : 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages
+          ],
+          stream: true,
+          temperature: 0.7,
+        });
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+      }
+      
+      // Claude (Anthropic)
+      else if (model.startsWith('claude')) {
+        if (!anthropic) {
+          return res.status(503).json({ error: "Anthropic API not available" });
+        }
+
+        const stream = await anthropic.messages.stream({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 4096,
+          messages: messages,
+          system: systemPrompt,
+          temperature: 0.7,
+        });
+
+        for await (const chunk of stream) {
+          if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+            const content = chunk.delta.text;
+            if (content) {
+              res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+          }
+        }
+      }
+      
+      // Gemini (Google)
+      else if (model.startsWith('gemini')) {
+        if (!gemini) {
+          return res.status(503).json({ error: "Gemini API not available" });
+        }
+
+        const geminiModel = gemini.getGenerativeModel({ 
+          model: 'gemini-2.0-flash-exp',
+          systemInstruction: systemPrompt 
+        });
+
+        const chat = geminiModel.startChat({
+          history: messages.slice(0, -1).map((msg: any) => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }],
+          })),
+        });
+
+        const result = await chat.sendMessageStream(messages[messages.length - 1].content);
+
+        for await (const chunk of result.stream) {
+          const content = chunk.text();
+          if (content) {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+      }
+      
+      else {
+        return res.status(400).json({ error: "Invalid model specified" });
       }
 
       res.write('data: [DONE]\n\n');
