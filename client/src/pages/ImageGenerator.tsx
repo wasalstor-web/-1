@@ -63,7 +63,7 @@ export default function ImageGenerator() {
         quality: imageQuality,
         style: imageStyle,
       });
-      return response as unknown as ImageResponse;
+      return (await response.json()) as ImageResponse;
     },
     onSuccess: (data) => {
       setGeneratedImage(data);
@@ -89,7 +89,7 @@ export default function ImageGenerator() {
         industry: logoIndustry,
         style: logoStyle,
       });
-      return response as unknown as LogoResponse;
+      return (await response.json()) as LogoResponse;
     },
     onSuccess: (data) => {
       setGeneratedLogo(data);
@@ -115,7 +115,7 @@ export default function ImageGenerator() {
         industry: brandIndustry,
         values: brandValues,
       });
-      return response as unknown as BrandIdentityResponse;
+      return (await response.json()) as BrandIdentityResponse;
     },
     onSuccess: (data) => {
       setGeneratedBrand(data);

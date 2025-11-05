@@ -18,7 +18,13 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-The frontend is built with React 18+ and TypeScript, using Vite for development and bundling. Wouter handles routing, and TanStack Query manages server state. UI components are built using `shadcn/ui` based on Radix UI primitives, styled with Tailwind CSS, supporting an Arabic-first design with RTL layout and a Neon/Dark theme. Design patterns include component composition, custom hooks, and a mobile-first responsive approach. Key features include the Marketplace, Dashboard, Project management, AI Workspace with multi-model chat and customization, and a Settings page.
+The frontend is built with React 18+ and TypeScript, using Vite for development and bundling. Wouter handles routing, and TanStack Query manages server state. UI components are built using `shadcn/ui` based on Radix UI primitives, styled with Tailwind CSS, supporting an Arabic-first design with RTL layout and a Neon/Dark theme. Design patterns include component composition, custom hooks, and a mobile-first responsive approach. Key features include:
+- **Marketplace**: Browse and purchase AI products
+- **Dashboard**: Main hub and overview
+- **AI Developer Assistant**: Full-screen coding chat interface
+- **Image Generator Studio**: Comprehensive design studio for generating images, logos, and brand identities with DALL-E 3
+- **Projects & Workspace**: AI-powered project management with multi-model chat
+- **Settings**: User preferences and configuration
 
 ### Backend Architecture
 
@@ -44,9 +50,19 @@ The platform now includes advanced multimodal AI features powered by OpenAI:
 -   **Neon/Dark Theme**: A consistent Neon/Dark theme is applied across the application, featuring deep dark backgrounds and cyan-to-purple gradients, inspired by Dora AI and Framer.
 -   **Multi-Model AI Support**: Comprehensive integration of 8 AI models (GPT-4 Mini, GPT-4, Claude 3.5 Sonnet, Gemini 2.0 Flash, Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1) with a dynamic model selector.
 -   **AI Developer Assistant**: Dedicated full-screen chat interface for coding assistance, featuring syntax highlighting, a templates library (Code Review, Debug Help), and keyboard shortcuts.
--   **Telegram Bot Integration**: A full-featured Telegram bot offering multi-model AI support, conversation history, and dynamic model switching via inline keyboard.
+-   **Telegram Bot Integration**: A full-featured Telegram bot offering:
+    - Multi-model AI support with dynamic switching
+    - Conversation history and context management
+    - `/image` command - Generate images directly in Telegram
+    - `/logo` command - Create professional logos in chat
+    - Automatic webhook support in production (polling in development)
 -   **Production-Ready Storage**: Automatic switching between PostgreSQL (Neon) and in-memory MemStorage based on environment configuration.
--   **Multimodal AI Features**: Image generation (DALL-E 3), vision analysis (GPT-4 Vision), speech-to-text (Whisper), logo generator, and brand identity generator.
+-   **Image Generator Studio**: Complete design studio accessible via `/image-generator` route featuring:
+    - Image generation with customizable size, quality, and style
+    - Professional logo creation for businesses
+    - Full brand identity generation (colors, fonts, visual style, applications)
+    - Direct download and preview capabilities
+    - Real-time image display with loading states
 
 ## External Dependencies
 
