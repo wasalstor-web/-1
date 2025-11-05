@@ -26,7 +26,55 @@ A comprehensive Arabic-first AI **Marketplace + Developer Platform** that combin
 
 The platform's ambition is to provide a fully functional, integrated AI development and consumption experience with intelligent automation capabilities, including the ability to generate deployable AI agents (ABI) for various hosting environments.
 
+### AI Executive Agent vMax (November 5, 2025)
+A comprehensive orchestration system combining multiple specialized sub-agents to provide autonomous platform management:
+
+**Core Components:**
+- **AI Executive Orchestrator**: Central coordinator that analyzes user commands, creates execution plans, assesses risks, manages approvals, and orchestrates sub-agents
+- **Architect Agent**: Analyzes architecture, provides recommendations, reviews changes, assesses scalability
+- **Builder Agent**: Executes code changes, builds projects, runs tests, deploys applications with canary deployment support
+- **Guardian Agent**: Security scanning, PII detection/masking, prompt injection prevention, SQL injection detection, XSS prevention, integrity verification
+- **Doctor AI**: System monitoring, health checks, anomaly detection, auto-healing (already existed, now integrated)
+- **Memory Agent**: Long-term memory storage, user context management, preference learning, pattern recognition, conversation summarization
+
+**Key Features:**
+- Decision Log with immutable audit trail (SHA-256 hashing)
+- Automatic approval gates for high-risk operations
+- Cost estimation and tracking
+- Canary deployment with automatic rollback
+- Comprehensive security validation
+- Contextual memory across sessions
+
+**API Surface:**
+- `/api/executive/command` - Submit commands for planning
+- `/api/executive/approve` - Approve and execute plans
+- `/api/executive/execute` - Direct execution for low-risk operations
+- `/api/executive/decision-log` - Audit trail access
+- `/api/executive/status` - System status and health
+
 ## Recent Changes (November 5, 2025)
+
+### AI Executive Agent vMax - Fully Implemented 🚀
+- **AI Executive Orchestrator**: Unified coordinator managing all sub-agents and operations
+- **Sub-Agent System** (5 specialized agents):
+  - **Architect Agent**: Architecture design, code review, risk assessment, scalability analysis
+  - **Builder Agent**: Code execution, building, testing, deployment, canary deployment
+  - **Guardian Agent**: Security scanning, PII detection/masking, prompt injection prevention, integrity verification
+  - **Doctor AI** (existing): System monitoring, health checks, auto-healing
+  - **Memory Agent**: Long-term memory, user context, preferences, learned patterns, conversation summarization
+- **Decision Log & Audit Trail**: Immutable database-backed decision logging with SHA-256 integrity hashing
+- **Database Integration**: New tables (executive_commands, execution_plans, decision_log, agent_memories)
+- **API Endpoints**: Full REST API at `/api/executive/*` for command processing, approval, execution, and monitoring
+- **System Features**:
+  - Intent analysis and execution planning
+  - Automatic approval gating for high-risk operations (cost >500 SAR, security changes, production deployments)
+  - Risk assessment and mitigation recommendations
+  - Canary deployment with automatic rollback on failure
+  - Security scanning with PII masking and prompt injection detection
+  - Long-term contextual memory with importance scoring
+  - Cost estimation and tracking
+
+## Recent Changes (November 5, 2025 - Earlier)
 
 ### Critical Routing Fix
 - **Issue**: Nested routing patterns causing 404 errors on `/admin` and `/admin/*` paths
