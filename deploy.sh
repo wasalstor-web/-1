@@ -152,6 +152,11 @@ print_success "Files uploaded successfully"
 
 # Step 9: Setup Database
 print_info "Step 9/10: Setting up PostgreSQL database..."
+
+# Generate secure password
+DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+print_warning "Generated Database Password (SAVE THIS!): ${DB_PASSWORD}"
+
 ssh_exec "
     sudo -u postgres psql <<EOF
 -- Create database if not exists
@@ -161,7 +166,7 @@ SELECT 'CREATE DATABASE ${APP_NAME}' WHERE NOT EXISTS (SELECT FROM pg_database W
 DO \\$\\$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_user WHERE usename = '${APP_NAME}_user') THEN
-        CREATE USER ${APP_NAME}_user WITH PASSWORD 'change_this_password_123';
+        CREATE USER ${APP_NAME}_user WITH PASSWORD '${DB_PASSWORD}';
     END IF;
 END
 \\$\\$;
@@ -178,14 +183,14 @@ print_info "Step 10/10: Installing dependencies and starting application..."
 ssh_exec "
     cd ${APP_DIR}
     
-    # Install dependencies
-    npm install --production
+    # Install ALL dependencies (including devDependencies for build)
+    npm install
     
     # Create .env file
     cat > .env <<EOF
 NODE_ENV=production
 PORT=5000
-DATABASE_URL=postgresql://${APP_NAME}_user:change_this_password_123@localhost:5432/${APP_NAME}
+DATABASE_URL=postgresql://${APP_NAME}_user:${DB_PASSWORD}@localhost:5432/${APP_NAME}
 SESSION_SECRET=$(openssl rand -base64 32)
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 EOF
