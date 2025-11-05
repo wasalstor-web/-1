@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -184,6 +184,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error in chat:", error);
       res.status(500).json({ error: "Failed to process chat request" });
+    }
+  });
+
+  // Category routes
+  app.get("/api/categories", async (req, res) => {
+    try {
+      const categories = await storage.getAllCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  app.get("/api/categories/:slug", async (req, res) => {
+    try {
+      const category = await storage.getCategoryBySlug(req.params.slug);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      res.json(category);
+    } catch (error) {
+      console.error("Error fetching category:", error);
+      res.status(500).json({ error: "Failed to fetch category" });
+    }
+  });
+
+  // Product routes
+  app.get("/api/products", async (req, res) => {
+    try {
+      const { category, featured } = req.query;
+      let products;
+      
+      if (category) {
+        const cat = await storage.getCategoryBySlug(category as string);
+        if (cat) {
+          products = await storage.getProductsByCategory(cat.id);
+        } else {
+          return res.status(404).json({ error: "Category not found" });
+        }
+      } else if (featured === 'true') {
+        products = await storage.getFeaturedProducts();
+      } else {
+        products = await storage.getAllProducts();
+      }
+      
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      res.status(500).json({ error: "Failed to fetch products" });
+    }
+  });
+
+  app.get("/api/products/:slug", async (req, res) => {
+    try {
+      const product = await storage.getProductBySlug(req.params.slug);
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      res.json(product);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      res.status(500).json({ error: "Failed to fetch product" });
     }
   });
 
