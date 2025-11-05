@@ -17,47 +17,47 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   {
     title: "الرئيسية",
-    url: "/",
+    url: "/admin",
     icon: Home,
   },
   {
     title: "المتجر",
-    url: "/marketplace",
+    url: "/admin/marketplace",
     icon: ShoppingBag,
   },
   {
     title: "AI Developer",
-    url: "/ai-chat",
+    url: "/admin/ai-chat",
     icon: Bot,
   },
   {
     title: "استوديو التصميم",
-    url: "/image-generator",
+    url: "/admin/image-generator",
     icon: ImageIcon,
   },
   {
     title: "المساعد الذكي",
-    url: "/intelligent-assistant",
+    url: "/admin/intelligent-assistant",
     icon: Brain,
   },
   {
     title: "إدارة السيرفر",
-    url: "/server-manager",
+    url: "/admin/server-manager",
     icon: Server,
   },
   {
     title: "المشاريع",
-    url: "/projects",
+    url: "/admin/projects",
     icon: FolderOpen,
   },
   {
     title: "مساحة العمل",
-    url: "/workspace",
+    url: "/admin/workspace",
     icon: Sparkles,
   },
   {
     title: "الإعدادات",
-    url: "/settings",
+    url: "/admin/settings",
     icon: Settings,
   },
 ];

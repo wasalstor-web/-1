@@ -1,8 +1,19 @@
-# منصة AI المتكاملة - Integrated AI Platform
+# منصة مبسط AI - Mubsat AI Platform
 
 ## Overview
 
-This is a comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines five core features:
+**Mubsat AI Platform (منصة مبسط AI)** is an enterprise B2B SaaS platform combining a **Client Interface** and **Admin Panel**:
+
+### Client Interface (B2B SaaS)
+A professional, enterprise-grade website for businesses to discover and purchase AI solutions:
+- **Homepage**: Hero section, solutions showcase, product catalog, API integrations, dashboard preview, pricing, contact form
+- **Solutions Page**: Detailed AI automation, analytics, and integration solutions
+- **Pricing Page**: Three-tier pricing plans (Starter, Professional, Enterprise)
+- **Contact Page**: Sales inquiry and demo request forms
+- **Design Inspiration**: Zebra Technologies (clean, corporate, industrial blue) + Buraq.ai (structured layouts, elevated cards)
+
+### Admin Panel (Internal Management)
+A comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines five core features:
 
 -   **AI Marketplace**: Allows users to browse and purchase pre-built AI systems (chatbots, content generators, data analyzers).
 -   **AI Developer Assistant**: Provides full-featured AI chat for coding help, debugging, and development support, with an Arabic-first interface and RTL support.

@@ -17,22 +17,22 @@ import AiChat from "@/pages/AiChat";
 import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import ServerManager from "@/pages/ServerManager";
+import ClientHome from "@/pages/ClientHome";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function AdminRouter() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/marketplace" component={Marketplace} />
-      <Route path="/products/:slug" component={ProductDetails} />
-      <Route path="/ai-chat" component={AiChat} />
-      <Route path="/image-generator" component={ImageGenerator} />
-      <Route path="/intelligent-assistant" component={IntelligentAssistant} />
-      <Route path="/server-manager" component={ServerManager} />
-      <Route path="/projects" component={Projects} />
-      <Route path="/workspace" component={Workspace} />
-      <Route path="/project/:id" component={ProjectDetails} />
-      <Route path="/settings" component={Settings} />
+      <Route path="/admin" component={Dashboard} />
+      <Route path="/admin/marketplace" component={Marketplace} />
+      <Route path="/admin/products/:slug" component={ProductDetails} />
+      <Route path="/admin/image-generator" component={ImageGenerator} />
+      <Route path="/admin/intelligent-assistant" component={IntelligentAssistant} />
+      <Route path="/admin/server-manager" component={ServerManager} />
+      <Route path="/admin/projects" component={Projects} />
+      <Route path="/admin/workspace" component={Workspace} />
+      <Route path="/admin/project/:id" component={ProjectDetails} />
+      <Route path="/admin/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -49,10 +49,14 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Switch>
-            <Route path="/ai-chat">
-              <AiChat />
-            </Route>
-            <Route>
+            {/* Client Interface - No Sidebar */}
+            <Route path="/" component={ClientHome} />
+            
+            {/* AI Chat - Full Screen */}
+            <Route path="/admin/ai-chat" component={AiChat} />
+            
+            {/* Admin Panel - With Sidebar */}
+            <Route path="/admin/:rest*">
               <SidebarProvider style={style as React.CSSProperties}>
                 <div className="flex h-screen w-full">
                   <AppSidebar />
@@ -62,12 +66,14 @@ function App() {
                       <div className="flex-1" />
                     </header>
                     <main className="flex-1">
-                      <Router />
+                      <AdminRouter />
                     </main>
                   </SidebarInset>
                 </div>
               </SidebarProvider>
             </Route>
+            
+            <Route component={NotFound} />
           </Switch>
           <Toaster />
         </TooltipProvider>
