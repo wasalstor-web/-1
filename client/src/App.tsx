@@ -18,6 +18,7 @@ import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import ServerManager from "@/pages/ServerManager";
 import BotRegistry from "@/pages/BotRegistry";
+import ExecutiveAgentPage from "@/pages/admin/executive-agent";
 import AIBrainDashboard from "@/pages/AIBrainDashboard";
 import ClientHome from "@/pages/ClientHome";
 import QuickSSH from "@/pages/QuickSSH";
@@ -104,6 +105,12 @@ function App() {
             <Route path="/admin/bot-registry">
               <AdminLayout>
                 <BotRegistry />
+              </AdminLayout>
+            </Route>
+            
+            <Route path="/admin/executive-agent">
+              <AdminLayout>
+                <ExecutiveAgentPage />
               </AdminLayout>
             </Route>
             
