@@ -222,6 +222,8 @@ ssh_exec "
     sudo tee /etc/nginx/sites-available/${APP_NAME} > /dev/null <<'EOF'
 server {
     listen 80;
+    # NOTE: Update server_name with your production domain when ready
+    # Then run: certbot --nginx -d yourdomain.com for SSL
     server_name ${DOMAIN} www.${DOMAIN} ${SERVER_IP};
 
     location / {
