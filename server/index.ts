@@ -86,7 +86,9 @@ app.use((req, res, next) => {
   // Graceful shutdown
   process.on('SIGINT', () => {
     log('Shutting down gracefully...');
-    telegramBot.stop();
+    if (telegramBot) {
+      telegramBot.stop();
+    }
     process.exit(0);
   });
 })();
