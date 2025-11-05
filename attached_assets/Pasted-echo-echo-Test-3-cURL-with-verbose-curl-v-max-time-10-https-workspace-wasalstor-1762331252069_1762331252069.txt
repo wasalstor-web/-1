@@ -1,0 +1,72 @@
+echo ""
+echo "=== Test 3: cURL with verbose ==="
+curl -v --max-time 10 https://workspace-wasalstor.replit.dev/api/vps-ping \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"serverIp":"46.202.159.100","serverKey":"ABC123-FIXED-KEY-XYZ789","timestamp":"123","data":"test"}' 2>&1 | head -30
+
+echo ""
+echo "=== Test 4: Simple GET ==="
+curl -v --max-time 10 https://workspace-wasalstor.replit.dev/ 2>&1 | head -20
+=== Test 1: Ping Replit ===
+ping: workspace-wasalstor.replit.dev: Name or service not known
+
+=== Test 2: DNS Resolution ===
+Server:         8.8.8.8
+Address:        8.8.8.8#53
+
+Non-authoritative answer:
+*** Can't find workspace-wasalstor.replit.dev: No answer
+
+
+=== Test 3: cURL with verbose ===
+Note: Unnecessary use of -X or --request, POST is already inferred.
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Could not resolve host: workspace-wasalstor.replit.dev
+* Closing connection 0
+curl: (6) Could not resolve host: workspace-wasalstor.replit.dev
+
+=== Test 4: Simple GET ===
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Could not resolve host: workspace-wasalstor.replit.dev
+* Closing connection 0
+curl: (6) Could not resolve host: workspace-wasalstor.replit.dev
+[root@srv973932 ~]# #!/bin/bash
+echo "🔧 Fixing DNS and testing connection..."
+
+# 1. استخدام Google DNS
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+
+# 2. اختبار DNS
+echo ""
+echo "=== Testing DNS Resolution ==="
+nslookup workspace-wasalstor.replit.dev
+
+# 3. اختبار الاتصال
+echo ""
+echo "=== Testing Connection ==="
+curl -s --max-time 10 -X POST https://workspace-wasalstor.replit.dev/api/vps-ping \
+  -H "Content-Type: application/json" \
+  -d '{"serverIp":"46.202.159.100","serverKey":"ABC123-FIXED-KEY-XYZ789","timestamp":"'$(date +%s)'","data":"تجربة بعد تغيير DNS"}' 
+
+echo ""
+echo ""
+echo "✅ If you see JSON response above, DNS is fixed!"
+🔧 Fixing DNS and testing connection...
+
+=== Testing DNS Resolution ===
+Server:         8.8.8.8
+Address:        8.8.8.8#53
+
+Non-authoritative answer:
+*** Can't find workspace-wasalstor.replit.dev: No answer
+
+
+=== Testing Connection ===
+
+
+✅ If you see JSON response above, DNS is fixed!
+[root@srv973932 ~]# 
