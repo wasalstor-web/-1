@@ -16,6 +16,10 @@ import {
   telegramUsers,
   servers,
   serverCommands,
+  executiveCommands,
+  executionPlans,
+  decisionLog,
+  agentMemories,
   type User,
   type InsertUser,
   type Project,
@@ -40,6 +44,14 @@ import {
   type InsertServer,
   type ServerCommand,
   type InsertServerCommand,
+  type ExecutiveCommand,
+  type InsertExecutiveCommand,
+  type ExecutionPlan,
+  type InsertExecutionPlan,
+  type DecisionLog,
+  type InsertDecisionLog,
+  type AgentMemory,
+  type InsertAgentMemory,
 } from '@shared/schema';
 import type { IStorage } from './storage';
 
@@ -369,5 +381,215 @@ export class PostgresStorage implements IStorage {
         executedAt: new Date()
       })
       .where(eq(serverCommands.id, commandId));
+  }
+
+  // AI Executive Agent methods
+  async createExecutiveCommand(command: InsertExecutiveCommand): Promise<ExecutiveCommand> {
+    try {
+      const [created] = await this.db.insert(executiveCommands).values(command).returning();
+      return created;
+    } catch (error) {
+      console.error('Error creating executive command:', error);
+      throw error;
+    }
+  }
+
+  async getExecutiveCommand(id: string): Promise<ExecutiveCommand | undefined> {
+    try {
+      const result = await this.db.select().from(executiveCommands).where(eq(executiveCommands.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting executive command:', error);
+      throw error;
+    }
+  }
+
+  async getExecutiveCommandsByUser(userId: string): Promise<ExecutiveCommand[]> {
+    try {
+      return await this.db
+        .select()
+        .from(executiveCommands)
+        .where(eq(executiveCommands.userId, userId))
+        .orderBy(desc(executiveCommands.createdAt));
+    } catch (error) {
+      console.error('Error getting executive commands by user:', error);
+      throw error;
+    }
+  }
+
+  async getPendingExecutiveCommands(): Promise<ExecutiveCommand[]> {
+    try {
+      return await this.db
+        .select()
+        .from(executiveCommands)
+        .where(eq(executiveCommands.status, 'pending'))
+        .orderBy(executiveCommands.createdAt);
+    } catch (error) {
+      console.error('Error getting pending executive commands:', error);
+      throw error;
+    }
+  }
+
+  async updateExecutiveCommandStatus(id: string, status: string): Promise<void> {
+    try {
+      await this.db
+        .update(executiveCommands)
+        .set({ status })
+        .where(eq(executiveCommands.id, id));
+    } catch (error) {
+      console.error('Error updating executive command status:', error);
+      throw error;
+    }
+  }
+
+  async createExecutionPlan(plan: InsertExecutionPlan): Promise<ExecutionPlan> {
+    try {
+      const [created] = await this.db.insert(executionPlans).values(plan).returning();
+      return created;
+    } catch (error) {
+      console.error('Error creating execution plan:', error);
+      throw error;
+    }
+  }
+
+  async getExecutionPlan(id: string): Promise<ExecutionPlan | undefined> {
+    try {
+      const result = await this.db.select().from(executionPlans).where(eq(executionPlans.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting execution plan:', error);
+      throw error;
+    }
+  }
+
+  async getExecutionPlanByCommand(commandId: string): Promise<ExecutionPlan | undefined> {
+    try {
+      const result = await this.db
+        .select()
+        .from(executionPlans)
+        .where(eq(executionPlans.commandId, commandId))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting execution plan by command:', error);
+      throw error;
+    }
+  }
+
+  async updateExecutionPlanApproval(id: string, approvedBy: string): Promise<void> {
+    try {
+      await this.db
+        .update(executionPlans)
+        .set({ 
+          approvedBy,
+          approvedAt: new Date()
+        })
+        .where(eq(executionPlans.id, id));
+    } catch (error) {
+      console.error('Error updating execution plan approval:', error);
+      throw error;
+    }
+  }
+
+  async createDecisionLog(log: InsertDecisionLog): Promise<DecisionLog> {
+    try {
+      const [created] = await this.db.insert(decisionLog).values(log).returning();
+      return created;
+    } catch (error) {
+      console.error('Error creating decision log:', error);
+      throw error;
+    }
+  }
+
+  async getDecisionLog(id: string): Promise<DecisionLog | undefined> {
+    try {
+      const result = await this.db.select().from(decisionLog).where(eq(decisionLog.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting decision log:', error);
+      throw error;
+    }
+  }
+
+  async getAllDecisionLogs(limit?: number): Promise<DecisionLog[]> {
+    try {
+      const query = this.db
+        .select()
+        .from(decisionLog)
+        .orderBy(desc(decisionLog.createdAt));
+      
+      if (limit) {
+        return await query.limit(limit);
+      }
+      return await query;
+    } catch (error) {
+      console.error('Error getting all decision logs:', error);
+      throw error;
+    }
+  }
+
+  async getDecisionLogsByUser(userId: string): Promise<DecisionLog[]> {
+    try {
+      return await this.db
+        .select()
+        .from(decisionLog)
+        .where(eq(decisionLog.userId, userId))
+        .orderBy(desc(decisionLog.createdAt));
+    } catch (error) {
+      console.error('Error getting decision logs by user:', error);
+      throw error;
+    }
+  }
+
+  async createAgentMemory(memory: InsertAgentMemory): Promise<AgentMemory> {
+    try {
+      const [created] = await this.db.insert(agentMemories).values(memory).returning();
+      return created;
+    } catch (error) {
+      console.error('Error creating agent memory:', error);
+      throw error;
+    }
+  }
+
+  async getAgentMemory(id: string): Promise<AgentMemory | undefined> {
+    try {
+      const result = await this.db.select().from(agentMemories).where(eq(agentMemories.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error getting agent memory:', error);
+      throw error;
+    }
+  }
+
+  async getAgentMemoriesByUser(userId: string, limit?: number): Promise<AgentMemory[]> {
+    try {
+      const query = this.db
+        .select()
+        .from(agentMemories)
+        .where(eq(agentMemories.userId, userId))
+        .orderBy(desc(agentMemories.createdAt));
+      
+      if (limit) {
+        return await query.limit(limit);
+      }
+      return await query;
+    } catch (error) {
+      console.error('Error getting agent memories by user:', error);
+      throw error;
+    }
+  }
+
+  async getRecentAgentMemories(userId: string, limit: number): Promise<AgentMemory[]> {
+    try {
+      return await this.db
+        .select()
+        .from(agentMemories)
+        .where(eq(agentMemories.userId, userId))
+        .orderBy(desc(agentMemories.createdAt))
+        .limit(limit);
+    } catch (error) {
+      console.error('Error getting recent agent memories:', error);
+      throw error;
+    }
   }
 }
