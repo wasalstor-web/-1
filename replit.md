@@ -2,13 +2,15 @@
 
 ## Overview
 
-This is a comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines three core features:
+This is a comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines five core features:
 
 -   **AI Marketplace**: Shop for ready-made AI systems (chatbots, content generators, data analyzers). It allows users to browse 6+ pre-built AI products across 4 categories, view featured products, filter by category, and purchase AI systems.
 -   **AI Developer Assistant**: Full-featured AI chat for coding help, debugging, and development support, with an Arabic-first interface and RTL support.
 -   **AI Workspace**: Direct interaction with GPT-4, Claude, and Gemini models, enabling users to create and manage AI-powered projects, save conversations, and customize AI creativity levels.
+-   **Design Studio (Image Generator)**: Comprehensive multimodal AI capabilities including image generation (DALL-E 3), logo creation, brand identity generation, with download and preview features.
+-   **Intelligent Assistant**: Advanced multi-layered AI system that analyzes intent, delegates to specialized models, executes commands, and connects to VPS servers automatically for task execution.
 
-The platform's ambition is to provide a fully functional, integrated AI development and consumption experience.
+The platform's ambition is to provide a fully functional, integrated AI development and consumption experience with intelligent automation capabilities.
 
 ## User Preferences
 
@@ -23,6 +25,7 @@ The frontend is built with React 18+ and TypeScript, using Vite for development 
 - **Dashboard**: Main hub and overview
 - **AI Developer Assistant**: Full-screen coding chat interface
 - **Image Generator Studio**: Comprehensive design studio for generating images, logos, and brand identities with DALL-E 3
+- **Intelligent Assistant**: Multi-layered AI chat with intent analysis, execution plans, VPS integration, and smart suggestions
 - **Projects & Workspace**: AI-powered project management with multi-model chat
 - **Settings**: User preferences and configuration
 
@@ -55,6 +58,7 @@ The platform now includes advanced multimodal AI features powered by OpenAI:
     - Conversation history and context management
     - `/image` command - Generate images directly in Telegram
     - `/logo` command - Create professional logos in chat
+    - `/smart` command - Intelligent assistant with intent understanding and VPS execution
     - Automatic webhook support in production (polling in development)
 -   **Production-Ready Storage**: Automatic switching between PostgreSQL (Neon) and in-memory MemStorage based on environment configuration.
 -   **Image Generator Studio**: Complete design studio accessible via `/image-generator` route featuring:
@@ -63,6 +67,14 @@ The platform now includes advanced multimodal AI features powered by OpenAI:
     - Full brand identity generation (colors, fonts, visual style, applications)
     - Direct download and preview capabilities
     - Real-time image display with loading states
+-   **Intelligent Assistant System**: Multi-layered AI architecture accessible via `/intelligent-assistant` route featuring:
+    - **Intent Analyzer**: Analyzes user messages to understand intent type (command/task/question), action needed, confidence level, and VPS target selection
+    - **VPS Executor**: Connects to VPS servers via SSH, HTTP API, or custom protocols to execute commands automatically
+    - **Smart Delegation**: Automatically delegates complex queries to more powerful AI models (GPT-4, Claude) when needed
+    - **Conversation Context**: Maintains user conversation history for contextual understanding
+    - **Execution Planning**: Generates step-by-step execution plans for complex tasks
+    - **Suggestions System**: Provides intelligent follow-up suggestions based on context
+    - Full integration with Telegram bot via `/smart` command
 
 ## External Dependencies
 
