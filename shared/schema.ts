@@ -120,6 +120,12 @@ export const servers = pgTable("servers", {
   apiKey: text("api_key").notNull(),
   isActive: boolean("is_active").notNull().default(true),
   lastPing: timestamp("last_ping"),
+  sshEnabled: boolean("ssh_enabled").notNull().default(false),
+  sshHost: text("ssh_host"),
+  sshPort: integer("ssh_port").default(22),
+  sshUsername: text("ssh_username"),
+  sshPassword: text("ssh_password"),
+  sshPrivateKey: text("ssh_private_key"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

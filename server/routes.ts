@@ -1063,6 +1063,120 @@ The logo should be:
     }
   });
 
+  // Server Management Endpoints
+  app.post("/api/servers", async (req, res) => {
+    try {
+      const validatedData = insertServerSchema.parse(req.body);
+      const server = await storage.createServer(validatedData);
+      res.status(201).json(server);
+    } catch (error: any) {
+      console.error("Error creating server:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/servers", async (req, res) => {
+    try {
+      const servers = await storage.getAllServers();
+      res.json(servers);
+    } catch (error: any) {
+      console.error("Error fetching servers:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/servers/:id", async (req, res) => {
+    try {
+      const server = await storage.getServer(req.params.id);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+      res.json(server);
+    } catch (error: any) {
+      console.error("Error fetching server:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/servers/:id/test", async (req, res) => {
+    try {
+      const server = await storage.getServer(req.params.id);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+
+      if (server.sshEnabled) {
+        const { sshExecutor } = await import('./ssh-executor');
+        const success = await sshExecutor.testConnection(server);
+
+        if (success) {
+          await storage.updateServer(req.params.id, { lastPing: new Date() });
+        }
+
+        return res.json({
+          success,
+          method: 'ssh',
+          message: success ? 'SSH connection successful' : 'SSH connection failed'
+        });
+      }
+
+      const url = `http://${server.host}:${server.port}/health`;
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${server.apiKey}` },
+        signal: AbortSignal.timeout(5000)
+      });
+
+      const data = await response.json();
+      await storage.updateServer(req.params.id, { lastPing: new Date() });
+
+      res.json({
+        success: response.ok,
+        method: 'http',
+        status: data.status,
+        timestamp: data.timestamp
+      });
+    } catch (error: any) {
+      console.error("Error testing server:", error);
+      res.json({ success: false, error: error.message });
+    }
+  });
+
+  app.post("/api/servers/:id/execute", async (req, res) => {
+    try {
+      const { command } = req.body;
+      if (!command) {
+        return res.status(400).json({ error: "Command is required" });
+      }
+
+      const server = await storage.getServer(req.params.id);
+      if (!server) {
+        return res.status(404).json({ error: "Server not found" });
+      }
+
+      if (!server.sshEnabled) {
+        return res.status(400).json({ error: "SSH is not enabled for this server" });
+      }
+
+      const { sshExecutor } = await import('./ssh-executor');
+      const result = await sshExecutor.executeCommand(server, command);
+
+      await storage.createServerCommand({
+        serverId: req.params.id,
+        command: command
+      });
+
+      res.json({
+        success: result.success,
+        output: result.output,
+        exitCode: result.exitCode,
+        error: result.error
+      });
+    } catch (error: any) {
+      console.error("Error executing command:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Telegram Webhook endpoint
   app.post("/api/telegram-webhook", (req, res) => {
     try {
