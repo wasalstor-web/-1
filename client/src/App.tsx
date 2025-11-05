@@ -78,11 +78,9 @@ function App() {
             </Route>
             
             <Route path="/admin/products/:slug">
-              {(params) => (
-                <AdminLayout>
-                  <ProductDetails {...params} />
-                </AdminLayout>
-              )}
+              <AdminLayout>
+                <ProductDetails />
+              </AdminLayout>
             </Route>
             
             <Route path="/admin/image-generator">
@@ -134,11 +132,9 @@ function App() {
             </Route>
             
             <Route path="/admin/project/:id">
-              {(params) => (
-                <AdminLayout>
-                  <ProjectDetails {...params} />
-                </AdminLayout>
-              )}
+              <AdminLayout>
+                <ProjectDetails />
+              </AdminLayout>
             </Route>
             
             <Route path="/admin/settings">
