@@ -24,8 +24,14 @@ APP_DIR="/var/www/mubsat-ai"
 APP_NAME="mubsat-ai"
 DB_NAME="mubsat_ai"
 DB_USER="mubsat_user"
-DB_PASS="MubsatAI@2025!Secure"
+# Generate a secure random password for database
+DB_PASS=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 NODE_PATH="/root/.nvm/versions/node/v24.11.0/bin"
+
+# Display generated password (save this!)
+print_warning "⚠️  Database Password Generated (SAVE THIS!):"
+echo "   $DB_PASS"
+echo ""
 
 export PATH="$NODE_PATH:$PATH"
 
@@ -123,7 +129,8 @@ read -p "Press Enter after uploading files to continue..."
 print_info "Step 7/10: Installing dependencies..."
 cd $APP_DIR
 if [ -f "package.json" ]; then
-    npm install --production
+    # Install ALL dependencies (including devDependencies for build)
+    npm install
     print_success "Dependencies installed"
 else
     print_error "package.json not found! Please upload files first."
@@ -184,6 +191,8 @@ print_info "Configuring Nginx..."
 cat > /etc/nginx/conf.d/mubsat-ai.conf <<'EOF'
 server {
     listen 80;
+    # NOTE: Change 46.202.159.100 to your domain when ready
+    # Then run: certbot --nginx -d yourdomain.com for SSL
     server_name 46.202.159.100 _;
 
     client_max_body_size 50M;
@@ -239,6 +248,13 @@ echo "╚═══════════════════════�
 echo ""
 print_success "Application is running at: http://46.202.159.100"
 echo ""
+print_warning "🔐 IMPORTANT SECURITY NOTES:"
+echo "  1. Database password saved in: $APP_DIR/.env"
+echo "  2. The password is: $DB_PASS"
+echo "  3. Keep this password safe!"
+echo "  4. Update Nginx server_name in: /etc/nginx/conf.d/mubsat-ai.conf"
+echo "  5. Add SSL after domain setup: certbot --nginx -d yourdomain.com"
+echo ""
 print_info "Useful commands:"
 echo "  • Check status:  pm2 status"
 echo "  • View logs:     pm2 logs $APP_NAME"
@@ -247,6 +263,6 @@ echo "  • Stop:          pm2 stop $APP_NAME"
 echo ""
 print_info "To update the application:"
 echo "  1. Upload new files with rsync"
-echo "  2. cd $APP_DIR && npm run build"
+echo "  2. cd $APP_DIR && npm install && npm run build"
 echo "  3. pm2 restart $APP_NAME"
 echo ""
