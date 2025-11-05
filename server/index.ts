@@ -80,8 +80,16 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 
-  // Initialize Telegram Bot
-  const telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN);
+  // Initialize Telegram Bot only in development
+  // In production, use webhook instead of polling to avoid conflicts
+  let telegramBot: TelegramAIBot | null = null;
+  
+  if (app.get("env") === "development" && process.env.TELEGRAM_BOT_TOKEN) {
+    telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN);
+    log('🤖 Telegram Bot started in development mode (polling)');
+  } else {
+    log('ℹ️ Telegram Bot disabled in production mode');
+  }
 
   // Graceful shutdown
   process.on('SIGINT', () => {
