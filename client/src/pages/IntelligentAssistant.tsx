@@ -7,7 +7,24 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Send, Brain, Zap, Server, Trash2, CheckCircle2, XCircle, Info } from "lucide-react";
+import { Loader2, Send, Brain, Zap, Server, Trash2, CheckCircle2, XCircle, Info, Download, Code, Package } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AssistantMessage {
   id: string;
@@ -47,6 +64,10 @@ export default function IntelligentAssistant() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [showABIDialog, setShowABIDialog] = useState(false);
+  const [abiServerName, setAbiServerName] = useState("");
+  const [abiServerType, setAbiServerType] = useState<'vps' | 'hostinger' | 'shared'>('vps');
+  const [abiFiles, setAbiFiles] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const userId = "user-" + Date.now(); // في الإنتاج، استخدم ID المستخدم الحقيقي
 
@@ -58,7 +79,7 @@ export default function IntelligentAssistant() {
 
   const processMutation = useMutation({
     mutationFn: async (message: string) => {
-      const response = await apiRequest("/api/intelligent-assistant/process", "POST", {
+      const response = await apiRequest("POST", "/api/intelligent-assistant/process", {
         userId,
         message,
       });
@@ -90,7 +111,7 @@ export default function IntelligentAssistant() {
 
   const clearHistoryMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("/api/intelligent-assistant/clear-history", "POST", {
+      const response = await apiRequest("POST", "/api/intelligent-assistant/clear-history", {
         userId,
       });
       return await response.json();
@@ -100,6 +121,30 @@ export default function IntelligentAssistant() {
       toast({
         title: "✅ تم المسح",
         description: "تم مسح سجل المحادثة بنجاح",
+      });
+    },
+  });
+
+  const generateABIMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/intelligent-assistant/generate-abi", {
+        serverName: abiServerName,
+        serverType: abiServerType,
+      });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setAbiFiles(data);
+      toast({
+        title: "✅ تم إنشاء ABI",
+        description: `تم إنشاء ABI للسيرفر ${data.serverName} بنجاح`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "❌ خطأ",
+        description: error.message || "فشل في إنشاء ABI",
+        variant: "destructive",
       });
     },
   });
@@ -146,13 +191,142 @@ export default function IntelligentAssistant() {
 
   return (
     <div className="container mx-auto p-6 h-full flex flex-col" dir="rtl">
-      <div className="space-y-2 mb-6">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-          المساعد الذكي المتقدم
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          مساعد AI متعدد الطبقات - يفهم النوايا، ينفذ الأوامر، ويتصل بـ VPS تلقائياً
-        </p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            المساعد الذكي المتقدم
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            مساعد AI متعدد الطبقات - يفهم النوايا، ينفذ الأوامر، ويتصل بـ VPS تلقائياً
+          </p>
+        </div>
+        
+        <Dialog open={showABIDialog} onOpenChange={setShowABIDialog}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2" data-testid="button-abi-generator">
+              <Package className="w-4 h-4" />
+              إنشاء ABI
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>إنشاء ABI موحد للسيرفر</DialogTitle>
+              <DialogDescription>
+                قم بإنشاء Agent Binary Interface يمكن تثبيته على أي VPS أو Hostinger
+              </DialogDescription>
+            </DialogHeader>
+            
+            {!abiFiles ? (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="server-name">اسم السيرفر</Label>
+                  <Input
+                    id="server-name"
+                    placeholder="مثال: VPS-1, HOSTINGER-MAIN"
+                    value={abiServerName}
+                    onChange={(e) => setAbiServerName(e.target.value)}
+                    data-testid="input-server-name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="server-type">نوع السيرفر</Label>
+                  <Select value={abiServerType} onValueChange={(value: any) => setAbiServerType(value)}>
+                    <SelectTrigger data-testid="select-server-type">
+                      <SelectValue placeholder="اختر نوع السيرفر" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vps">VPS</SelectItem>
+                      <SelectItem value="hostinger">Hostinger</SelectItem>
+                      <SelectItem value="shared">Shared Hosting</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button
+                  onClick={() => generateABIMutation.mutate()}
+                  disabled={!abiServerName || generateABIMutation.isPending}
+                  className="w-full"
+                  data-testid="button-generate"
+                >
+                  {generateABIMutation.isPending ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري الإنشاء...
+                    </>
+                  ) : (
+                    <>
+                      <Code className="ml-2 h-4 w-4" />
+                      إنشاء ABI
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4 py-4">
+                <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <h3 className="font-semibold text-green-400 mb-2">✅ تم إنشاء ABI بنجاح!</h3>
+                  <p className="text-sm text-muted-foreground">
+                    السيرفر: <span className="font-mono">{abiFiles.serverName}</span> | 
+                    النوع: <span className="font-mono">{abiFiles.serverType}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold">الملفات المتاحة:</h4>
+                  <div className="space-y-2">
+                    {Object.keys(abiFiles.files).map((filename) => (
+                      <div key={filename} className="flex items-center justify-between p-3 bg-card border rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Code className="w-4 h-4 text-cyan-400" />
+                          <span className="font-mono text-sm">{filename}</span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const blob = new Blob([abiFiles.files[filename]], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = filename;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                        >
+                          <Download className="w-4 h-4 ml-1" />
+                          تنزيل
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold">خطوات التثبيت:</h4>
+                  <ScrollArea className="h-[200px] rounded-lg border p-4">
+                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                      {abiFiles.instructions.steps.map((step: string, idx: number) => (
+                        <li key={idx}>{step}</li>
+                      ))}
+                    </ol>
+                  </ScrollArea>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setAbiFiles(null);
+                    setAbiServerName("");
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  إنشاء ABI جديد
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 min-h-0">
@@ -382,7 +556,8 @@ export default function IntelligentAssistant() {
               <div className="space-y-1 text-xs text-muted-foreground">
                 <p>• "تحقق من حالة السيرفر"</p>
                 <p>• "أنشئ موقع جديد"</p>
-                <p>• "شغل البوت"</p>
+                <p>• "طور نفسك"</p>
+                <p>• "اعطني ABI لسيرفر VPS-1"</p>
                 <p>• "اعرض المساحة المتاحة"</p>
               </div>
             </div>
