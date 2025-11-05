@@ -373,6 +373,91 @@ export type InsertBotDeployment = z.infer<typeof insertBotDeploymentSchema>;
 export type BotTestCase = typeof botTestCases.$inferSelect;
 export type InsertBotTestCase = z.infer<typeof insertBotTestCaseSchema>;
 
+// AI Executive Agent vMax Tables
+export const executiveCommands = pgTable("executive_commands", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  command: text("command").notNull(),
+  intent: text("intent"),
+  priority: text("priority").notNull().default('medium'),
+  requiresApproval: boolean("requires_approval").notNull().default(false),
+  estimatedCostSar: decimal("estimated_cost_sar", { precision: 10, scale: 2 }),
+  status: text("status").notNull().default('pending'),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const executionPlans = pgTable("execution_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  commandId: varchar("command_id").references(() => executiveCommands.id),
+  steps: text("steps").notNull(), // JSON array of execution steps
+  estimatedDurationMinutes: integer("estimated_duration_minutes").notNull(),
+  estimatedCostSar: decimal("estimated_cost_sar", { precision: 10, scale: 2 }).notNull(),
+  risks: text("risks").notNull(), // JSON array of risks
+  requiresApproval: boolean("requires_approval").notNull().default(false),
+  approvalReason: text("approval_reason"),
+  approvedBy: varchar("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const decisionLog = pgTable("decision_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  decisionType: text("decision_type").notNull(),
+  commandId: varchar("command_id"),
+  userId: varchar("user_id").notNull(),
+  action: text("action").notNull(),
+  approvalRequired: boolean("approval_required").notNull().default(false),
+  approvedBy: varchar("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  executed: boolean("executed").notNull().default(false),
+  result: text("result"), // 'success', 'failure', 'rollback'
+  metadata: text("metadata").notNull(), // JSON object
+  immutableHash: text("immutable_hash").notNull(), // SHA-256 hash for integrity
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const agentMemories = pgTable("agent_memories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  type: text("type").notNull(), // 'conversation', 'preference', 'fact', 'decision', 'learning'
+  content: text("content").notNull(),
+  metadata: text("metadata").notNull().default('{}'), // JSON object
+  importance: integer("importance").notNull().default(5), // 1-10
+  embedding: text("embedding"), // Vector embedding for similarity search (JSON array)
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Insert Schemas for AI Executive Agent
+export const insertExecutiveCommandSchema = createInsertSchema(executiveCommands).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertExecutionPlanSchema = createInsertSchema(executionPlans).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDecisionLogSchema = createInsertSchema(decisionLog).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAgentMemorySchema = createInsertSchema(agentMemories).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Types for AI Executive Agent
+export type ExecutiveCommand = typeof executiveCommands.$inferSelect;
+export type InsertExecutiveCommand = z.infer<typeof insertExecutiveCommandSchema>;
+export type ExecutionPlan = typeof executionPlans.$inferSelect;
+export type InsertExecutionPlan = z.infer<typeof insertExecutionPlanSchema>;
+export type DecisionLog = typeof decisionLog.$inferSelect;
+export type InsertDecisionLog = z.infer<typeof insertDecisionLogSchema>;
+export type AgentMemory = typeof agentMemories.$inferSelect;
+export type InsertAgentMemory = z.infer<typeof insertAgentMemorySchema>;
+
 // Contact Form Schema (for client interface - no database storage)
 export const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
