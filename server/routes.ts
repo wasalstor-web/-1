@@ -9,6 +9,7 @@ import { HfInference } from "@huggingface/inference";
 import { PLATFORM_SYSTEM_PROMPT } from "./ai-system-prompt";
 import type { TelegramAIBot } from "./telegram-bot";
 import { IntelligentAssistant } from "./intelligent-agent/intelligent-assistant";
+import { registerSmartAgentRoutes } from "./smart-agent-routes";
 
 export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot | null): Promise<Server> {
   // Initialize AI clients only if API keys are available
@@ -1247,6 +1248,9 @@ The logo should be:
   // Register AI Executive Agent Routes
   const { default: registerExecutiveAgentRoutes } = await import("./executive-agent-routes");
   registerExecutiveAgentRoutes(app, storage);
+
+  // Register Smart Agent Routes
+  registerSmartAgentRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
