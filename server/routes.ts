@@ -210,6 +210,18 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
     }
   });
 
+  // Get server command history
+  app.get("/api/servers/:id/commands", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+      const history = await storage.getServerCommandHistory(req.params.id, limit);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Failed to get command history:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post("/api/servers/:id/execute", async (req, res) => {
     try {
       const { command } = req.body;

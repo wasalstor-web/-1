@@ -33,6 +33,11 @@ export default function ServerManager() {
 
   const activeServer = servers?.find(s => s.sshEnabled);
 
+  const { data: commandHistory } = useQuery<any[]>({
+    queryKey: ['/api/servers', activeServer?.id, 'commands'],
+    enabled: !!activeServer,
+  });
+
   const executeCommandMutation = useMutation({
     mutationFn: async (cmd: string) => {
       if (!activeServer) throw new Error("No server available");
@@ -246,6 +251,64 @@ export default function ServerManager() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Command History */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Terminal className="w-5 h-5 text-cyan-400" />
+              سجل الأوامر
+            </CardTitle>
+            <CardDescription>
+              آخر {commandHistory?.length || 0} أمر منفذ
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-96">
+              {!commandHistory || commandHistory.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12">
+                  <Terminal className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>لا توجد أوامر منفذة بعد</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {commandHistory.map((cmd: any, idx: number) => (
+                    <Card key={idx} className="bg-black/20 border-cyan-500/20">
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <code className="text-xs text-cyan-400 font-mono">
+                              $ {cmd.command}
+                            </code>
+                            {cmd.exitCode === 0 ? (
+                              <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+                                <CheckCircle2 className="w-3 h-3 ml-1" />
+                                نجح
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/30">
+                                <XCircle className="w-3 h-3 ml-1" />
+                                فشل
+                              </Badge>
+                            )}
+                          </div>
+                          {cmd.result && (
+                            <pre className="text-xs text-muted-foreground font-mono whitespace-pre-wrap max-h-32 overflow-auto" dir="ltr">
+                              {cmd.result}
+                            </pre>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {cmd.executedAt ? new Date(cmd.executedAt).toLocaleString('ar-EG') : 'لم ينفذ بعد'}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
