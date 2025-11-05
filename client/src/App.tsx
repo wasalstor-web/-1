@@ -16,6 +16,7 @@ import Marketplace from "@/pages/Marketplace";
 import AiChat from "@/pages/AiChat";
 import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
+import ServerManager from "@/pages/ServerManager";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/ai-chat" component={AiChat} />
       <Route path="/image-generator" component={ImageGenerator} />
       <Route path="/intelligent-assistant" component={IntelligentAssistant} />
+      <Route path="/server-manager" component={ServerManager} />
       <Route path="/projects" component={Projects} />
       <Route path="/workspace" component={Workspace} />
       <Route path="/project/:id" component={ProjectDetails} />

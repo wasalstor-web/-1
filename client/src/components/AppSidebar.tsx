@@ -1,4 +1,4 @@
-import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain } from "lucide-react";
+import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain, Server } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sidebar,
@@ -39,6 +39,11 @@ const menuItems = [
     title: "المساعد الذكي",
     url: "/intelligent-assistant",
     icon: Brain,
+  },
+  {
+    title: "إدارة السيرفر",
+    url: "/server-manager",
+    icon: Server,
   },
   {
     title: "المشاريع",
