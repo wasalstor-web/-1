@@ -67,3 +67,30 @@ Prioritizes Arabic-first design with RTL support and a Neon/Dark theme. Features
 -   **clsx & tailwind-merge**: For conditional class name composition.
 -   **class-variance-authority**: For variant-based component styling.
 -   **date-fns**: For date manipulation.
+
+## Recent Changes (November 5, 2025)
+
+### Unified AI Chat Interface - Multi-Model Responses 🚀
+- **Page**: `/chat` - Single unified conversational interface with **parallel multi-model responses**
+- **Core Feature**: Send **one message** → Get **multiple responses** from all connected models simultaneously
+- **API Endpoints**:
+  - `POST /api/ai-brain/process-all` - New endpoint that fans out requests to all connected models in parallel using Promise.allSettled
+  - `GET /api/ai-brain/models` - Returns list of models with connection status
+- **Features**:
+  - ✅ **Multi-Model Responses**: One user message triggers responses from ALL connected models (GPT-4, GPT-4 Mini, Claude, Gemini, Qwen, LLaMA, Mistral, DeepSeek)
+  - ✅ **Parallel Processing**: All models process simultaneously (not sequential) for maximum speed
+  - ✅ **Model Attribution Badges**: Each response displays the model name with emoji:
+    - 🤖 GPT-4 / GPT-4 Mini (OpenAI)
+    - 🧠 Claude 3.5 (Anthropic)
+    - ✨ Gemini 2.0 (Google)
+    - 🚀 Qwen 2.5 / LLaMA 3.3 / Mistral / DeepSeek (Hugging Face)
+  - ✅ **Real-time Status**: Header shows "X/8 نموذج نشط" with live connection count
+  - ✅ **Error Handling**: Failed models show ⚠️ warning instead of blocking entire request
+  - ✅ **ChatGPT-like Interface**: Clean, professional UI with message history
+  - ✅ **Session Context**: Previous messages maintained for context-aware responses
+- **Architecture**:
+  - Backend: Filters models by API key availability, processes in parallel with robust error handling
+  - Frontend: Receives array of responses, renders each with unique message ID and model badge
+  - Security: Input validation, proper error messages without exposing internals
+- **Navigation**: Quick access button "جرب المحادثة الآن" added to homepage Hero section
+- **Testing**: ✅ Full E2E test passing - verified multi-model responses, parallel processing, badge display
