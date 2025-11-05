@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, decimal, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, decimal, boolean, bigint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -100,6 +100,18 @@ export const aiMessages = pgTable("ai_messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const telegramUsers = pgTable("telegram_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  telegramUserId: bigint("telegram_user_id", { mode: 'number' }).notNull().unique(),
+  username: text("username"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  selectedModel: text("selected_model").notNull().default('gpt-4o-mini'),
+  conversationHistory: text("conversation_history").notNull().default('[]'),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -149,6 +161,12 @@ export const insertAiMessageSchema = createInsertSchema(aiMessages).omit({
   createdAt: true,
 });
 
+export const insertTelegramUserSchema = createInsertSchema(telegramUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Project = typeof projects.$inferSelect;
@@ -167,3 +185,5 @@ export type AiConversation = typeof aiConversations.$inferSelect;
 export type InsertAiConversation = z.infer<typeof insertAiConversationSchema>;
 export type AiMessage = typeof aiMessages.$inferSelect;
 export type InsertAiMessage = z.infer<typeof insertAiMessageSchema>;
+export type TelegramUser = typeof telegramUsers.$inferSelect;
+export type InsertTelegramUser = z.infer<typeof insertTelegramUserSchema>;
