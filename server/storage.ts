@@ -22,7 +22,15 @@ import {
   type Server,
   type InsertServer,
   type ServerCommand,
-  type InsertServerCommand
+  type InsertServerCommand,
+  type BotTemplate,
+  type InsertBotTemplate,
+  type BotInstance,
+  type InsertBotInstance,
+  type BotDeployment,
+  type InsertBotDeployment,
+  type BotTestCase,
+  type InsertBotTestCase
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./utils/auth";
@@ -96,6 +104,37 @@ export interface IStorage {
   getPendingCommands(serverId: string): Promise<ServerCommand[]>;
   getServerCommandHistory(serverId: string, limit?: number): Promise<ServerCommand[]>;
   completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void>;
+
+  // Bot Template methods
+  getAllBotTemplates(): Promise<BotTemplate[]>;
+  getBotTemplate(id: string): Promise<BotTemplate | undefined>;
+  getBotTemplatesByCategory(category: string): Promise<BotTemplate[]>;
+  createBotTemplate(template: InsertBotTemplate): Promise<BotTemplate>;
+  updateBotTemplate(id: string, updates: Partial<InsertBotTemplate>): Promise<BotTemplate | undefined>;
+  deleteBotTemplate(id: string): Promise<boolean>;
+  incrementTemplateUsage(id: string): Promise<void>;
+
+  // Bot Instance methods
+  getAllBotInstances(): Promise<BotInstance[]>;
+  getBotInstance(id: string): Promise<BotInstance | undefined>;
+  getBotInstancesByOwner(ownerId: string): Promise<BotInstance[]>;
+  getBotInstancesByTemplate(templateId: string): Promise<BotInstance[]>;
+  createBotInstance(instance: InsertBotInstance): Promise<BotInstance>;
+  updateBotInstance(id: string, updates: Partial<InsertBotInstance>): Promise<BotInstance | undefined>;
+  deleteBotInstance(id: string): Promise<boolean>;
+
+  // Bot Deployment methods
+  getAllDeployments(instanceId?: string): Promise<BotDeployment[]>;
+  getDeployment(id: string): Promise<BotDeployment | undefined>;
+  createDeployment(deployment: InsertBotDeployment): Promise<BotDeployment>;
+  updateDeploymentStatus(id: string, status: string, metrics?: string): Promise<void>;
+
+  // Bot Test Case methods
+  getTestCasesByInstance(instanceId: string): Promise<BotTestCase[]>;
+  getTestCasesByTemplate(templateId: string): Promise<BotTestCase[]>;
+  createTestCase(testCase: InsertBotTestCase): Promise<BotTestCase>;
+  updateTestCase(id: string, updates: Partial<InsertBotTestCase>): Promise<BotTestCase | undefined>;
+  executeTestCase(id: string, actualOutput: string, passed: boolean, executionTime: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {

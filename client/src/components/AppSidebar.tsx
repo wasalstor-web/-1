@@ -1,4 +1,4 @@
-import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain, Server } from "lucide-react";
+import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain, Server, Package } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sidebar,
@@ -44,6 +44,11 @@ const menuItems = [
     title: "إدارة السيرفر",
     url: "/admin/server-manager",
     icon: Server,
+  },
+  {
+    title: "مكتبة البوتات",
+    url: "/admin/bot-registry",
+    icon: Package,
   },
   {
     title: "المشاريع",

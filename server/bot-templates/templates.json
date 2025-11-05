@@ -1,0 +1,322 @@
+[
+  {
+    "name": "support_bot",
+    "displayName": "بوت الدعم الفني",
+    "description": "بوت ذكي للرد على استفسارات العملاء وحل المشاكل التقنية",
+    "category": "support",
+    "version": "1.0.0",
+    "icon": "🎧",
+    "tags": ["support", "customer-service", "technical-support"],
+    "manifest": {
+      "botId": "support_bot_v1",
+      "displayName": "مساعد الدعم الفني",
+      "version": "1.0.0",
+      "purpose": "تقديم دعم فني فوري للعملاء والإجابة على الأسئلة الشائعة",
+      "channels": ["web", "whatsapp", "telegram"],
+      "primaryModel": {
+        "name": "gpt-4o-mini",
+        "costProfile": "balanced",
+        "estTokensPerInteraction": 350
+      },
+      "persona": {
+        "tone": "ودود ومحترف",
+        "language": "ar-SA",
+        "greeting": "مرحباً! أنا مساعدك الآلي للدعم الفني. كيف يمكنني مساعدتك اليوم؟",
+        "maxResponseTokens": 500,
+        "responseStyle": "detailed"
+      },
+      "intents": [
+        {
+          "id": "technical_issue",
+          "examples": ["المنتج لا يعمل", "عندي مشكلة", "حدث خطأ"],
+          "requiredSlots": ["issue_description"],
+          "response": "سأساعدك في حل المشكلة. هل يمكنك وصف المشكلة بالتفصيل؟"
+        },
+        {
+          "id": "account_help",
+          "examples": ["نسيت كلمة المرور", "مشكلة في الحساب", "لا أستطيع تسجيل الدخول"],
+          "requiredSlots": ["email"],
+          "response": "سأساعدك في استعادة الوصول لحسابك."
+        },
+        {
+          "id": "general_inquiry",
+          "examples": ["كيف أستخدم", "ما هو", "معلومات عن"],
+          "response": "يسعدني مساعدتك في معرفة المزيد."
+        }
+      ],
+      "security": {
+        "piiFields": ["email", "phone", "name"],
+        "retentionDays": 90,
+        "encryptAtRest": true,
+        "rateLimitPerMinute": 30
+      },
+      "deploymentPolicy": {
+        "stages": ["sandbox", "staging", "production"],
+        "canaryPercent": 10,
+        "autoPromote": false
+      },
+      "metadata": {
+        "category": "support",
+        "tags": ["technical-support", "customer-service"]
+      }
+    }
+  },
+  {
+    "name": "sales_bot",
+    "displayName": "بوت المبيعات",
+    "description": "مساعد مبيعات ذكي للتعريف بالمنتجات وزيادة التحويلات",
+    "category": "sales",
+    "version": "1.0.0",
+    "icon": "💼",
+    "tags": ["sales", "conversion", "lead-generation"],
+    "manifest": {
+      "botId": "sales_bot_v1",
+      "displayName": "مساعد المبيعات الذكي",
+      "version": "1.0.0",
+      "purpose": "مساعدة العملاء في اختيار المنتجات المناسبة وزيادة المبيعات",
+      "channels": ["web", "whatsapp"],
+      "primaryModel": {
+        "name": "gpt-4o",
+        "costProfile": "premium",
+        "estTokensPerInteraction": 450
+      },
+      "persona": {
+        "tone": "حماسي ومقنع",
+        "language": "ar-SA",
+        "greeting": "أهلاً! أنا مساعدك لاختيار أفضل الحلول لاحتياجاتك. دعني أساعدك!",
+        "maxResponseTokens": 600,
+        "responseStyle": "conversational"
+      },
+      "intents": [
+        {
+          "id": "product_inquiry",
+          "examples": ["أريد شراء", "ما هي أسعار", "معلومات عن المنتج"],
+          "requiredSlots": ["product_category"],
+          "response": "رائع! لدينا حلول ممتازة. دعني أخبرك عن..."
+        },
+        {
+          "id": "compare_products",
+          "examples": ["ما الفرق بين", "أيهما أفضل", "قارن"],
+          "requiredSlots": ["product1", "product2"],
+          "response": "سأساعدك في المقارنة بين الخيارات..."
+        },
+        {
+          "id": "pricing",
+          "examples": ["كم السعر", "الأسعار", "التكلفة"],
+          "response": "لدينا خطط مرنة تناسب جميع الاحتياجات..."
+        },
+        {
+          "id": "demo_request",
+          "examples": ["أريد تجربة", "عرض توضيحي", "demo"],
+          "requiredSlots": ["name", "email"],
+          "webhook": "/api/webhooks/schedule-demo"
+        }
+      ],
+      "security": {
+        "piiFields": ["name", "email", "phone", "company"],
+        "retentionDays": 180,
+        "encryptAtRest": true,
+        "rateLimitPerMinute": 40
+      },
+      "billing": {
+        "estimatedMonthlyCost": 500,
+        "unitCostPerInteraction": 0.05,
+        "currency": "SAR"
+      },
+      "metadata": {
+        "category": "sales",
+        "tags": ["lead-generation", "conversion", "revenue"]
+      }
+    }
+  },
+  {
+    "name": "booking_bot",
+    "displayName": "بوت الحجوزات",
+    "description": "نظام حجز تلقائي للمواعيد والخدمات",
+    "category": "booking",
+    "version": "1.0.0",
+    "icon": "📅",
+    "tags": ["booking", "appointments", "scheduling"],
+    "manifest": {
+      "botId": "booking_bot_v1",
+      "displayName": "مساعد الحجوزات",
+      "version": "1.0.0",
+      "purpose": "تسهيل حجز المواعيد والخدمات للعملاء",
+      "channels": ["web", "whatsapp", "telegram"],
+      "primaryModel": {
+        "name": "gpt-4o-mini",
+        "costProfile": "economy",
+        "estTokensPerInteraction": 300
+      },
+      "persona": {
+        "tone": "منظم وواضح",
+        "language": "ar-SA",
+        "greeting": "مرحباً! أنا هنا لمساعدتك في حجز موعدك. متى تفضل؟",
+        "maxResponseTokens": 400,
+        "responseStyle": "concise"
+      },
+      "intents": [
+        {
+          "id": "book_appointment",
+          "examples": ["أريد حجز موعد", "حجز", "موعد"],
+          "requiredSlots": ["service", "date", "time", "name", "phone"],
+          "webhook": "/api/webhooks/create-booking"
+        },
+        {
+          "id": "check_availability",
+          "examples": ["هل يوجد", "متى متاح", "أوقات فارغة"],
+          "requiredSlots": ["service", "date"],
+          "webhook": "/api/webhooks/check-slots"
+        },
+        {
+          "id": "cancel_booking",
+          "examples": ["إلغاء الحجز", "cancel", "حذف الموعد"],
+          "requiredSlots": ["booking_id"],
+          "webhook": "/api/webhooks/cancel-booking"
+        },
+        {
+          "id": "reschedule",
+          "examples": ["تغيير الموعد", "reschedule", "موعد آخر"],
+          "requiredSlots": ["booking_id", "new_date", "new_time"],
+          "webhook": "/api/webhooks/reschedule-booking"
+        }
+      ],
+      "security": {
+        "piiFields": ["name", "phone", "email"],
+        "retentionDays": 365,
+        "encryptAtRest": true,
+        "rateLimitPerMinute": 50
+      },
+      "metadata": {
+        "category": "booking",
+        "tags": ["appointments", "calendar", "scheduling"]
+      }
+    }
+  },
+  {
+    "name": "billing_bot",
+    "displayName": "بوت المحاسبة",
+    "description": "مساعد آلي للفواتير والاستفسارات المالية",
+    "category": "billing",
+    "version": "1.0.0",
+    "icon": "💳",
+    "tags": ["billing", "invoices", "payments"],
+    "manifest": {
+      "botId": "billing_bot_v1",
+      "displayName": "مساعد المحاسبة",
+      "version": "1.0.0",
+      "purpose": "الرد على استفسارات الفواتير والمدفوعات",
+      "channels": ["web", "api"],
+      "primaryModel": {
+        "name": "gpt-4o",
+        "costProfile": "premium",
+        "estTokensPerInteraction": 400
+      },
+      "persona": {
+        "tone": "رسمي ودقيق",
+        "language": "ar-SA",
+        "greeting": "مرحباً! أنا مساعدك للاستفسارات المالية والفواتير. كيف يمكنني المساعدة؟",
+        "maxResponseTokens": 450,
+        "responseStyle": "detailed"
+      },
+      "intents": [
+        {
+          "id": "invoice_inquiry",
+          "examples": ["أين فاتورتي", "معلومات الفاتورة", "invoice"],
+          "requiredSlots": ["invoice_id"],
+          "webhook": "/api/webhooks/get-invoice"
+        },
+        {
+          "id": "payment_status",
+          "examples": ["حالة الدفع", "هل تم الدفع", "payment status"],
+          "requiredSlots": ["transaction_id"],
+          "webhook": "/api/webhooks/payment-status"
+        },
+        {
+          "id": "refund_request",
+          "examples": ["أريد استرجاع", "refund", "إعادة الأموال"],
+          "requiredSlots": ["order_id", "reason"],
+          "webhook": "/api/webhooks/refund-request"
+        },
+        {
+          "id": "payment_methods",
+          "examples": ["طرق الدفع", "كيف أدفع", "payment methods"],
+          "response": "نقبل الدفع عبر بطاقات الائتمان، STC Pay، Apple Pay، وتحويل بنكي."
+        }
+      ],
+      "security": {
+        "piiFields": ["invoice_id", "transaction_id", "credit_card", "bank_account"],
+        "retentionDays": 2555,
+        "encryptAtRest": true,
+        "encryptInTransit": true,
+        "rateLimitPerMinute": 20
+      },
+      "metadata": {
+        "category": "billing",
+        "tags": ["finance", "invoices", "payments", "accounting"]
+      }
+    }
+  },
+  {
+    "name": "hr_bot",
+    "displayName": "بوت الموارد البشرية",
+    "description": "مساعد ذكي لشؤون الموظفين والموارد البشرية",
+    "category": "hr",
+    "version": "1.0.0",
+    "icon": "👥",
+    "tags": ["hr", "employees", "recruitment"],
+    "manifest": {
+      "botId": "hr_bot_v1",
+      "displayName": "مساعد الموارد البشرية",
+      "version": "1.0.0",
+      "purpose": "مساعدة الموظفين في الاستفسارات الإدارية وإجراءات HR",
+      "channels": ["web", "api"],
+      "primaryModel": {
+        "name": "gpt-4o",
+        "costProfile": "balanced",
+        "estTokensPerInteraction": 380
+      },
+      "persona": {
+        "tone": "ودود ومهني",
+        "language": "ar-SA",
+        "greeting": "مرحباً! أنا مساعد الموارد البشرية. كيف يمكنني مساعدتك اليوم؟",
+        "maxResponseTokens": 500,
+        "responseStyle": "conversational"
+      },
+      "intents": [
+        {
+          "id": "leave_request",
+          "examples": ["طلب إجازة", "leave request", "vacation"],
+          "requiredSlots": ["employee_id", "leave_type", "start_date", "end_date"],
+          "webhook": "/api/webhooks/submit-leave"
+        },
+        {
+          "id": "payroll_inquiry",
+          "examples": ["راتبي", "payroll", "الرواتب"],
+          "requiredSlots": ["employee_id"],
+          "webhook": "/api/webhooks/payroll-info"
+        },
+        {
+          "id": "policy_question",
+          "examples": ["سياسة", "policy", "القوانين"],
+          "response": "سأساعدك في فهم السياسات. عن أي سياسة تريد الاستفسار؟"
+        },
+        {
+          "id": "benefits_info",
+          "examples": ["التأمين", "benefits", "المزايا"],
+          "response": "لدينا مجموعة رائعة من المزايا..."
+        }
+      ],
+      "security": {
+        "piiFields": ["employee_id", "salary", "ssn", "performance_rating"],
+        "retentionDays": 2555,
+        "encryptAtRest": true,
+        "rateLimitPerMinute": 30
+      },
+      "metadata": {
+        "category": "hr",
+        "tags": ["human-resources", "employees", "workforce"]
+      }
+    }
+  }
+]
