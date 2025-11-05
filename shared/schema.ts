@@ -236,3 +236,13 @@ export type Server = typeof servers.$inferSelect;
 export type InsertServer = z.infer<typeof insertServerSchema>;
 export type ServerCommand = typeof serverCommands.$inferSelect;
 export type InsertServerCommand = z.infer<typeof insertServerCommandSchema>;
+
+// Contact Form Schema (for client interface - no database storage)
+export const contactFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  company: z.string().min(2, "Company name must be at least 2 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+export type ContactForm = z.infer<typeof contactFormSchema>;
