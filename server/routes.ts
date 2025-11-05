@@ -73,6 +73,28 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
     res.json({ systemPrompt: intelligentAssistant.getSystemPrompt() });
   });
 
+  // Server Connection Test Endpoint (for VPS to ping Replit)
+  app.post("/api/vps-ping", (req, res) => {
+    try {
+      const { serverIp, serverKey, timestamp, data } = req.body;
+      console.log(`✅ VPS Connection Test from ${serverIp}:`, {
+        key: serverKey,
+        timestamp,
+        data
+      });
+      
+      res.json({
+        success: true,
+        message: "تم الاتصال بنجاح!",
+        replitTime: new Date().toISOString(),
+        receivedData: data
+      });
+    } catch (error: any) {
+      console.error("Error in VPS ping:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ABI Generation endpoints
   app.post("/api/intelligent-assistant/generate-abi", (req, res) => {
     try {
