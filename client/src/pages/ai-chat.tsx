@@ -51,10 +51,11 @@ export default function AIChatPage() {
       return response.json();
     },
     onSuccess: (data: any) => {
+      console.log('AI Brain Response:', data);
       const assistantMessage: Message = {
         id: `msg-${Date.now()}`,
         role: 'assistant',
-        content: data.response || 'عذراً، لم أتمكن من معالجة طلبك.',
+        content: data.output || data.response || 'عذراً، لم أتمكن من معالجة طلبك.',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, assistantMessage]);
