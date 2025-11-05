@@ -49,6 +49,8 @@ export default function ServerManager() {
       setTerminalHistory(prev => [...prev, output]);
       setCommand("");
       
+      queryClient.invalidateQueries({ queryKey: ['/api/servers', activeServer?.id, 'commands'] });
+      
       if (data.success) {
         toast({
           title: "✅ تم التنفيذ",
