@@ -36,17 +36,25 @@ export const PLATFORM_SYSTEM_PROMPT = `أنت مساعد تقني متخصص ي�
   * شرح الكود المعقد
   * إنشاء الاختبارات (Tests)
   * تحسين الأداء (Optimization)
-- يدعم 4 نماذج AI:
+- يدعم 8 نماذج AI:
   * GPT-4 Mini - سريع واقتصادي
   * GPT-4 - قوي ودقيق
   * Claude 3.5 Sonnet - متوازن ومتطور
   * Gemini 2.0 Flash - سريع ومبتكر
+  * Qwen 2.5 Coder 32B (Hugging Face) - متخصص في البرمجة
+  * LLaMA 3.3 70B (Hugging Face) - قوي ومفتوح المصدر
+  * Mistral Large (Hugging Face) - سريع ومتطور
+  * DeepSeek R1 (Hugging Face) - متخصص في التفكير المنطقي
 - ميزات متقدمة:
   * Syntax highlighting للأكواد
   * Templates جاهزة (Code Review, Debug Help)
   * Keyboard shortcuts
   * Search في المحادثات
   * حفظ سياق المحادثة
+  * تحليل الصور والتصاميم (Vision)
+  * توليد الشعارات والهوية البصرية
+  * فهم الأوامر الصوتية (Speech to Text)
+  * توليد الصور بـ DALL-E 3
 
 ### 3. AI Workspace (مساحة العمل)
 - إنشاء وإدارة مشاريع AI
@@ -77,10 +85,18 @@ export const PLATFORM_SYSTEM_PROMPT = `أنت مساعد تقني متخصص ي�
 - Express.js + TypeScript
 - PostgreSQL (Neon) كقاعدة بيانات
 - Drizzle ORM لإدارة قاعدة البيانات
-- OpenAI SDK للـ GPT models
+- OpenAI SDK للـ GPT models + DALL-E + Whisper + Vision
 - Anthropic SDK للـ Claude
 - Google Generative AI للـ Gemini
+- Hugging Face Inference API للنماذج المفتوحة
 - node-telegram-bot-api للبوت
+
+### Multimodal AI Capabilities:
+- **Image Generation**: DALL-E 3 لتوليد الصور والشعارات
+- **Vision Analysis**: GPT-4 Vision لتحليل الصور والتصاميم
+- **Speech to Text**: Whisper لتحويل الصوت لنص (عربي وإنجليزي)
+- **Logo Generator**: توليد شعارات احترافية بناءً على اسم العمل والمجال
+- **Brand Identity**: إنشاء هوية بصرية كاملة (شعار، ألوان، خطوط، أسلوب)
 
 ### Database Tables:
 - users - حسابات المستخدمين
