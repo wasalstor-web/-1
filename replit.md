@@ -26,24 +26,36 @@ The backend utilizes Express.js with TypeScript, providing RESTful API endpoints
 
 ### AI Integration Architecture
 
-The platform supports multiple AI models: OpenAI (GPT-4), Anthropic (Claude), and Google Generative AI (Gemini), integrated via their respective SDKs. A unified chat interface abstracts model differences, offering streaming responses, model selection per conversation, and creativity/temperature parameter control. Messages adhere to a standardized format with role and content.
+The platform supports multiple AI models: OpenAI (GPT-4, GPT-4 Mini), Anthropic (Claude 3.5 Sonnet), Google Generative AI (Gemini 2.0 Flash), and Hugging Face (Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1), integrated via their respective SDKs. A unified chat interface abstracts model differences, offering streaming responses, model selection per conversation, and creativity/temperature parameter control. Messages adhere to a standardized format with role and content.
+
+### Multimodal AI Capabilities (NEW)
+
+The platform now includes advanced multimodal AI features powered by OpenAI:
+
+-   **Image Generation (DALL-E 3)**: Generate high-quality images and illustrations with customizable size, quality, and style parameters.
+-   **Vision Analysis (GPT-4 Vision)**: Analyze and describe images with detailed AI-powered insights.
+-   **Speech-to-Text (Whisper)**: Convert audio to text with full Arabic language support.
+-   **Logo Generator**: Create professional business logos based on business name, industry, and style preferences.
+-   **Brand Identity Generator**: Generate complete brand identity packages including logo descriptions, color palettes, font recommendations, visual style guidelines, and application suggestions.
 
 ### System Design Choices
 
 -   **Arabic-First & RTL Support**: The entire platform is designed with an Arabic-first approach, including full RTL support across the UI.
 -   **Neon/Dark Theme**: A consistent Neon/Dark theme is applied across the application, featuring deep dark backgrounds and cyan-to-purple gradients, inspired by Dora AI and Framer.
--   **Multi-Model AI Support**: Comprehensive integration of GPT-4, Claude 3.5 Sonnet, and Gemini 2.0 Flash with a dynamic model selector.
+-   **Multi-Model AI Support**: Comprehensive integration of 8 AI models (GPT-4 Mini, GPT-4, Claude 3.5 Sonnet, Gemini 2.0 Flash, Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1) with a dynamic model selector.
 -   **AI Developer Assistant**: Dedicated full-screen chat interface for coding assistance, featuring syntax highlighting, a templates library (Code Review, Debug Help), and keyboard shortcuts.
 -   **Telegram Bot Integration**: A full-featured Telegram bot offering multi-model AI support, conversation history, and dynamic model switching via inline keyboard.
 -   **Production-Ready Storage**: Automatic switching between PostgreSQL (Neon) and in-memory MemStorage based on environment configuration.
+-   **Multimodal AI Features**: Image generation (DALL-E 3), vision analysis (GPT-4 Vision), speech-to-text (Whisper), logo generator, and brand identity generator.
 
 ## External Dependencies
 
 ### AI Service Providers
 
--   **OpenAI**: Used for GPT-4 model interactions.
+-   **OpenAI**: Used for GPT-4 model interactions, DALL-E 3 image generation, GPT-4 Vision analysis, and Whisper speech-to-text.
 -   **Anthropic**: Used for Claude model interactions.
 -   **Google Generative AI**: Used for Gemini model interactions.
+-   **Hugging Face**: Used for open-source models (Qwen 2.5 Coder, LLaMA 3.3, Mistral Large, DeepSeek R1).
 
 ### Database
 
