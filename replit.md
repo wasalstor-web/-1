@@ -39,9 +39,17 @@ The Intelligent Assistant has been significantly enhanced with powerful new capa
 - `POST /api/intelligent-assistant/generate-abi` - Generate ABI package
 - `GET /api/intelligent-assistant/download-abi/:serverName` - Download specific ABI file
 
-#### Bug Fixes
+#### Bug Fixes & Security Improvements
 - Fixed `apiRequest` parameter ordering in IntelligentAssistant.tsx
 - Resolved fetch API call issues
+- **Critical Fix**: Fixed userId persistence using useRef + localStorage for conversation continuity
+- **Security Fix**: Implemented comprehensive ABI security:
+  - API Key authentication (required Authorization header)
+  - Command whitelisting (18 safe commands only)
+  - Input sanitization (blocks dangerous characters)
+  - Timeout protection (30s max execution)
+  - Output size limits (1MB max)
+  - Removed public `/api-key` endpoint (key only shown in console on startup)
 
 ## Overview
 
