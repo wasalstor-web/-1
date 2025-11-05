@@ -30,7 +30,15 @@ import {
   type BotDeployment,
   type InsertBotDeployment,
   type BotTestCase,
-  type InsertBotTestCase
+  type InsertBotTestCase,
+  type ExecutiveCommand,
+  type InsertExecutiveCommand,
+  type ExecutionPlan,
+  type InsertExecutionPlan,
+  type DecisionLog,
+  type InsertDecisionLog,
+  type AgentMemory,
+  type InsertAgentMemory
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./utils/auth";
@@ -135,6 +143,28 @@ export interface IStorage {
   createTestCase(testCase: InsertBotTestCase): Promise<BotTestCase>;
   updateTestCase(id: string, updates: Partial<InsertBotTestCase>): Promise<BotTestCase | undefined>;
   executeTestCase(id: string, actualOutput: string, passed: boolean, executionTime: number): Promise<void>;
+
+  // AI Executive Agent methods
+  createExecutiveCommand(command: InsertExecutiveCommand): Promise<ExecutiveCommand>;
+  getExecutiveCommand(id: string): Promise<ExecutiveCommand | undefined>;
+  getExecutiveCommandsByUser(userId: string): Promise<ExecutiveCommand[]>;
+  getPendingExecutiveCommands(): Promise<ExecutiveCommand[]>;
+  updateExecutiveCommandStatus(id: string, status: string): Promise<void>;
+  
+  createExecutionPlan(plan: InsertExecutionPlan): Promise<ExecutionPlan>;
+  getExecutionPlan(id: string): Promise<ExecutionPlan | undefined>;
+  getExecutionPlanByCommand(commandId: string): Promise<ExecutionPlan | undefined>;
+  updateExecutionPlanApproval(id: string, approvedBy: string): Promise<void>;
+  
+  createDecisionLog(log: InsertDecisionLog): Promise<DecisionLog>;
+  getDecisionLog(id: string): Promise<DecisionLog | undefined>;
+  getAllDecisionLogs(limit?: number): Promise<DecisionLog[]>;
+  getDecisionLogsByUser(userId: string): Promise<DecisionLog[]>;
+  
+  createAgentMemory(memory: InsertAgentMemory): Promise<AgentMemory>;
+  getAgentMemory(id: string): Promise<AgentMemory | undefined>;
+  getAgentMemoriesByUser(userId: string, limit?: number): Promise<AgentMemory[]>;
+  getRecentAgentMemories(userId: string, limit: number): Promise<AgentMemory[]>;
 }
 
 export class MemStorage implements IStorage {

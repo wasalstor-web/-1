@@ -1,4 +1,4 @@
-import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain, Server, Package, Cpu } from "lucide-react";
+import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot, ImageIcon, Brain, Server, Package, Cpu, Zap } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sidebar,
@@ -54,6 +54,11 @@ const menuItems = [
     title: "AI Brain",
     url: "/admin/ai-brain",
     icon: Cpu,
+  },
+  {
+    title: "AI Executive vMax",
+    url: "/admin/executive-agent",
+    icon: Zap,
   },
   {
     title: "المشاريع",
