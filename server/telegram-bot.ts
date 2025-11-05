@@ -237,7 +237,9 @@ export class TelegramAIBot {
 
     try {
       if (modelConfig.provider === 'openai') {
-        if (!openai) throw new Error('OpenAI API key not configured');
+        if (!openai) {
+          return '⚠️ نموذج GPT غير متاح حالياً. يرجى تحديد نموذج آخر باستخدام /model أو التواصل مع المسؤول لإضافة OPENAI_API_KEY.';
+        }
         
         const completion = await openai.chat.completions.create({
           model: model,
@@ -249,7 +251,9 @@ export class TelegramAIBot {
       }
 
       if (modelConfig.provider === 'anthropic') {
-        if (!anthropic) throw new Error('Anthropic API key not configured');
+        if (!anthropic) {
+          return '⚠️ نموذج Claude غير متاح حالياً. يرجى تحديد نموذج آخر باستخدام /model أو التواصل مع المسؤول لإضافة ANTHROPIC_API_KEY.';
+        }
 
         // Convert history to Anthropic format (exclude system messages)
         const messages = history.map(msg => ({
@@ -268,7 +272,9 @@ export class TelegramAIBot {
       }
 
       if (modelConfig.provider === 'gemini') {
-        if (!genAI) throw new Error('Gemini API key not configured');
+        if (!genAI) {
+          return '⚠️ نموذج Gemini غير متاح حالياً. يرجى تحديد نموذج آخر باستخدام /model أو التواصل مع المسؤول لإضافة GEMINI_API_KEY.';
+        }
 
         const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
         
@@ -279,10 +285,20 @@ export class TelegramAIBot {
         return result.response.text() || 'لم أتمكن من إنشاء رد.';
       }
 
-      throw new Error('Unsupported model provider');
+      return '⚠️ نموذج غير مدعوم. يرجى اختيار نموذج آخر باستخدام /model';
     } catch (error) {
       console.error(`❌ Error getting response from ${modelConfig.name}:`, error);
-      throw error;
+      
+      // Return user-friendly error instead of throwing
+      if (error instanceof Error) {
+        if (error.message.includes('API key')) {
+          return '⚠️ خطأ في مفتاح API. يرجى التواصل مع المسؤول.';
+        }
+        if (error.message.includes('rate limit')) {
+          return '⚠️ تم تجاوز حد الاستخدام. يرجى المحاولة لاحقاً.';
+        }
+      }
+      return '⚠️ حدث خطأ أثناء الاتصال بنموذج الذكاء الاصطناعي. يرجى المحاولة مرة أخرى.';
     }
   }
 
