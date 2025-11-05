@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, timestamp, decimal, boolean, bigint } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { botManifestSchema } from "./bot-manifest";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -141,6 +142,77 @@ export const serverCommands = pgTable("server_commands", {
   executedAt: timestamp("executed_at"),
 });
 
+export const botTemplates = pgTable("bot_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  displayName: text("display_name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(),
+  version: text("version").notNull().default('1.0.0'),
+  manifest: text("manifest").notNull(),
+  icon: text("icon"),
+  tags: text("tags").array(),
+  isPublic: boolean("is_public").notNull().default(true),
+  isActive: boolean("is_active").notNull().default(true),
+  usageCount: integer("usage_count").notNull().default(0),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const botInstances = pgTable("bot_instances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").references(() => botTemplates.id),
+  name: text("name").notNull(),
+  displayName: text("display_name").notNull(),
+  manifest: text("manifest").notNull(),
+  status: text("status").notNull().default('draft'),
+  deploymentStage: text("deployment_stage").default('sandbox'),
+  projectId: varchar("project_id").references(() => projects.id),
+  ownerId: varchar("owner_id").references(() => users.id),
+  version: text("version").notNull().default('1.0.0'),
+  channels: text("channels").array(),
+  isActive: boolean("is_active").notNull().default(false),
+  lastTestAt: timestamp("last_test_at"),
+  lastDeployAt: timestamp("last_deploy_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const botDeployments = pgTable("bot_deployments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  instanceId: varchar("instance_id").notNull().references(() => botInstances.id),
+  version: text("version").notNull(),
+  stage: text("stage").notNull(),
+  status: text("status").notNull().default('pending'),
+  canaryPercent: integer("canary_percent").default(0),
+  deployedBy: varchar("deployed_by").references(() => users.id),
+  manifest: text("manifest").notNull(),
+  rollbackFromId: varchar("rollback_from_id"),
+  metrics: text("metrics"),
+  notes: text("notes"),
+  deployedAt: timestamp("deployed_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const botTestCases = pgTable("bot_test_cases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  instanceId: varchar("instance_id").references(() => botInstances.id),
+  templateId: varchar("template_id").references(() => botTemplates.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  userInput: text("user_input").notNull(),
+  expectedOutput: text("expected_output"),
+  expectedIntent: text("expected_intent"),
+  testType: text("test_type").notNull().default('unit'),
+  status: text("status").default('pending'),
+  actualOutput: text("actual_output"),
+  passed: boolean("passed"),
+  executionTime: integer("execution_time"),
+  lastRunAt: timestamp("last_run_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -200,16 +272,72 @@ export const insertServerSchema = createInsertSchema(servers).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  lastPing: true,
 });
 
 export const insertServerCommandSchema = createInsertSchema(serverCommands).omit({
   id: true,
   createdAt: true,
-  executedAt: true,
-  result: true,
-  exitCode: true,
-  status: true,
+});
+
+export const insertBotTemplateSchema = createInsertSchema(botTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  usageCount: true,
+}).extend({
+  manifest: z.string().refine((val) => {
+    try {
+      const parsed = JSON.parse(val);
+      botManifestSchema.parse(parsed);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: "Manifest must be a valid Bot Manifest JSON conforming to botManifestSchema" }),
+});
+
+export const insertBotInstanceSchema = createInsertSchema(botInstances).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastTestAt: true,
+  lastDeployAt: true,
+}).extend({
+  manifest: z.string().refine((val) => {
+    try {
+      const parsed = JSON.parse(val);
+      botManifestSchema.parse(parsed);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: "Manifest must be a valid Bot Manifest JSON conforming to botManifestSchema" }),
+  status: z.enum(['draft', 'testing', 'active', 'paused', 'archived']).default('draft'),
+  deploymentStage: z.enum(['sandbox', 'canary', 'staging', 'production']).optional(),
+});
+
+export const insertBotDeploymentSchema = createInsertSchema(botDeployments).omit({
+  id: true,
+  deployedAt: true,
+  completedAt: true,
+}).extend({
+  manifest: z.string().refine((val) => {
+    try {
+      const parsed = JSON.parse(val);
+      botManifestSchema.parse(parsed);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: "Manifest must be a valid Bot Manifest JSON conforming to botManifestSchema" }),
+  stage: z.enum(['sandbox', 'canary', 'staging', 'production']),
+  status: z.enum(['pending', 'in_progress', 'completed', 'failed', 'rolled_back']).default('pending'),
+});
+
+export const insertBotTestCaseSchema = createInsertSchema(botTestCases).omit({
+  id: true,
+  createdAt: true,
+  lastRunAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -236,6 +364,14 @@ export type Server = typeof servers.$inferSelect;
 export type InsertServer = z.infer<typeof insertServerSchema>;
 export type ServerCommand = typeof serverCommands.$inferSelect;
 export type InsertServerCommand = z.infer<typeof insertServerCommandSchema>;
+export type BotTemplate = typeof botTemplates.$inferSelect;
+export type InsertBotTemplate = z.infer<typeof insertBotTemplateSchema>;
+export type BotInstance = typeof botInstances.$inferSelect;
+export type InsertBotInstance = z.infer<typeof insertBotInstanceSchema>;
+export type BotDeployment = typeof botDeployments.$inferSelect;
+export type InsertBotDeployment = z.infer<typeof insertBotDeploymentSchema>;
+export type BotTestCase = typeof botTestCases.$inferSelect;
+export type InsertBotTestCase = z.infer<typeof insertBotTestCaseSchema>;
 
 // Contact Form Schema (for client interface - no database storage)
 export const contactFormSchema = z.object({

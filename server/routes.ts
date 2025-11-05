@@ -1236,6 +1236,10 @@ The logo should be:
     }
   });
 
+  // Register Bot Registry Routes
+  const { registerBotRegistryRoutes } = await import("./bot-registry-routes");
+  registerBotRegistryRoutes(app);
+
   const httpServer = createServer(app);
   return httpServer;
 }
