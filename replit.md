@@ -32,7 +32,22 @@ The platform enables users to:
 
 ## Recent Changes
 
-### Latest Updates - Advanced AI Developer Features (2025-11-05)
+### Latest Updates - Telegram AI Bot (2025-11-05)
+- **🤖 Telegram Bot Integration**: Full-featured Telegram bot with AI capabilities
+  - Multi-model support: GPT-4, GPT-4 Mini, Claude 3.5 Sonnet, Gemini 2.0 Flash
+  - Conversation history with context preservation (last 20 messages)
+  - Arabic-first interface with RTL support
+  - Database persistence for user preferences and chat history
+  - Commands: /start, /help, /model, /clear
+  - Dynamic model switching via inline keyboard
+  - Message splitting for long responses (>4096 chars)
+  - Graceful error handling and typing indicators
+- **Database Schema**: Added telegramUsers table with model preferences and history
+- **Storage Layer**: Implemented CRUD operations in both PostgresStorage and MemStorage
+- **Server Integration**: Bot initializes automatically with TELEGRAM_BOT_TOKEN
+- **Production Ready**: Automatic fallback if token not provided, graceful shutdown handling
+
+### Previous Updates - Advanced AI Developer Features (2025-11-05)
 - **✨ Multi-Model Support**: Full support for GPT-4, GPT-4 Mini, Claude 3.5 Sonnet, and Gemini 2.0 Flash
   - Model selector dropdown in chat header
   - Backend streaming endpoints for all 3 providers (OpenAI, Anthropic, Google)
