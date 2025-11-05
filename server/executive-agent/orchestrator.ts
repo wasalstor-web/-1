@@ -5,7 +5,7 @@
 
 import { IntentAnalyzer } from '../intelligent-agent/intent-analyzer';
 import { VPSExecutor } from '../intelligent-agent/vps-executor';
-import { AIBrainCore } from '../ai-brain/core-brain';
+import { AIBrainCore, getAIBrain } from '../ai-brain/core-brain';
 import { DoctorAI } from '../ai-brain/doctor-ai';
 import { createHash } from 'crypto';
 import type { IStorage } from '../storage';
@@ -113,8 +113,10 @@ export class AIExecutiveOrchestrator {
   constructor(private storage: IStorage) {
     this.intentAnalyzer = new IntentAnalyzer();
     this.vpsExecutor = new VPSExecutor();
-    this.coreBrain = new AIBrainCore();
+    this.coreBrain = getAIBrain(); // استخدام singleton instance مع جميع النماذج
     this.doctorAI = new DoctorAI();
+    
+    console.log('🎯 AI Executive Orchestrator initialized - Connected to AI Brain with all models');
   }
   
   /**
