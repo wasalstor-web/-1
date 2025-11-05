@@ -161,6 +161,8 @@ execute_command \
     "نفذ الأمر: sudo tee /etc/nginx/sites-available/mubsat-ai > /dev/null <<'EOF'
 server {
     listen 80;
+    # NOTE: Update server_name with your production domain when ready
+    # Then run: certbot --nginx -d yourdomain.com for SSL
     server_name $SERVER_IP;
     client_max_body_size 50M;
     
