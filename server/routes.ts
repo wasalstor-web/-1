@@ -73,6 +73,56 @@ export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot |
     res.json({ systemPrompt: intelligentAssistant.getSystemPrompt() });
   });
 
+  // ABI Generation endpoints
+  app.post("/api/intelligent-assistant/generate-abi", (req, res) => {
+    try {
+      const { serverName, serverType } = req.body;
+
+      if (!serverName) {
+        return res.status(400).json({ error: "serverName is required" });
+      }
+
+      const validServerTypes = ['vps', 'hostinger', 'shared'];
+      const type = serverType && validServerTypes.includes(serverType) ? serverType : 'vps';
+
+      const abiData = intelligentAssistant.generateABIForServer(serverName, type);
+      
+      res.json({
+        success: true,
+        serverName,
+        serverType: type,
+        files: {
+          'ai-agent.js': abiData.abiCode,
+          'package.json': abiData.packageJson,
+        },
+        instructions: abiData.instructions,
+      });
+    } catch (error: any) {
+      console.error("Error generating ABI:", error);
+      res.status(500).json({ error: error.message || "Failed to generate ABI" });
+    }
+  });
+
+  app.get("/api/intelligent-assistant/download-abi/:serverName", (req, res) => {
+    try {
+      const { serverName } = req.params;
+      const { serverType = 'vps' } = req.query;
+
+      const abiData = intelligentAssistant.generateABIForServer(
+        serverName, 
+        serverType as 'vps' | 'hostinger' | 'shared'
+      );
+
+      // إرجاع الملف للتنزيل
+      res.setHeader('Content-Type', 'application/javascript');
+      res.setHeader('Content-Disposition', `attachment; filename="ai-agent-${serverName}.js"`);
+      res.send(abiData.abiCode);
+    } catch (error: any) {
+      console.error("Error downloading ABI:", error);
+      res.status(500).json({ error: error.message || "Failed to download ABI" });
+    }
+  });
+
   // Project routes
   app.get("/api/projects", async (req, res) => {
     try {

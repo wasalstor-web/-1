@@ -1,5 +1,48 @@
 # منصة AI المتكاملة - Integrated AI Platform
 
+## Recent Updates (November 5, 2025)
+
+### 🧠 Advanced Intelligent Assistant System
+The Intelligent Assistant has been significantly enhanced with powerful new capabilities:
+
+#### Self-Improvement Engine
+- AI can now improve itself when requested
+- Supports commands like "طور نفسك", "أضف ميزة", "حسن نفسك"
+- Analyzes improvement requests and generates proposed code changes
+- Requires user approval before implementing improvements
+- Tracks improvement history for auditability
+
+#### ABI (Agent Binary Interface) Generator
+- **What is ABI?**: A unified, standalone AI agent that can be deployed on any VPS or Hostinger
+- **Features**:
+  - Generates complete `ai-agent.js` and `package.json` files
+  - Supports VPS, Hostinger, and Shared Hosting deployment
+  - Includes platform-specific installation instructions
+  - HTTP API for command execution
+  - Health check endpoint for monitoring
+- **Usage**: Say "اعطني ABI لسيرفر VPS-1" or use the "إنشاء ABI" button in the UI
+- **Deployment**: Complete guide available in `ABI_DEPLOYMENT_GUIDE.md`
+
+#### Enhanced Features
+- **Deeper Intent Analysis**: Better understanding of user commands with automatic delegation to more powerful models
+- **VPS Integration**: Automatically routes commands to appropriate servers
+- **Execution Planning**: Generates step-by-step plans for complex tasks
+- **Smart Suggestions**: Context-aware follow-up suggestions
+
+#### Frontend Improvements
+- New ABI Generator dialog with visual file management
+- Download functionality for generated files
+- Platform-specific installation step display
+- Real-time generation progress feedback
+
+#### API Additions
+- `POST /api/intelligent-assistant/generate-abi` - Generate ABI package
+- `GET /api/intelligent-assistant/download-abi/:serverName` - Download specific ABI file
+
+#### Bug Fixes
+- Fixed `apiRequest` parameter ordering in IntelligentAssistant.tsx
+- Resolved fetch API call issues
+
 ## Overview
 
 This is a comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines five core features:

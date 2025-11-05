@@ -1,5 +1,7 @@
 import { IntentAnalyzer, IntentAnalysisResult, Intent } from './intent-analyzer';
 import { VPSExecutor, CommandResult } from './vps-executor';
+import { SelfImprovementEngine } from './self-improvement';
+import { ABIGenerator } from './abi-generator';
 
 export interface AssistantResponse {
   message: string;
@@ -32,11 +34,15 @@ const ASSISTANT_SYSTEM_PROMPT = `أنت مساعد ذكي جداً، مهمتك 
 export class IntelligentAssistant {
   private intentAnalyzer: IntentAnalyzer;
   private vpsExecutor: VPSExecutor;
+  private selfImprovement: SelfImprovementEngine;
+  private abiGenerator: ABIGenerator;
   private conversationHistory: Map<string, string[]> = new Map();
 
   constructor() {
     this.intentAnalyzer = new IntentAnalyzer();
     this.vpsExecutor = new VPSExecutor();
+    this.selfImprovement = new SelfImprovementEngine();
+    this.abiGenerator = new ABIGenerator();
   }
 
   async processMessage(
@@ -47,6 +53,19 @@ export class IntelligentAssistant {
       // الحصول على سجل المحادثة
       const history = this.conversationHistory.get(userId) || [];
       
+      // التحقق من طلب التطوير الذاتي
+      const improvementRequest = await this.selfImprovement.analyzeImprovementRequest(message);
+      if (improvementRequest) {
+        return await this.handleSelfImprovement(improvementRequest);
+      }
+
+      // التحقق من طلب إنشاء ABI
+      if (message.toLowerCase().includes('اعطني abi') || 
+          message.toLowerCase().includes('أنشئ abi') ||
+          message.toLowerCase().includes('generate abi')) {
+        return await this.handleABIGeneration(message);
+      }
+
       // تحليل النية
       console.log(`🔍 تحليل النية للرسالة: "${message}"`);
       const analysis = await this.intentAnalyzer.analyzeIntent(message, history);
@@ -265,11 +284,124 @@ export class IntelligentAssistant {
     return `لإكمال المهمة، أحتاج المعلومات التالية:\n\n${formatted}`;
   }
 
+  private async handleSelfImprovement(request: any): Promise<AssistantResponse> {
+    const result = await this.selfImprovement.executeSelfImprovement(request);
+    
+    return {
+      message: `🧠 **طلب التطوير الذاتي تم تحليله**\n\n${result.description}\n\n` +
+               `نوع التحسين: ${request.type}\n` +
+               `الأولوية: ${request.priority}\n\n` +
+               `${result.needsUserApproval ? '⚠️ يحتاج موافقتك لتطبيق التحسين.' : ''}`,
+      intent: {
+        type: 'self_improvement',
+        action: request.description,
+        confidence: 1.0,
+        needsMoreInfo: result.needsUserApproval,
+      },
+      executed: result.implemented,
+      needsMoreInfo: result.needsUserApproval,
+      suggestions: [
+        'اعرض الكود المقترح',
+        'طبق التحسين',
+        'إلغاء التحسين',
+      ],
+    };
+  }
+
+  private async handleABIGeneration(message: string): Promise<AssistantResponse> {
+    // استخراج اسم السيرفر من الرسالة
+    const serverName = this.extractServerName(message) || 'DEFAULT-SERVER';
+    const serverType = this.extractServerType(message);
+
+    // إنشاء ABI
+    const abiConfig = {
+      serverName,
+      capabilities: ['command-execution', 'status-check', 'file-management'],
+    };
+
+    const abiCode = this.abiGenerator.generateABI(abiConfig);
+    const packageJson = this.abiGenerator.generatePackageJson(serverName);
+    const instructions = this.abiGenerator.generateDeploymentInstructions(serverType);
+
+    const responseMessage = `🤖 **تم إنشاء ABI الموحد للسيرفر: ${serverName}**\n\n` +
+      `📦 **نوع السيرفر:** ${serverType}\n\n` +
+      `✅ **القدرات المضمنة:**\n${abiConfig.capabilities.map(c => `  • ${c}`).join('\n')}\n\n` +
+      `📋 **خطوات التثبيت:**\n${instructions.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n` +
+      `💡 **ملاحظة:** سيتم إرسال الملفات في الرسالة التالية.`;
+
+    return {
+      message: responseMessage,
+      intent: {
+        type: 'abi_generation',
+        action: `generate_abi_for_${serverName}`,
+        confidence: 1.0,
+        needsMoreInfo: false,
+      },
+      executed: true,
+      needsMoreInfo: false,
+      executionPlan: instructions.steps,
+      suggestions: [
+        'أرسل ملف ABI',
+        'أرسل package.json',
+        'اعرض الأوامر الكاملة',
+        `اعرض دليل ${serverType}`,
+      ],
+    };
+  }
+
+  private extractServerName(message: string): string | null {
+    // محاولة استخراج اسم السيرفر من الرسالة
+    const patterns = [
+      /(?:سيرفر|server)\s+(\w+)/i,
+      /(?:vps|hostinger)\s*[-_]?\s*(\d+)/i,
+      /(?:للسيرفر|for server)\s+(\w+)/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = message.match(pattern);
+      if (match && match[1]) {
+        return match[1].toUpperCase();
+      }
+    }
+
+    return null;
+  }
+
+  private extractServerType(message: string): 'vps' | 'hostinger' | 'shared' {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('hostinger')) {
+      return 'hostinger';
+    } else if (lowerMessage.includes('shared') || lowerMessage.includes('مشترك')) {
+      return 'shared';
+    } else {
+      return 'vps';
+    }
+  }
+
   clearHistory(userId: string): void {
     this.conversationHistory.delete(userId);
   }
 
   getSystemPrompt(): string {
     return ASSISTANT_SYSTEM_PROMPT;
+  }
+
+  // واجهة برمجية للحصول على ABI لسيرفر معين
+  generateABIForServer(serverName: string, serverType: 'vps' | 'hostinger' | 'shared' = 'vps'): {
+    abiCode: string;
+    packageJson: string;
+    instructions: any;
+  } {
+    const abiConfig = {
+      serverName,
+      capabilities: ['command-execution', 'status-check', 'file-management'],
+    };
+
+    return {
+      abiCode: this.abiGenerator.generateABI(abiConfig),
+      packageJson: this.abiGenerator.generatePackageJson(serverName),
+      instructions: this.abiGenerator.generateDeploymentInstructions(serverType),
+    };
   }
 }
