@@ -45,9 +45,7 @@ export default function AIBrainDashboard() {
 
   // Mutations
   const selfImproveMutation = useMutation({
-    mutationFn: () => apiRequest("/api/doctor-ai/self-improve", {
-      method: "POST",
-    }),
+    mutationFn: () => apiRequest("/api/doctor-ai/self-improve", "POST"),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/doctor-ai/recommendations"] });
       toast({
@@ -57,12 +55,12 @@ export default function AIBrainDashboard() {
     },
   });
 
-  const healthStatus = health?.overall || 'healthy';
+  const healthStatus = (health as any)?.overall || 'healthy';
   const healthColor = {
     healthy: 'text-green-500',
     degraded: 'text-yellow-500',
     critical: 'text-red-500',
-  }[healthStatus];
+  }[healthStatus as 'healthy' | 'degraded' | 'critical'];
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -154,7 +152,7 @@ export default function AIBrainDashboard() {
                       <CardTitle className="text-sm font-medium">إجمالي الطلبات</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{analytics?.totalRequests || 0}</div>
+                      <div className="text-2xl font-bold">{(analytics as any)?.totalRequests || 0}</div>
                       <p className="text-xs text-muted-foreground">طلبات AI معالجة</p>
                     </CardContent>
                   </Card>
@@ -166,7 +164,7 @@ export default function AIBrainDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        ${(analytics?.totalCost || 0).toFixed(4)}
+                        ${((analytics as any)?.totalCost || 0).toFixed(4)}
                       </div>
                       <p className="text-xs text-muted-foreground">استخدام API</p>
                     </CardContent>
@@ -179,7 +177,7 @@ export default function AIBrainDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">
-                        {report?.recommendations?.pending || 0}
+                        {(report as any)?.recommendations?.pending || 0}
                       </div>
                       <p className="text-xs text-muted-foreground">قيد الانتظار</p>
                     </CardContent>
@@ -194,9 +192,9 @@ export default function AIBrainDashboard() {
                       <CardTitle>الاستخدام حسب النموذج</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {analytics?.byModel && Object.keys(analytics.byModel).length > 0 ? (
+                      {(analytics as any)?.byModel && Object.keys((analytics as any).byModel).length > 0 ? (
                         <div className="space-y-2">
-                          {Object.entries(analytics.byModel).map(([model, count]: any) => (
+                          {Object.entries((analytics as any).byModel).map(([model, count]: any) => (
                             <div key={model} className="flex justify-between items-center">
                               <span className="text-sm">{model}</span>
                               <Badge variant="outline">{count}</Badge>
@@ -215,9 +213,9 @@ export default function AIBrainDashboard() {
                       <CardTitle>الاستخدام حسب النية</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {analytics?.byIntent && Object.keys(analytics.byIntent).length > 0 ? (
+                      {(analytics as any)?.byIntent && Object.keys((analytics as any).byIntent).length > 0 ? (
                         <div className="space-y-2">
-                          {Object.entries(analytics.byIntent).map(([intent, count]: any) => (
+                          {Object.entries((analytics as any).byIntent).map(([intent, count]: any) => (
                             <div key={intent} className="flex justify-between items-center">
                               <span className="text-sm">{intent}</span>
                               <Badge variant="outline">{count}</Badge>
@@ -245,7 +243,7 @@ export default function AIBrainDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {health?.components && Object.entries(health.components).map(([component, status]: any) => (
+                        {(health as any)?.components && Object.entries((health as any).components).map(([component, status]: any) => (
                           <div key={component} className="flex justify-between items-center">
                             <span className="text-sm font-medium">{component}</span>
                             <Badge variant={status === 'up' ? 'default' : 'destructive'}>
@@ -267,25 +265,25 @@ export default function AIBrainDashboard() {
                         <div className="flex justify-between">
                           <span className="text-sm">متوسط وقت الاستجابة</span>
                           <span className="text-sm font-medium">
-                            {(health?.metrics?.avgResponseTime || 0).toFixed(0)}ms
+                            {((health as any)?.metrics?.avgResponseTime || 0).toFixed(0)}ms
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">معدل الأخطاء</span>
                           <span className="text-sm font-medium">
-                            {((health?.metrics?.errorRate || 0) * 100).toFixed(2)}%
+                            {(((health as any)?.metrics?.errorRate || 0) * 100).toFixed(2)}%
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">الطلبات/دقيقة</span>
                           <span className="text-sm font-medium">
-                            {(health?.metrics?.requestsPerMinute || 0).toFixed(1)}
+                            {((health as any)?.metrics?.requestsPerMinute || 0).toFixed(1)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm">استخدام الذاكرة</span>
                           <span className="text-sm font-medium">
-                            {(health?.metrics?.memoryUsage || 0).toFixed(1)}%
+                            {((health as any)?.metrics?.memoryUsage || 0).toFixed(1)}%
                           </span>
                         </div>
                       </div>
@@ -298,9 +296,9 @@ export default function AIBrainDashboard() {
             {/* Recommendations Tab */}
             <TabsContent value="recommendations" className="h-full mt-4">
               <ScrollArea className="h-full">
-                {recommendations && recommendations.length > 0 ? (
+                {(recommendations as any)?.length > 0 ? (
                   <div className="space-y-3">
-                    {recommendations.map((rec: any) => (
+                    {(recommendations as any[]).map((rec: any) => (
                       <Card key={rec.id}>
                         <CardHeader>
                           <div className="flex items-start justify-between">

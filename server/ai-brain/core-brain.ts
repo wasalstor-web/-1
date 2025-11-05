@@ -138,7 +138,7 @@ export class AIBrainCore {
     const capabilities = this.getRequiredCapabilities(intent);
     const availableModels: ModelConfig[] = [];
     
-    for (const model of this.models.values()) {
+    for (const [_, model] of Array.from(this.models.entries())) {
       const hasCapabilities = capabilities.every(cap => 
         model.capabilities.includes(cap)
       );
@@ -281,7 +281,7 @@ export class AIBrainCore {
     
     // تنظيف البيانات القديمة (أكثر من ساعة)
     const oneHourAgo = Date.now() - 3600000;
-    for (const [key, value] of this.analytics.entries()) {
+    for (const [key, value] of Array.from(this.analytics.entries())) {
       if (value.timestamp.getTime() < oneHourAgo) {
         this.analytics.delete(key);
       }
@@ -300,7 +300,7 @@ export class AIBrainCore {
       totalTokens: 0,
     };
     
-    for (const data of this.analytics.values()) {
+    for (const data of Array.from(this.analytics.values())) {
       stats.byModel[data.model] = (stats.byModel[data.model] || 0) + 1;
       stats.byIntent[data.intent] = (stats.byIntent[data.intent] || 0) + 1;
       stats.totalCost += data.cost;
