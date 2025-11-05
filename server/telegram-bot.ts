@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { storage } from './storage';
+import { PLATFORM_SYSTEM_PROMPT } from './ai-system-prompt';
 
 // AI Model configurations
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -241,9 +242,15 @@ export class TelegramAIBot {
           return '⚠️ نموذج GPT غير متاح حالياً. يرجى تحديد نموذج آخر باستخدام /model أو التواصل مع المسؤول لإضافة OPENAI_API_KEY.';
         }
         
+        // Add system prompt at the beginning
+        const messages = [
+          { role: 'system', content: PLATFORM_SYSTEM_PROMPT },
+          ...history
+        ];
+        
         const completion = await openai.chat.completions.create({
           model: model,
-          messages: history as any,
+          messages: messages as any,
           temperature: 0.7,
         });
 
@@ -263,7 +270,8 @@ export class TelegramAIBot {
 
         const message = await anthropic.messages.create({
           model: model,
-          max_tokens: 1024,
+          max_tokens: 2048,
+          system: PLATFORM_SYSTEM_PROMPT,
           messages: messages as any,
         });
 
@@ -276,11 +284,17 @@ export class TelegramAIBot {
           return '⚠️ نموذج Gemini غير متاح حالياً. يرجى تحديد نموذج آخر باستخدام /model أو التواصل مع المسؤول لإضافة GEMINI_API_KEY.';
         }
 
-        const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        const geminiModel = genAI.getGenerativeModel({ 
+          model: 'gemini-2.0-flash-exp',
+          systemInstruction: PLATFORM_SYSTEM_PROMPT
+        });
         
-        // Convert to Gemini format (last message is the prompt)
-        const lastMessage = history[history.length - 1];
-        const result = await geminiModel.generateContent(lastMessage.content);
+        // Build conversation context
+        const conversationContext = history.map(msg => 
+          `${msg.role === 'user' ? 'المستخدم' : 'المساعد'}: ${msg.content}`
+        ).join('\n\n');
+        
+        const result = await geminiModel.generateContent(conversationContext);
         
         return result.response.text() || 'لم أتمكن من إنشاء رد.';
       }
