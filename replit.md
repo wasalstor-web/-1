@@ -32,14 +32,19 @@ The platform enables users to:
 
 ## Recent Changes
 
-### Latest Updates - AI Developer Assistant Launch (2025-11-05)
+### Latest Updates - Open Source AI Agents (2025-11-05)
+- **🔓 8 New Open Source Products**: Added popular open-source AI agents and tools
+  - LangChain Agent, AutoGPT Clone, RAG Document Bot
+  - Code Interpreter, CrewAI Team, LlamaIndex Search
+  - Ollama Local LLM (Free), Zapier Alternative
+- **Total Products**: Now 14 AI products available in marketplace
+- **Featured Products**: 6 premium products highlighted
+- **Open Source Focus**: All new products based on GitHub projects
+
+### Previous Update - AI Developer Assistant Launch (2025-11-05)
 - **🤖 AI Developer Chat**: Full-screen chat interface for coding assistance and debugging
 - **Database Schema**: Added aiConversations and aiMessages tables
 - **Backend APIs**: 7 new endpoints for conversation CRUD, message handling, and streaming chat
-  - GET/POST /api/ai/conversations
-  - GET/DELETE /api/ai/conversations/:id
-  - GET/POST /api/ai/conversations/:id/messages
-  - POST /api/ai/chat/stream (Server-Sent Events for real-time streaming)
 - **OpenAI Integration**: GPT-4 Mini for development assistance with Arabic support
 - **Full-Screen Experience**: Modified App.tsx to show immersive chat UI without main sidebar
 - **Neon Theme**: Matching marketplace aesthetic with gradient message bubbles
