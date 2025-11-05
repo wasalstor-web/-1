@@ -20,7 +20,9 @@ import {
   type TelegramUser,
   type InsertTelegramUser,
   type Server,
-  type InsertServer
+  type InsertServer,
+  type ServerCommand,
+  type InsertServerCommand
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./utils/auth";
@@ -88,6 +90,11 @@ export interface IStorage {
   createServer(server: InsertServer): Promise<Server>;
   updateServerPing(id: string): Promise<void>;
   deleteServer(id: string): Promise<boolean>;
+  
+  // Server Command methods
+  createServerCommand(command: InsertServerCommand): Promise<ServerCommand>;
+  getPendingCommands(serverId: string): Promise<ServerCommand[]>;
+  completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -102,6 +109,7 @@ export class MemStorage implements IStorage {
   private aiMessages: Map<string, AiMessage>;
   private telegramUsers: Map<number, TelegramUser>;
   private servers: Map<string, Server>;
+  private serverCommands: Map<string, ServerCommand>;
 
   constructor() {
     this.users = new Map();
@@ -115,6 +123,7 @@ export class MemStorage implements IStorage {
     this.aiMessages = new Map();
     this.telegramUsers = new Map();
     this.servers = new Map();
+    this.serverCommands = new Map();
     this.seedData();
   }
 
@@ -909,6 +918,37 @@ export class MemStorage implements IStorage {
 
   async deleteServer(id: string): Promise<boolean> {
     return this.servers.delete(id);
+  }
+  
+  async createServerCommand(command: InsertServerCommand): Promise<ServerCommand> {
+    const cmd: ServerCommand = {
+      id: randomUUID(),
+      ...command,
+      status: 'pending',
+      result: null,
+      exitCode: null,
+      createdAt: new Date(),
+      executedAt: null
+    };
+    this.serverCommands.set(cmd.id, cmd);
+    return cmd;
+  }
+  
+  async getPendingCommands(serverId: string): Promise<ServerCommand[]> {
+    return Array.from(this.serverCommands.values())
+      .filter(cmd => cmd.serverId === serverId && cmd.status === 'pending')
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+  
+  async completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void> {
+    const cmd = this.serverCommands.get(commandId);
+    if (cmd) {
+      cmd.status = 'completed';
+      cmd.result = result;
+      cmd.exitCode = exitCode;
+      cmd.executedAt = new Date();
+      this.serverCommands.set(commandId, cmd);
+    }
   }
 }
 

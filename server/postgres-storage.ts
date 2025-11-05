@@ -15,6 +15,7 @@ import {
   aiMessages,
   telegramUsers,
   servers,
+  serverCommands,
   type User,
   type InsertUser,
   type Project,
@@ -37,6 +38,8 @@ import {
   type InsertTelegramUser,
   type Server,
   type InsertServer,
+  type ServerCommand,
+  type InsertServerCommand,
 } from '@shared/schema';
 import type { IStorage } from './storage';
 
@@ -326,5 +329,31 @@ export class PostgresStorage implements IStorage {
   async deleteServer(id: string): Promise<boolean> {
     const result = await this.db.delete(servers).where(eq(servers.id, id)).returning();
     return result.length > 0;
+  }
+  
+  async createServerCommand(command: InsertServerCommand): Promise<ServerCommand> {
+    const [cmd] = await this.db.insert(serverCommands).values(command).returning();
+    return cmd;
+  }
+  
+  async getPendingCommands(serverId: string): Promise<ServerCommand[]> {
+    return await this.db
+      .select()
+      .from(serverCommands)
+      .where(eq(serverCommands.serverId, serverId))
+      .where(eq(serverCommands.status, 'pending'))
+      .orderBy(serverCommands.createdAt);
+  }
+  
+  async completeServerCommand(commandId: string, result: string, exitCode: number): Promise<void> {
+    await this.db
+      .update(serverCommands)
+      .set({ 
+        status: 'completed',
+        result,
+        exitCode,
+        executedAt: new Date()
+      })
+      .where(eq(serverCommands.id, commandId));
   }
 }
