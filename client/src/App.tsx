@@ -10,6 +10,7 @@ import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
 import Workspace from "@/pages/Workspace";
 import ProjectDetails from "@/pages/ProjectDetails";
+import ProductDetails from "@/pages/ProductDetails";
 import Settings from "@/pages/Settings";
 import Marketplace from "@/pages/Marketplace";
 import AiChat from "@/pages/AiChat";
@@ -20,6 +21,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/marketplace" component={Marketplace} />
+      <Route path="/products/:slug" component={ProductDetails} />
       <Route path="/ai-chat" component={AiChat} />
       <Route path="/projects" component={Projects} />
       <Route path="/workspace" component={Workspace} />

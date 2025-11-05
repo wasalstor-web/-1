@@ -259,13 +259,15 @@ function ProductCard({ product }: { product: Product }) {
               {formatPrice(product.price)}
             </span>
           </div>
-          <Button 
-            className="neon-glow-cyan"
-            data-testid={`button-view-product-${product.slug}`}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            عرض التفاصيل
-          </Button>
+          <Link href={`/products/${product.slug}`}>
+            <Button 
+              className="neon-glow-cyan"
+              data-testid={`button-view-product-${product.slug}`}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              عرض التفاصيل
+            </Button>
+          </Link>
         </div>
       </div>
     </Card>

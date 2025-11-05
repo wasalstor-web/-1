@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertAiConversationSchema, insertAiMessageSchema } from "@shared/schema";
+import { insertProjectSchema, insertConversationSchema, insertCategorySchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertAiConversationSchema, insertAiMessageSchema } from "@shared/schema";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
@@ -247,6 +247,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching product:", error);
       res.status(500).json({ error: "Failed to fetch product" });
+    }
+  });
+
+  // Order routes
+  app.get("/api/orders/user/:userId", async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByUser(req.params.userId);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+
+  app.get("/api/orders/:id", async (req, res) => {
+    try {
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      res.status(500).json({ error: "Failed to fetch order" });
+    }
+  });
+
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const validatedData = insertOrderSchema.parse(req.body);
+      const order = await storage.createOrder(validatedData);
+      res.status(201).json(order);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      res.status(400).json({ error: "Invalid order data" });
+    }
+  });
+
+  app.get("/api/orders/:id/items", async (req, res) => {
+    try {
+      const items = await storage.getOrderItems(req.params.id);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching order items:", error);
+      res.status(500).json({ error: "Failed to fetch order items" });
+    }
+  });
+
+  app.post("/api/orders/:id/items", async (req, res) => {
+    try {
+      const validatedData = insertOrderItemSchema.parse({
+        ...req.body,
+        orderId: req.params.id,
+      });
+      const item = await storage.createOrderItem(validatedData);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error creating order item:", error);
+      res.status(400).json({ error: "Invalid order item data" });
     }
   });
 
