@@ -32,7 +32,27 @@ The platform enables users to:
 
 ## Recent Changes
 
-### Latest Updates - Telegram AI Bot (2025-11-05)
+### Latest Updates - Platform-Wide System Prompt (2025-11-05)
+- **🧠 Comprehensive System Prompt**: Created centralized PLATFORM_SYSTEM_PROMPT
+  - Single source of truth explaining entire platform (Marketplace + Developer Assistant + Workspace + Telegram Bot)
+  - Detailed context about all 14 AI products, 4 categories, and pricing
+  - Technical architecture explanation (React, Express, PostgreSQL, Drizzle ORM)
+  - Clear role definition and interaction guidelines for AI assistants
+  - Best practices for code writing, debugging, and user support
+  - Full Arabic support with RTL awareness
+- **Telegram Bot Integration**: System prompt now used across all 3 AI providers
+  - OpenAI: Injected as system message in conversation history
+  - Anthropic: Supplied via `system` parameter in API calls
+  - Gemini: Set via `systemInstruction` configuration
+  - All models now understand complete platform context
+- **AI Chat Routes**: System prompt integrated in `/api/ai/chat/stream`
+  - Replaced basic prompts with comprehensive platform context
+  - Consistent AI behavior across web chat and Telegram bot
+  - Better understanding of user requests and platform capabilities
+- **Code Quality**: Removed unused helper functions, centralized prompt management
+- **File Created**: server/ai-system-prompt.ts (centralized prompt location)
+
+### Previous Updates - Telegram AI Bot (2025-11-05)
 - **🤖 Telegram Bot Integration**: Full-featured Telegram bot with AI capabilities
   - Multi-model support: GPT-4, GPT-4 Mini, Claude 3.5 Sonnet, Gemini 2.0 Flash
   - Conversation history with context preservation (last 20 messages)
