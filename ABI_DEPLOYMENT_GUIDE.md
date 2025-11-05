@@ -212,20 +212,29 @@ pm2 logs ai-agent
 
 ### 1. الحصول على API Key
 
-**عند تشغيل Agent لأول مرة، سيطبع API Key في Console:**
+**⚠️ مهم جداً**: عند تشغيل Agent لأول مرة، سيطبع API Key **مرة واحدة فقط** في Console:
 
 ```
-🔑 Generated API Key: abc123def456...
-⚠️  Store this key securely and use it in Authorization header
+🔐 IMPORTANT: Save your API Key securely!
+🔑 API Key: abc123def456...
+
+⚠️  This key will not be shown again!
+⚠️  Use it in Authorization header: "Bearer <your-key>"
 ```
 
-**أو احصل عليه عبر API:**
+**📋 احفظ هذا المفتاح فوراً في:**
+- ملف `.env` على السيرفر
+- Password Manager
+- ملف نصي آمن
 
-```bash
-curl http://localhost:3000/api-key
-```
+**⚠️ لن تتمكن من استرجاع المفتاح بعد إغلاق Console!**
 
-**⚠️ احفظ هذا المفتاح في مكان آمن!**
+**🔄 إذا فقدت المفتاح:**
+- أعد تشغيل Agent مع متغير بيئي جديد:
+  ```bash
+  export API_KEY="your-new-custom-key"
+  pm2 restart ai-agent
+  ```
 
 ### 2. اختبار الاتصال (بدون Auth)
 
