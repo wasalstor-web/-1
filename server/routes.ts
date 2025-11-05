@@ -5,6 +5,7 @@ import { insertProjectSchema, insertConversationSchema, insertCategorySchema, in
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
+import { HfInference } from "@huggingface/inference";
 import { PLATFORM_SYSTEM_PROMPT } from "./ai-system-prompt";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -12,6 +13,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let openai: OpenAI | null = null;
   let anthropic: Anthropic | null = null;
   let gemini: GoogleGenerativeAI | null = null;
+  let hf: HfInference | null = null;
 
   if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -23,6 +25,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   if (process.env.GEMINI_API_KEY) {
     gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  }
+
+  if (process.env.HUGGINGFACE_API_KEY) {
+    hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
   }
 
   // Project routes
@@ -471,6 +477,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const content = chunk.text();
           if (content) {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+      }
+      
+      // Hugging Face Models (Open Source)
+      else if (model.startsWith('hf-')) {
+        if (!hf) {
+          return res.status(503).json({ error: "Hugging Face API not available" });
+        }
+
+        // Map model names to Hugging Face model IDs
+        const modelMap: Record<string, string> = {
+          'hf-qwen-7b': 'Qwen/Qwen2.5-7B-Instruct',
+          'hf-qwen-14b': 'Qwen/Qwen2.5-14B-Instruct',
+          'hf-qwen-32b': 'Qwen/Qwen2.5-32B-Instruct',
+          'hf-mistral-7b': 'mistralai/Mistral-7B-Instruct-v0.3',
+          'hf-llama-8b': 'meta-llama/Meta-Llama-3.1-8B-Instruct',
+          'hf-deepseek-7b': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-7B',
+        };
+
+        const hfModel = modelMap[model];
+        if (!hfModel) {
+          return res.status(400).json({ error: "Unknown Hugging Face model" });
+        }
+
+        // Build conversation history with system prompt
+        const conversationHistory = [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ];
+
+        // Hugging Face streaming
+        const stream = hf.chatCompletionStream({
+          model: hfModel,
+          messages: conversationHistory as any,
+          max_tokens: 2048,
+          temperature: 0.7,
+        });
+
+        for await (const chunk of stream) {
+          if (chunk.choices && chunk.choices.length > 0) {
+            const content = chunk.choices[0].delta?.content || '';
+            if (content) {
+              res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
           }
         }
       }
