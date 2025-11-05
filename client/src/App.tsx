@@ -11,12 +11,14 @@ import Projects from "@/pages/Projects";
 import Workspace from "@/pages/Workspace";
 import ProjectDetails from "@/pages/ProjectDetails";
 import Settings from "@/pages/Settings";
+import Marketplace from "@/pages/Marketplace";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/marketplace" component={Marketplace} />
       <Route path="/projects" component={Projects} />
       <Route path="/workspace" component={Workspace} />
       <Route path="/project/:id" component={ProjectDetails} />

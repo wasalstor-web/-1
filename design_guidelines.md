@@ -1,221 +1,233 @@
-# Design Guidelines: منصة AI المتكاملة
+# Design Guidelines: منصة AI Marketplace
 
 ## Design Approach
-**Hybrid Modern AI Platform**: Drawing inspiration from ChatGPT's conversational interface, Linear's typography precision, and Notion's workspace flexibility. This platform prioritizes both functionality and visual elegance to create a premium Arabic AI experience.
+**Neon-Dark AI Marketplace**: Drawing inspiration from Dora AI's futuristic neon aesthetics and Framer's polished dark interface. This platform merges marketplace sophistication with cutting-edge AI tools, creating a premium cyberpunk-inspired Arabic shopping and workspace experience.
 
 ## Core Design Principles
-- **Arabic-First Design**: Full RTL support with proper Arabic typography hierarchy
-- **Glassmorphism Aesthetic**: Layered transparency with backdrop blur effects for depth
-- **Gradient Accents**: Strategic use of gradient overlays for visual interest
-- **Spatial Breathing**: Generous whitespace to prevent information overload
+- **Dark-First Neon Aesthetic**: Deep dark backgrounds (#0A0A0F to #12121A) with vibrant neon accents
+- **Glow & Radiance**: Strategic use of neon gradients with blur/glow effects for depth and energy
+- **Arabic-First RTL**: Full Arabic interface with proper typography hierarchy
+- **Premium Marketplace Feel**: High-end product showcase meets functional AI workspace
+
+## Color Philosophy
+**Dark Foundation**
+- Background base: Near-black (#0A0A0F, #0F0F14)
+- Card backgrounds: Elevated dark (#16161D, #1A1A24)
+- Borders: Subtle glow borders with 20% opacity neon hints
+
+**Neon Accent System**
+- Primary Neon: Electric cyan (#00F0FF) to vibrant purple (#9D00FF) gradients
+- Secondary Neon: Hot pink (#FF0080) to orange (#FF6B00) gradients
+- Success Glow: Lime green (#00FF88) with radial blur
+- Warning Glow: Yellow-orange (#FFB800)
+- Use gradients at 45deg to -45deg angles for dynamic energy
+
+**Glow Effects**
+- Product cards: Subtle neon border glow on hover with shadow-[0_0_20px_rgba(157,0,255,0.3)]
+- CTA buttons: Strong glow shadow-[0_0_30px_rgba(0,240,255,0.5)]
+- Active states: Intensified glow with multiple shadow layers
 
 ## Typography System
 
-### Font Family
-- **Primary**: 'Cairo' or 'Tajawal' from Google Fonts (excellent Arabic readability)
-- **Secondary**: 'Inter' for English UI elements and code
-- **Monospace**: 'Fira Code' for AI output/code blocks
+**Font Families**
+- Primary Arabic: 'Cairo' (bold personality for RTL)
+- Secondary English: 'Inter' (UI elements, model names)
+- Monospace: 'JetBrains Mono' (AI code output)
 
-### Type Scale
-- **Hero/Display**: text-4xl to text-5xl, font-bold (للعناوين الرئيسية)
-- **Page Headers**: text-3xl, font-bold
-- **Section Headers**: text-xl to text-2xl, font-semibold
-- **Card Titles**: text-lg, font-bold
-- **Body Text**: text-base, font-normal
-- **Metadata/Labels**: text-sm, font-medium
-- **Captions**: text-xs, font-normal
+**Type Scale**
+- Hero Headlines: text-6xl to text-7xl, font-black with neon gradient text
+- Product Titles: text-2xl, font-bold
+- Section Headers: text-3xl, font-bold with glow text-shadow
+- Card Titles: text-xl, font-semibold
+- Body: text-base, font-normal with increased line-height (1.7)
+- Price Tags: text-3xl, font-black with neon gradient
+- Labels/Meta: text-sm, font-medium with 70% opacity
 
 ## Layout System
 
-### Spacing Primitives
-Use Tailwind units: **2, 4, 6, 8, 12, 16, 24** for consistency
-- Tight spacing: p-2, gap-2 (compact elements)
-- Standard spacing: p-4, gap-4 (cards, buttons)
-- Section spacing: p-6 to p-8 (major components)
-- Page padding: p-6 on mobile, p-8 on desktop
-- Section gaps: space-y-6 to space-y-8
+**Spacing Primitives**: 2, 4, 6, 8, 12, 16, 24
+- Component padding: p-6 to p-8
+- Card spacing: gap-6 for grids
+- Section spacing: py-16 to py-24 for major sections
+- Container max-width: max-w-7xl
 
-### Grid Structure
-- **Dashboard**: 3-column grid on desktop (lg:grid-cols-3), 1 column mobile
-- **Projects**: 3-column cards (lg:grid-cols-3), 2 on tablet (md:grid-cols-2)
-- **Workspace**: 2-column split (sidebar + main area)
-- **Max Width**: max-w-7xl for main container
+**Grid Structures**
+- Product Grid: lg:grid-cols-3 md:grid-cols-2 (marketplace products)
+- Featured Products: lg:grid-cols-4 (smaller cards)
+- AI Models Section: lg:grid-cols-3 (GPT-4, Claude, Gemini cards)
+- Workspace Layout: Sidebar (w-72) + Main workspace area
 
 ## Component Library
 
 ### Navigation
-**Top Navigation Bar**
-- Height: h-16
-- Glassmorphic background with backdrop-blur-md
-- Logo positioned right (RTL)
-- Icons: 24px (w-6 h-6)
-- Padding: px-6
+**Top Nav Bar**
+- Height: h-20 (taller for prominence)
+- Dark background with subtle neon bottom border (1px gradient)
+- Logo: Neon gradient effect with glow
+- Search bar: w-96 with neon blue focus ring
+- Icons: 24px with neon hover glow
+- Sticky positioning with backdrop-blur-xl
 
-**Sidebar Navigation**
-- Width: w-64 on desktop, collapsible to w-16 (icon-only)
-- Full-height with overflow-y-auto
-- Icons: 20px (w-5 h-5) with 2px stroke
-- Active state: highlighted background with border accent
-- Padding: p-4 for items
+**Sidebar (Marketplace Categories)**
+- Width: w-64, dark background with border-r neon gradient
+- Category items: p-4 with icon (20px) + label
+- Active state: Neon gradient background with glow
+- Hover: Subtle neon left border accent
 
-### Cards & Containers
+### Marketplace Cards
 
-**Project Cards**
-- Border radius: rounded-xl (12px)
+**Product Cards**
+- Border: rounded-2xl with neon gradient border (2px)
+- Background: Dark elevated with subtle noise texture
+- Product image area: aspect-video with rounded-t-2xl
+- Hover: Lift transform (-translate-y-2) + intensified neon glow
 - Padding: p-6
-- Border: border with 10% opacity
-- Hover: lift effect with shadow-lg
-- Aspect ratio for preview: aspect-video
+- Structure:
+  - Image placeholder with neon overlay gradient
+  - Product title (text-xl font-bold)
+  - Creator badge (avatar + name, text-sm)
+  - Price tag (text-3xl neon gradient)
+  - Stats row (downloads, rating) with icons
+  - CTA button (full-width, neon gradient)
 
-**Dashboard Stats Cards**
-- Glassmorphic container with gradient overlay
-- Icon size: w-12 h-12 for primary icon
-- Number display: text-3xl font-bold
-- Label: text-sm
+**Featured Product Hero Cards**
+- Larger scale: min-h-96
+- Split layout: Image left (60%) + Info right (40%)
+- Neon glow frame effect
+- Animated gradient background
 
-**Chat/Workspace Cards**
-- Message bubbles: rounded-2xl with max-w-3xl
-- User messages: aligned left (RTL)
-- AI responses: full width with subtle background
-- Padding: p-4 for messages
+**AI Model Cards** (GPT-4, Claude, Gemini)
+- Square aspect ratio: aspect-square
+- Centered model logo (w-16 h-16)
+- Model name: text-2xl font-bold
+- Status indicator: Active/Available with pulsing neon dot
+- Hover: Rotation effect (rotate-1) + glow intensification
+- Border: Neon gradient with animated shimmer effect
 
 ### Buttons
 
-**Primary Actions**
-- Height: h-10 to h-12
-- Padding: px-6 py-2
-- Rounded: rounded-lg
-- Gradient background
-- Shadow on hover: shadow-lg with glow effect
-- Icons: w-5 h-5, positioned with gap-2
+**Primary CTA**
+- Height: h-12 to h-14
+- Neon gradient background (cyan to purple)
+- Strong glow shadow
+- Text: font-bold with slight letter-spacing
+- Hover: Brightness increase + glow expansion
+- Rounded: rounded-xl
 
 **Secondary Actions**
-- Transparent with border
-- Padding: px-4 py-2
-- Hover: subtle background overlay
+- Transparent with neon border (2px)
+- Hover: Fill with 20% neon gradient overlay
+- Ghost effect on dark backgrounds
 
 **Icon Buttons**
-- Square: w-10 h-10
-- Rounded: rounded-lg
-- Icons: w-5 h-5 centered
+- Size: w-12 h-12
+- Neon border circle
+- Icon: 24px with neon color
+- Hover: Glow pulse effect
 
-### Form Elements
+### Product Filters & Search
+- Filter pills: Dark background with neon border
+- Active filter: Filled neon gradient
+- Search input: h-14, dark with neon focus ring (4px blur)
+- Dropdown menus: Dark elevated with neon accent borders
 
-**Input Fields**
-- Height: h-12
-- Rounded: rounded-lg
-- Padding: px-4
-- Border with subtle opacity
-- Focus: border accent with ring effect
-- RTL text alignment
+### Pricing Display
+- Price tags: Large text-4xl with neon gradient
+- Discount badges: Hot pink neon with pulsing glow
+- Plan comparison cards: Dark with neon gradient borders, hover glow
 
-**Textarea (AI Input)**
-- Min height: min-h-24
-- Max height: max-h-96 with overflow-auto
-- Padding: p-4
-- Rounded: rounded-xl
-- Resize: resize-none (controlled growth)
+### AI Workspace Components
 
-**Dropdowns/Selects**
-- Height: h-12
-- Full rounded: rounded-lg
-- Chevron icon: w-4 h-4
-- Dropdown menu: rounded-xl with backdrop-blur
+**Chat Interface**
+- Container: max-w-4xl with dark background
+- Message bubbles: 
+  - User: Neon gradient border, aligned right (RTL)
+  - AI: Dark elevated background, full-width
+- Padding: p-4 for messages, space-y-6 between
 
-### AI Model Selector
-- Pill-style toggle buttons
-- Grid: grid-cols-3 for three models
-- Active state: gradient background with glow
-- Icons: w-6 h-6 for model logos
-- Padding: p-3 for each option
+**Input Area**
+- Fixed bottom with backdrop-blur-xl
+- Height: min-h-24, auto-expand to max-h-96
+- Neon gradient border (animated on focus)
+- Send button: Neon gradient circle with arrow icon
 
-### Progress Indicators
-
-**Progress Bars**
-- Height: h-2
-- Container: rounded-full with track background
-- Fill: rounded-full with gradient
-- Percentage label: text-sm positioned adjacent
-
-**Creativity Slider**
-- Track height: h-1
-- Thumb: w-4 h-4 rounded-full
-- Labels: text-xs at start/end
-- Container padding: py-4
-
-### Status Indicators
-- Badges: px-3 py-1, rounded-full, text-xs
-- Dot indicators: w-2 h-2, rounded-full
-- Status text: font-medium
+**Model Selector Bar**
+- Horizontal pills: Three model options
+- Active: Neon gradient fill with glow
+- Icons: w-8 h-8 model logos
+- Sticky top positioning
 
 ## Page Layouts
 
-### Dashboard
-- Header section: Full width with title + quick stats (grid-cols-4)
-- Main grid: 3 columns (2 content + 1 sidebar)
-- Recent activity: List with timeline connectors
-- Quick actions: Vertical button stack
+### Homepage (Hero + Marketplace)
+- **Hero Section**: Full viewport (min-h-screen)
+  - Large neon gradient headline (text-7xl)
+  - Subtitle with glow effect
+  - Dual CTAs: "استكشف المنتجات" + "جرّب AI مجاناً"
+  - Background: Dark with animated neon grid pattern
+  - Hero product showcase: 3D card stack with parallax
+- **Featured Products**: Grid of 6 cards (lg:grid-cols-3)
+- **AI Models Section**: 3 large cards showcasing GPT-4, Claude, Gemini
+- **Categories Grid**: 8 category cards (lg:grid-cols-4)
+- **Trending Products**: Horizontal scroll carousel with neon indicators
 
-### Projects Page
-- Header: Flex row with title left, actions right
-- View toggle: Grid/List icons
-- Grid view: 3 columns with hover effects
-- List view: Full width cards with horizontal layout
+### Product Detail Page
+- Hero area: Split layout (product preview + info)
+- Neon gradient price badge (floating, sticky)
+- Tabs: Features, Reviews, Creator - Neon underline active state
+- Related products: Grid at bottom
+- Purchase CTA: Fixed bottom bar on mobile with neon glow
 
-### Workspace (AI Interface)
-- Split layout: Sidebar (w-80) + Main area
-- Chat container: max-w-4xl mx-auto
-- Input area: Fixed bottom with backdrop-blur
-- Model selector: Sticky top bar
-- Output area: py-8 spacing between messages
+### Marketplace Grid
+- Top filter bar: Horizontal scroll pills
+- Sidebar filters (right side, RTL): Categories, price range, ratings
+- Product grid: 3 columns with infinite scroll
+- Sort dropdown: Dark with neon accent
 
-### Project Details
-- Hero section: Gradient background, h-64
-- Tabs navigation: Horizontal scroll on mobile
-- Content sections: Card-based with space-y-6
-- Sidebar: Stats and metadata (w-80)
+### AI Workspace
+- Split view: Model selector sidebar + Chat area
+- Top bar: Model switcher with usage stats
+- Output area: Code blocks with syntax highlighting on dark
+- Tools panel: Collapsible right panel with AI settings
 
-## Responsive Breakpoints
-- Mobile: base (< 768px) - Single column, simplified nav
-- Tablet: md (768px+) - 2 columns where applicable
-- Desktop: lg (1024px+) - Full layout with 3+ columns
-- Wide: xl (1280px+) - Max container width with side margins
-
-## Interaction Patterns
-
-**Hover States**
-- Cards: Subtle lift (translate-y-[-4px]) with shadow enhancement
-- Buttons: Brightness increase + shadow glow
-- Links: Opacity reduction to 80%
-
-**Loading States**
-- Skeleton screens for cards: Animated gradient shimmer
-- Spinners: 24px for buttons, 40px for page loads
-- Progress bars for AI generation
-
-**Animations** (Minimal)
-- Page transitions: Fade in (200ms)
-- Card hovers: Transform + shadow (150ms)
-- Dropdown menus: Slide down (200ms)
-- NO complex scroll animations
-
-## Accessibility
-- Focus indicators: Ring effect with 2px offset
-- Keyboard navigation: Visible focus states on all interactive elements
-- Icon buttons: aria-labels in Arabic
-- Contrast ratios: Ensure text readability against glassmorphic backgrounds
-- RTL support: Consistent across all components
+### Creator Dashboard (للبائعين)
+- Stats cards: Dark with neon gradient borders, large numbers
+- Revenue chart: Neon gradient line chart on dark
+- Product management: List view with quick actions
+- Analytics: Dark cards with colorful neon data visualizations
 
 ## Images
-**No hero images required** - This is a utility-focused AI platform where functionality takes precedence. Use gradient backgrounds and glassmorphic effects for visual interest instead.
 
-**Icon Usage**
-- Lucide React icons throughout
-- 20px (w-5 h-5) for navigation and buttons
-- 24px (w-6 h-6) for feature highlights
-- 48px (w-12 h-12) for empty states and placeholders
+**Hero Section**: YES - Large hero image required
+- Type: Futuristic AI/tech visualization with neon elements
+- Treatment: Dark overlay (60% opacity) with neon gradient overlay
+- Placement: Full-width background for hero section
+- Effect: Subtle parallax scroll, blur behind text content
 
-**Project Previews**
-- Placeholder cards with gradient backgrounds
-- Icon representations (FolderOpen, Brain, etc.)
-- aspect-video ratio for consistency
+**Product Images**
+- Mockup screenshots of bots/systems
+- Neon frame overlays with gradient borders
+- Dark mode screenshots preferred
+- Aspect ratio: 16:9 for consistency
+
+**Model Logos** (GPT-4, Claude, Gemini)
+- Official brand logos with neon glow effects
+- Size: 64px to 96px for large displays
+- Placement: Model cards and selector
+
+**Category Icons**
+- Custom neon-styled icons (32px)
+- Lucide React icons with neon gradient treatment
+
+## Responsive Design
+- Mobile: Single column, bottom nav with neon indicators
+- Tablet: 2-column grids, collapsible sidebar
+- Desktop: Full 3-column layouts with persistent sidebar
+- Breakpoints: md (768px), lg (1024px), xl (1280px)
+
+## Accessibility
+- Focus indicators: Thick neon rings (4px) with high contrast
+- Keyboard navigation: Visible neon glow on all interactive elements
+- Text contrast: Ensure neon text has 4.5:1 ratio against dark backgrounds
+- RTL: Consistent mirror layout for Arabic
+- Screen reader labels in Arabic for all interactive elements
