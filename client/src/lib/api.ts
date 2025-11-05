@@ -1,4 +1,15 @@
-import type { Project, InsertProject, Conversation, InsertConversation } from "@shared/schema";
+import type { 
+  Project, 
+  InsertProject, 
+  Conversation, 
+  InsertConversation,
+  Product,
+  Category,
+  Order,
+  InsertOrder,
+  OrderItem,
+  InsertOrderItem
+} from "@shared/schema";
 
 const API_BASE = '/api';
 
@@ -134,6 +145,89 @@ export const chatApi = {
     } catch (error) {
       onError(error as Error);
     }
+  },
+};
+
+// Product API
+export const productsApi = {
+  getAll: async (): Promise<Product[]> => {
+    const response = await fetch(`${API_BASE}/products`);
+    if (!response.ok) throw new Error('Failed to fetch products');
+    return response.json();
+  },
+
+  getFeatured: async (): Promise<Product[]> => {
+    const response = await fetch(`${API_BASE}/products?featured=true`);
+    if (!response.ok) throw new Error('Failed to fetch featured products');
+    return response.json();
+  },
+
+  getByCategory: async (categorySlug: string): Promise<Product[]> => {
+    const response = await fetch(`${API_BASE}/products?category=${categorySlug}`);
+    if (!response.ok) throw new Error('Failed to fetch products by category');
+    return response.json();
+  },
+
+  getBySlug: async (slug: string): Promise<Product> => {
+    const response = await fetch(`${API_BASE}/products/${slug}`);
+    if (!response.ok) throw new Error('Failed to fetch product');
+    return response.json();
+  },
+};
+
+// Category API
+export const categoriesApi = {
+  getAll: async (): Promise<Category[]> => {
+    const response = await fetch(`${API_BASE}/categories`);
+    if (!response.ok) throw new Error('Failed to fetch categories');
+    return response.json();
+  },
+
+  getBySlug: async (slug: string): Promise<Category> => {
+    const response = await fetch(`${API_BASE}/categories/${slug}`);
+    if (!response.ok) throw new Error('Failed to fetch category');
+    return response.json();
+  },
+};
+
+// Order API
+export const ordersApi = {
+  getByUser: async (userId: string): Promise<Order[]> => {
+    const response = await fetch(`${API_BASE}/orders/user/${userId}`);
+    if (!response.ok) throw new Error('Failed to fetch orders');
+    return response.json();
+  },
+
+  getById: async (id: string): Promise<Order> => {
+    const response = await fetch(`${API_BASE}/orders/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch order');
+    return response.json();
+  },
+
+  create: async (order: InsertOrder): Promise<Order> => {
+    const response = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order),
+    });
+    if (!response.ok) throw new Error('Failed to create order');
+    return response.json();
+  },
+
+  getItems: async (orderId: string): Promise<OrderItem[]> => {
+    const response = await fetch(`${API_BASE}/orders/${orderId}/items`);
+    if (!response.ok) throw new Error('Failed to fetch order items');
+    return response.json();
+  },
+
+  addItem: async (orderId: string, item: Omit<InsertOrderItem, 'orderId'>): Promise<OrderItem> => {
+    const response = await fetch(`${API_BASE}/orders/${orderId}/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) throw new Error('Failed to add order item');
+    return response.json();
   },
 };
 

@@ -19,6 +19,7 @@ import {
   type InsertAiMessage
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { hashPassword } from "./utils/auth";
 
 export interface IStorage {
   // User methods
@@ -510,7 +511,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const hashedPassword = await hashPassword(insertUser.password);
+    const user: User = { 
+      ...insertUser, 
+      id,
+      password: hashedPassword,
+    };
     this.users.set(id, user);
     return user;
   }
@@ -815,4 +821,9 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Choose storage based on DATABASE_URL
+import { PostgresStorage } from './postgres-storage';
+
+export const storage = process.env.DATABASE_URL
+  ? new PostgresStorage(process.env.DATABASE_URL)
+  : new MemStorage();

@@ -189,7 +189,9 @@ Preferred communication style: Simple, everyday language.
 - Protected routes requiring authentication
 - User-specific project and conversation isolation
 
-**Note**: Currently using in-memory storage for development. Database is configured but not actively used for persistence.
+**Production-Ready Storage**: Automatic switching between PostgreSQL (when DATABASE_URL is set) and in-memory MemStorage (for development). All data persists in Neon PostgreSQL database with full CRUD operations.
+
+**Security**: Password hashing with bcrypt (SALT_ROUNDS=10) for all user credentials. Automatic hashing on user creation via hashPassword() utility.
 
 ## External Dependencies
 
