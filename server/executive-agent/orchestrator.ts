@@ -5,7 +5,7 @@
 
 import { IntentAnalyzer } from '../intelligent-agent/intent-analyzer';
 import { VPSExecutor } from '../intelligent-agent/vps-executor';
-import { CoreBrain } from '../ai-brain/core-brain';
+import { AIBrainCore } from '../ai-brain/core-brain';
 import { DoctorAI } from '../ai-brain/doctor-ai';
 
 // Sub-Agent Types
@@ -104,7 +104,7 @@ export interface DecisionLogEntry {
 export class AIExecutiveOrchestrator {
   private intentAnalyzer: IntentAnalyzer;
   private vpsExecutor: VPSExecutor;
-  private coreBrain: CoreBrain;
+  private coreBrain: AIBrainCore;
   private doctorAI: DoctorAI;
   
   // Decision Log (سيتم نقله لقاعدة البيانات)
@@ -116,8 +116,8 @@ export class AIExecutiveOrchestrator {
   constructor() {
     this.intentAnalyzer = new IntentAnalyzer();
     this.vpsExecutor = new VPSExecutor();
-    this.coreBrain = CoreBrain.getInstance();
-    this.doctorAI = DoctorAI.getInstance();
+    this.coreBrain = new AIBrainCore();
+    this.doctorAI = new DoctorAI();
   }
   
   /**
