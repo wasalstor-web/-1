@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import ws from 'ws';
 import { hashPassword } from './utils/auth';
 import {
@@ -340,8 +340,10 @@ export class PostgresStorage implements IStorage {
     return await this.db
       .select()
       .from(serverCommands)
-      .where(eq(serverCommands.serverId, serverId))
-      .where(eq(serverCommands.status, 'pending'))
+      .where(and(
+        eq(serverCommands.serverId, serverId),
+        eq(serverCommands.status, 'pending')
+      ))
       .orderBy(serverCommands.createdAt);
   }
   
