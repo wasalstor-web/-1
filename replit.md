@@ -32,7 +32,33 @@ The platform enables users to:
 
 ## Recent Changes
 
-### Latest Updates - Open Source AI Agents (2025-11-05)
+### Latest Updates - Advanced AI Developer Features (2025-11-05)
+- **✨ Multi-Model Support**: Full support for GPT-4, GPT-4 Mini, Claude 3.5 Sonnet, and Gemini 2.0 Flash
+  - Model selector dropdown in chat header
+  - Backend streaming endpoints for all 3 providers (OpenAI, Anthropic, Google)
+  - Dynamic model switching during conversations
+- **💎 Syntax Highlighting**: Code blocks with react-syntax-highlighter
+  - VS Code Dark Plus theme for all code blocks
+  - Language badges and line numbering
+  - Copy, Run, and Explain buttons for code blocks
+  - Inline code styling with cyan accents
+- **📚 Templates Library**: 6 quick-start templates
+  - Code Review, Debug Help, Explain Code
+  - Generate Tests, Optimize Performance, Add Documentation
+  - One-click template insertion into chat input
+- **⌨️ Keyboard Shortcuts**: Power user features
+  - Ctrl/Cmd + Enter to send messages
+  - Ctrl/Cmd + N for new conversation
+  - Esc to stop streaming or clear input
+- **🔍 Search Functionality**: Search bar in conversation sidebar
+  - Filter conversations by title or context
+  - Real-time search with empty state handling
+- **🎨 Enhanced UI**: Improved chat experience
+  - Markdown rendering with custom styles (h1, h2, h3, lists, tables, blockquotes)
+  - Neon gradients for AI messages
+  - Responsive templates grid (3 columns on desktop)
+
+### Previous Updates - Open Source AI Agents (2025-11-05)
 - **🔓 8 New Open Source Products**: Added popular open-source AI agents and tools
   - LangChain Agent, AutoGPT Clone, RAG Document Bot
   - Code Interpreter, CrewAI Team, LlamaIndex Search
