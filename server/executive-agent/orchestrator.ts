@@ -206,12 +206,32 @@ Sub-Agents تحت قيادتك:
       throw new Error(`No execution plan found for command ${command_id}`);
     }
     
+    // Defensive JSON parsing
+    let steps: ExecutionStep[] = [];
+    let risks: string[] = [];
+    
+    try {
+      steps = typeof planData.steps === 'string' ? JSON.parse(planData.steps) : planData.steps;
+      if (!Array.isArray(steps)) steps = [];
+    } catch (e) {
+      console.error(`Invalid steps JSON for command ${command_id}:`, e);
+      steps = [];
+    }
+    
+    try {
+      risks = typeof planData.risks === 'string' ? JSON.parse(planData.risks) : planData.risks;
+      if (!Array.isArray(risks)) risks = [];
+    } catch (e) {
+      console.error(`Invalid risks JSON for command ${command_id}:`, e);
+      risks = [];
+    }
+    
     const plan: ExecutionPlan = {
       command_id,
-      steps: JSON.parse(planData.steps),
+      steps,
       estimated_duration_minutes: planData.estimatedDurationMinutes,
       estimated_cost_sar: parseFloat(planData.estimatedCostSar),
-      risks: JSON.parse(planData.risks),
+      risks,
       requires_approval: planData.requiresApproval,
       approval_reason: planData.approvalReason || undefined,
     };
