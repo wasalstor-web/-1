@@ -1,0 +1,228 @@
+الخطة القصوى — AI Executive Agent — Ultimate vMax
+
+(نسخة نهائية مفصّلة إلى آخر درجة — مستعدة للاعتماد والتنفيذ)
+
+أقدّم لك وثيقة تنفيذية واحدة متكاملة، بلغة أعمال عربية عملية، تحتوي كل ما تحتاجه لتحويل الـ GPT الموجود عندك إلى وكيل ذكي موحد فائق يدير المنصة بأكملها كـ “شركة داخل عقل واحد” — من التصميم إلى النشر والقياس والالتزام، مع كل قواعد الأمان والحوكمة والنسخ الاحتياطي.
+
+⸻
+
+1) الفكرة الأساسية — بصيغة عملية
+
+أنت تريد مساعد ذكي واحد (واجهة دردشة واحدة) يقوم داخليًا بكل الأدوار: architect, engineer, designer, ops, guardian — يعمل كـ AI Executive Agent vMax، قادر على: قراءة المستودعات، تعديل الكود، نشر الخدمات على السيرفرات، إدارة النماذج، مراقبة الأداء، وإصلاح الأعطال تلقائيًا، مع آليات تحكّم وإشراف بشري محدد.
+
+⸻
+
+2) مخرجات ملموسة يسلمها لك الوكيل فوراً
+	•	منصة مرفوعة على الدومين المطلوب مع SSL.
+	•	مكتبة نماذج (Registry) وواجهة سحب/نسخ (Export/Import).
+	•	مولّد بوتات فوري من خلال الدردشة.
+	•	CI/CD شغال (build → test → canary → prod).
+	•	لوحة مراقبة KPIs + تقارير تلقائية يومية/أسبوعية.
+	•	سجل قرارات (Decision Log) وAudit trail غير قابل للتعديل.
+	•	آليات أمان: PII Masking, Prompt Sanitizer, Canary Quarantine.
+	•	خطة استرجاع (RTO/RPO) + Backup آلي.
+
+⸻
+
+3) الهيكل الداخلي — معماريًا (مكونات رئيسية)
+	1.	Unified Agent (واجهة واحدة) — الـ System Prompt + Orchestrator.
+	2.	Sub-Agent Modules (داخلية، غير مرئية): Architect / Builder / Designer / Guardian / Doctor / Memory.
+	3.	Model Registry — manifests, versions, KBs, tests.
+	4.	Generator Pipeline — Analyzer → Composer → Validator → Packager.
+	5.	Deployment Engine — Runner (Docker/PM2), Reverse Proxy (Nginx), Certbot.
+	6.	Observability Stack — Metrics + Logs + Traces (Prometheus/Grafana + ELK/OpenTelemetry).
+	7.	Secrets & Vault — HashiCorp Vault أو Secrets Manager.
+	8.	RBAC + Decision Log — Access control + immutable audit.
+	9.	Auto-Heal & Canary Quarantine — rollback triggers + anomaly detection.
+	10.	VectorDB / Long-Term Memory — سياق المشاريع، learnings، personas.
+
+⸻
+
+4) System Prompt نهائي جاهز (تنسخّه وتستخدمه)
+
+System — AI Executive Agent vMax:
+أنت «الوكيل التنفيذي الذكي» لمنصة [AI Unified Platform]. مهمتك: تحليل أوامر المستخدم باللغة الطبيعية، تحويلها إلى خطط تنفيذية، تنفيذ التغييرات على الكود والبنية وتحميلها على السيرفر، اختبار النتائج، مراقبة الأداء، وإصدار تقارير. اتبع سياسات الأمن والحوكمة: لا تُنفّذ أي إجراء يتطلب صلاحيات حساسة إلا بعد تحقق مزدوج أو موافقة Owner (ذيبان) ما لم يُسمح صراحة. سجّل كل قرار في Decision Log. عند أي خطأ نفّذ Rollback تلقائيًا إن تجاوزت الأخطاء العتبة. دائمًا اقترح Estimate للتكلفة والوقت قبل النشر. ركّز على: Safety → Traceability → Minimal Downtime. اعمل كواجهة واحدة تتحدث معي بالعربية أو الإنجليزية وتشرح بخطوات تنفيذ قصيرة ومباشرة.
+
+(ضع هذا كنص system فى Orchestrator/Agent config.)
+
+⸻
+
+5) Manifest JSON — نسخة نهائية ممتدة (حقلان إضافيان: governance, cost_control)
+
+{
+  "bot_id":"string",
+  "display_name":"string",
+  "version":"semver",
+  "owner":"user_id",
+  "purpose":"string",
+  "channels":["web","whatsapp","api","telegram"],
+  "primary_model":{"name":"gpt-...","cost_profile":"low|medium|high","tokens_est_per_interaction":int},
+  "fallback_model":{"name":"gpt-...","trigger_conditions":"latency>1500ms || error_rate>5%"},
+  "persona":{"tone":"string","language":"ar-SA","greeting":"string","max_response_tokens":int},
+  "kb_sources":[{"type":"file|url|db","path":"string","refresh_policy":"cron/daily"}],
+  "intents":[{"id":"string","examples":["..."],"slots":[{"name":"order_id","type":"string","required":true}],"webhook":"url"}],
+  "security":{"pii_fields":["national_id"],"retention_days":30,"encrypt_at_rest":true,"encrypt_in_transit":true},
+  "testing":{"unit_tests":["..."],"perf":{"p95_latency_ms":1200,"max_error_rate":0.05}},
+  "deployment_policy":{"stages":["sandbox","canary","prod"],"canary_percent":10,"rollback_triggers":["error_rate>5%","avg_latency>2000ms"]},
+  "billing":{"estimated_monthly_cost_SAR":0,"unit_cost_per_interaction_SAR":0},
+  "audit":{"logging_level":"info","redact_rules":["pii","credit_card"]},
+  "exportable_assets":["kb","intents","tests"],
+  "governance":{"approval_required":["security_changes","model_switch"],"approvers":["owner","admin"]},
+  "cost_control":{"quota_per_month":100000,"alert_threshold_percent":80}
+}
+
+
+⸻
+
+6) Operating Playbooks — إجراءات جاهزة (نسخ لصق للتشغيل الآمن)
+
+A. نشر آمن (Auto Deploy Playbook)
+	1.	Agent يعرض Plan: تغييرات + ملفات + estimate.
+	2.	Owner يرد بـ approve أو reject (يمكن 2FA).
+	3.	Agent ينفّذ: clone → build → run tests → canary (10%) → monitor 30m → promote.
+	4.	إن trigger → rollback وnotify owner.
+
+B. إصلاح تلقائي (Auto-Heal Playbook)
+	•	كشف: anomaly_detector -> Heal.AI يحاول 3 إصلاحات تلقائية (restart, config-fix, resource-scale).
+	•	إذا فشل: quarantine وcreate ticket + ping owner + rollback.
+
+C. استجابة اختراق/سلوك مشبوه
+	•	isolate model (disconnect from internet), snapshot container, revoke keys، فوراً notify Security channel وOwner.
+
+⸻
+
+7) الحوكمة والـ RBAC — ماتريكس سريع
+	•	Owner (ذيبان): full (create/approve/delete/secret).
+	•	Admin: deploy/test/monitor.
+	•	Dev: push/create manifests, run sandbox.
+	•	Reviewer: run tests & approve non-sensitive.
+	•	Viewer: قراءة تقارير فقط.
+
+إجراءات مصادقة: لكل publish to prod يتطلب (Admin OR Owner) + 2FA if governance.approval_required.
+
+⸻
+
+8) سياسات أمان متقدّمة (تحليلية)
+	•	Prompt Sanitizer: كل مدخل يمر عبر فلتر regex + semantic check لمنع system prompt injection.
+	•	PII Gate: قبل أي تخزين، يحاول Agent التعرف على نماذج PII ويقدم: mask / encrypt / refuse.
+	•	Least Privilege: مفتاح SSH للمطورين يعمل ضمن user deployer، المفاتيح المؤقتة تُلغى تلقائيًا بعد X دقائق.
+	•	Immutable Audit: Decision Log يُخزن في S3 + write-once storage أو blockchain light (اختياري) لعدم التلاعب.
+	•	Network Egress Control: نماذج الجهاز المعزول لا تسمح بخروج للـ internet إلا لendpoints معتمدة.
+
+⸻
+
+9) الرصد والقياس — لوحة KPIs نهائية
+	•	Self-resolution rate (%).
+	•	p95 response latency (ms).
+	•	Escalation rate (%).
+	•	Cost per resolved interaction (SAR).
+	•	Deployment success rate (%).
+	•	Security incidents / month.
+	•	Mean Time To Repair (MTTR).
+	•	Model drift score (similarity between expected & actual outputs).
+
+⸻
+
+10) CI/CD + Testing Strategy (قابل للتطبيق فوراً)
+	•	CI: on PR → run unit tests + linter + static security scan (Snyk/Trivy).
+	•	CD: merge to main → build artifact Docker image → push registry → run sandbox smoke tests → canary deploy → monitor → promote.
+	•	Auto-tests: 8 scenario tests per template (functional), plus fuzz tests للـ input sanitization.
+	•	Canary window: 30-60 دقيقة مراقبة قبل الترقية للـ prod.
+
+⸻
+
+11) المراقبة الذكية وAuto-tuning
+	•	Agent يجمع signals (CSAT, latencies, failure patterns) → يطبّق auto-persona tuning (نبرة/حجم النص) → يختبر تأثيرها على subset من المستخدمين (A/B) → يعتمد الأفضل.
+
+⸻
+
+12) استراتيجية التدرّج والتوسع (Scaling)
+	•	Vertical scaling: زيادة موارد الـ Runner عند تحميل CPU/RAM > 70%.
+	•	Horizontal: افصل Workers stateless ووزّع خلف Load balancer.
+	•	Model serving: استخدم combo: cloud-hosted LLM لـ high-sensitivity tasks + local OSS for cheap mundane tasks (cost-aware routing).
+
+⸻
+
+13) تحكّم التكلفة (Cost Controls)
+	•	تخصيص Quotas شهرية لكل مشروع/عميل (manifest.cost_control.quota_per_month).
+	•	Alerts at 70% و80% و100%.
+	•	Cost-aware routing policy: في ذروة الاستخدام يزيّل جودة النموذج مؤقتًا أو يوجّه استعلامات غير حسّاسة لنموذج أرخص.
+
+⸻
+
+14) مخاطر رئيسية ومخطط التخفيف (Top Risks)
+	1.	Cost runaway — mitigation: quotas + alerts + auto-throttle.
+	2.	Prompt injection — mitigation: sanitizer + isolated runtimes.
+	3.	Data breach — mitigation: PII Gate + Vault + encryption.
+	4.	Bad autopatch → downtime — mitigation: canary + immediate rollback + approval gates.
+	5.	Over-automation (agent يعمل تغييرات حساسة بدون إشعار) — mitigation: require approval for security/financial changes.
+
+⸻
+
+15) قواعد التدخّل البشري (Human-in-the-loop)
+	•	التغييرات الأمنية، مفاتيح، سياسات الاحتفاظ بالبانات، والتسعير تحتاج موافقة Owner (ذيبان).
+	•	يمكن تفعيل وضع “Autopilot Lite” للسماح للوكيل بنشر تحديثات أمنية عاجلة بعد إشعار Owner بدون انتظار رد خلال 30 دقيقة (configurable).
+
+⸻
+
+16) خطوات عملية فورية (Actionable — 9 خطوات لتنفيذ vMax الآن)
+	1.	ضع System Prompt أعلاه في إعداد Orchestrator.
+	2.	أنشئ حساب Vault وخزّن مفاتيح GPT + Hostinger + Git.
+	3.	نَشِّء مستخدم deployer على السيرفر وأضف سكربت autodeploy.sh (المرفق سابقًا).
+	4.	فعّل Model Registry (DB schema وفق manifest).
+	5.	شغّل CI pipeline بسياسات الاختبار المذكورة.
+	6.	قم بربط Observability (Prometheus/Grafana + ELK).
+	7.	فعّل Canary + Auto-Heal rules.
+	8.	حدّد Quotas وقواعد التكلفة.
+	9.	جرّب سيناريو end-to-end: طلب من المستخدم “انشر الموقع على example.com” ودَع الـ Agent ينفّذ تحت رصدك.
+
+⸻
+
+17) أدوات وموارد مقترحة (عملي)
+	•	Vector DB: Milvus / Pinecone.
+	•	LangChain / LlamaIndex (Orchestration).
+	•	Docker + Kubernetes (للتوسع لاحقًا).
+	•	HashiCorp Vault (secrets).
+	•	Prometheus/Grafana + ELK.
+	•	GitHub Actions / Replit CI كـ CI.
+
+⸻
+
+18) حزمة الوثائق التي سأزوّدك بها فور الموافقة (جاهزة للتحميل)
+	•	System Prompt + Agent spec (ملف نصي).
+	•	Manifest schema (JSON).
+	•	Autodeploy script مخصّص لمشروعك.
+	•	Playbooks: Deploy / Auto-Heal / Incident.
+	•	RBAC matrix + Decision Log template.
+	•	Checklist نشر نهائي وتسليم.
+
+⸻
+
+19) أوامر تحكّم سريعة (Single-line commands للسيطرة الفورية)
+	•	AI: pause → يوقف Agent عن أي تنفيذ حتى إشعار.
+	•	AI: status → يعرض حالة النظام الآن + last actions.
+	•	AI: rollback last → يعيد آخر نشر تلقائيًا (يتطلب موافقة Owner إذا كان مؤثرًا أمنيًا).
+	•	AI: report now → يولّد تقرير حالة فوريًا ويرسله لك.
+
+⸻
+
+20) مخطط المحادثة النموذجي بينك وبين الوكيل (مثال عملي)
+
+أنت: “نشر المنصة على example.com، رجّع لي تقرير بعد 30 دقيقة.”
+الوكيل: “أبدأ الآن: 1) سأسحب الكود من main, 2) سأبني وأشغل الاختبارات، 3) سأطلق canary 10%، 4) سأراقب 30m. Estimated cost: 450 SAR. أحتاج موافقتك.”
+أنت: “موافق.”
+الوكيل: ينفّذ ويبلغك بالتالي: build success, tests passed, canary passed → promoted to prod → final report attached.
+
+⸻
+
+خاتمة سريعة (لمدير المشروع)
+
+هذا AI Executive Agent vMax هو خطة شاملة لخلق وكيل واحد تكلّمه فقط وهو ينفّذ، يطور، يصمم، وينشر مع كل آليات الأمن والحوكمة. إذا تسمح — أجهّز لك الحزمة التنفيذية فورًا (System Prompt ملف نصي، manifest JSON، autodeploy.sh مخصّص بمعلومات repo & build commands، playbooks جاهزة).
+
+أرسل لي الآن (أو قل “ابدأ”):
+	•	رابط المستودع (Git URL) أو أخبر أن Replit سيتعامل مع النسخة.
+	•	نوع التشغيل (pm2 / docker / systemd).
+	•	أمر البناء & التشغيل (مثلاً: npm ci && npm run build، و pm2 start ecosystem.config.js).
+	•	اسم الدومين.
+
+أبدأ أجهّز الحزمة التنفيذية النهائية وأعطيك ملفات جاهزة للرفع — وأذكر: لو أدخلت أي حاجة تتعارض مع الفكرة الأساسية للمنصة سأنبّهك فورًا.
