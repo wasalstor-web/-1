@@ -2,11 +2,12 @@
 
 ## Overview
 
-This is a comprehensive Arabic-first AI **Marketplace + Workspace Platform** that combines two core features:
+This is a comprehensive Arabic-first AI **Marketplace + Developer Platform** that combines three core features:
 1. **AI Marketplace**: Shop for ready-made AI systems (chatbots, content generators, data analyzers)
-2. **AI Workspace**: Direct interaction with GPT-4, Claude, and Gemini models
+2. **AI Developer Assistant**: Full-featured AI chat for coding help, debugging, and development support
+3. **AI Workspace**: Direct interaction with GPT-4, Claude, and Gemini models
 
-**Status**: Marketplace + AI Workspace fully functional with Neon/Dark theme
+**Status**: Marketplace + AI Developer Chat + AI Workspace fully functional with Neon/Dark theme
 
 The platform enables users to:
 - **Marketplace Features**:
@@ -14,6 +15,14 @@ The platform enables users to:
   - View featured products and product details
   - Filter by category (Chatbots, Content Generation, Image AI, Data Analysis)
   - Purchase AI systems with pricing from $99-$299
+- **AI Developer Assistant** (NEW):
+  - Full-screen chat interface for development help
+  - Create and manage multiple conversations
+  - AI-powered coding assistance with GPT-4 Mini
+  - Real-time streaming responses with typing indicators
+  - Conversation history with delete functionality
+  - Arabic-first interface with RTL support
+  - Code review and debugging templates
 - **AI Workspace Features**:
   - Create and manage AI-powered projects
   - Interact with multiple AI models (GPT-4, Claude, Gemini) via streaming chat
@@ -23,7 +32,20 @@ The platform enables users to:
 
 ## Recent Changes
 
-### Latest Updates - Marketplace Launch (2025-11-05)
+### Latest Updates - AI Developer Assistant Launch (2025-11-05)
+- **🤖 AI Developer Chat**: Full-screen chat interface for coding assistance and debugging
+- **Database Schema**: Added aiConversations and aiMessages tables
+- **Backend APIs**: 7 new endpoints for conversation CRUD, message handling, and streaming chat
+  - GET/POST /api/ai/conversations
+  - GET/DELETE /api/ai/conversations/:id
+  - GET/POST /api/ai/conversations/:id/messages
+  - POST /api/ai/chat/stream (Server-Sent Events for real-time streaming)
+- **OpenAI Integration**: GPT-4 Mini for development assistance with Arabic support
+- **Full-Screen Experience**: Modified App.tsx to show immersive chat UI without main sidebar
+- **Neon Theme**: Matching marketplace aesthetic with gradient message bubbles
+- **E2E Tested**: Conversation creation, message streaming, history, and deletion verified
+
+### Previous Updates - Marketplace Launch (2025-11-05)
 - **🛍️ Marketplace Built**: Complete marketplace page with Neon/Dark theme (like Dora AI/Framer)
 - **Database Schema**: Added products, categories, orders, orderItems tables
 - **Backend APIs**: GET /api/products, /api/categories with filtering support
@@ -93,6 +115,8 @@ Preferred communication style: Simple, everyday language.
 - `users`: User accounts with username/password authentication
 - `projects`: Project metadata including name, description, status, progress, AI model preference
 - `conversations`: Chat history linked to projects, storing messages as JSON text
+- `aiConversations`: AI Developer Chat conversations with title, context, and timestamps
+- `aiMessages`: Individual messages in AI chats with role (user/assistant), content, and metadata
 
 **Development vs Production**
 - Vite middleware integration for HMR in development
