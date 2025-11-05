@@ -64,10 +64,13 @@ execute_command \
     "Starting PostgreSQL service"
 print_success "PostgreSQL started"
 
-# Step 3: Create Database
+# Step 3: Create Database with generated password
 print_info "Step 3/12: Creating database..."
+DB_PASS=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+print_warning "Generated DB Password (SAVE THIS!): $DB_PASS"
+
 execute_command \
-    "نفذ الأمر: sudo -u postgres psql -c \"CREATE DATABASE mubsat_ai;\" && sudo -u postgres psql -c \"CREATE USER mubsat_user WITH PASSWORD 'MubsatAI@2025!Secure';\" && sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE mubsat_ai TO mubsat_user;\"" \
+    "نفذ الأمر: sudo -u postgres psql -c \"CREATE DATABASE mubsat_ai;\" && sudo -u postgres psql -c \"CREATE USER mubsat_user WITH PASSWORD '$DB_PASS';\" && sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE mubsat_ai TO mubsat_user;\"" \
     "Creating database and user"
 print_success "Database created"
 
@@ -84,7 +87,7 @@ execute_command \
     "نفذ الأمر: cat > $APP_DIR/.env <<EOF
 NODE_ENV=production
 PORT=5000
-DATABASE_URL=postgresql://mubsat_user:MubsatAI@2025!Secure@localhost:5432/mubsat_ai
+DATABASE_URL=postgresql://mubsat_user:$DB_PASS@localhost:5432/mubsat_ai
 SESSION_SECRET=\$(openssl rand -base64 32)
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 EOF" \
@@ -107,8 +110,8 @@ print_success "Files uploaded"
 # Step 7: Install dependencies
 print_info "Step 7/12: Installing dependencies..."
 execute_command \
-    "نفذ الأمر: cd $APP_DIR && export PATH=/root/.nvm/versions/node/v24.11.0/bin:\$PATH && npm install --production" \
-    "Installing Node.js dependencies"
+    "نفذ الأمر: cd $APP_DIR && export PATH=/root/.nvm/versions/node/v24.11.0/bin:\$PATH && npm install" \
+    "Installing Node.js dependencies (including devDependencies for build)"
 print_success "Dependencies installed"
 
 # Step 8: Build application
