@@ -7,6 +7,9 @@ import { IntentAnalyzer } from '../intelligent-agent/intent-analyzer';
 import { VPSExecutor } from '../intelligent-agent/vps-executor';
 import { AIBrainCore } from '../ai-brain/core-brain';
 import { DoctorAI } from '../ai-brain/doctor-ai';
+import { createHash } from 'crypto';
+import type { IStorage } from '../storage';
+import { insertDecisionLogSchema } from '@shared/schema';
 
 // Sub-Agent Types
 export enum SubAgentType {
@@ -107,13 +110,7 @@ export class AIExecutiveOrchestrator {
   private coreBrain: AIBrainCore;
   private doctorAI: DoctorAI;
   
-  // Decision Log (سيتم نقله لقاعدة البيانات)
-  private decisionLog: DecisionLogEntry[] = [];
-  
-  // Active Executions
-  private activeExecutions: Map<string, ExecutionPlan> = new Map();
-  
-  constructor() {
+  constructor(private storage: IStorage) {
     this.intentAnalyzer = new IntentAnalyzer();
     this.vpsExecutor = new VPSExecutor();
     this.coreBrain = new AIBrainCore();
@@ -188,9 +185,6 @@ Sub-Agents تحت قيادتك:
       plan.approval_reason = this.getApprovalReason(plan);
     }
     
-    // 5. حفظ في Active Executions
-    this.activeExecutions.set(command.id, plan);
-    
     console.log(`   ✅ Plan created: ${plan.steps.length} steps`);
     console.log(`   💰 Estimated cost: ${plan.estimated_cost_sar} SAR`);
     console.log(`   ⏱️  Estimated duration: ${plan.estimated_duration_minutes} minutes`);
@@ -206,11 +200,21 @@ Sub-Agents تحت قيادتك:
     command_id: string, 
     approved_by?: string
   ): Promise<ExecutionResult> {
-    const plan = this.activeExecutions.get(command_id);
+    const planData = await this.storage.getExecutionPlanByCommand(command_id);
     
-    if (!plan) {
+    if (!planData) {
       throw new Error(`No execution plan found for command ${command_id}`);
     }
+    
+    const plan: ExecutionPlan = {
+      command_id,
+      steps: JSON.parse(planData.steps),
+      estimated_duration_minutes: planData.estimatedDurationMinutes,
+      estimated_cost_sar: parseFloat(planData.estimatedCostSar),
+      risks: JSON.parse(planData.risks),
+      requires_approval: planData.requiresApproval,
+      approval_reason: planData.approvalReason || undefined,
+    };
     
     // Log decision
     await this.logDecision({
@@ -275,9 +279,6 @@ Sub-Agents تحت قيادتك:
     // Update decision log
     await this.updateDecisionResult(command_id, result.success ? 'success' : 'failure');
     
-    // إزالة من Active
-    this.activeExecutions.delete(command_id);
-    
     return result;
   }
   
@@ -285,9 +286,15 @@ Sub-Agents تحت قيادتك:
    * تحليل نية الأمر
    */
   private async analyzeIntent(command: ExecutiveCommand): Promise<any> {
-    // سيتم استخدام IntentAnalyzer الموجود
-    const analysis = await this.intentAnalyzer.analyze(command.command);
-    return analysis;
+    const cmd = command.command.toLowerCase();
+    const category = 
+      (cmd.includes('نشر') || cmd.includes('deploy')) ? 'deployment' :
+      (cmd.includes('بوت') || cmd.includes('bot')) ? 'bot_creation' :
+      (cmd.includes('تحليل') || cmd.includes('analyz')) ? 'analysis' :
+      (cmd.includes('فحص') || cmd.includes('security')) ? 'security_check' :
+      'general_request';
+    
+    return { category, primary_intent: category, confidence: 0.8 };
   }
   
   /**
@@ -521,21 +528,45 @@ Sub-Agents تحت قيادتك:
    * تسجيل قرار في Decision Log
    */
   private async logDecision(entry: Partial<DecisionLogEntry>): Promise<void> {
-    const fullEntry: DecisionLogEntry = {
-      id: `decision-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date(),
-      executed: false,
-      metadata: {},
-      immutable_hash: '',
-      ...entry as any,
+    const command = await this.storage.getExecutiveCommand(entry.command_id!);
+    if (!command) {
+      console.error(`Command not found: ${entry.command_id}`);
+      return;
+    }
+    
+    const metadata = {
+      ...entry.metadata,
+      decision_type: entry.decision_type,
+      action: entry.action,
     };
     
-    // حساب Hash للنزاهة
-    fullEntry.immutable_hash = await this.calculateHash(fullEntry);
+    const immutableHash = createHash('sha256')
+      .update(JSON.stringify({
+        action: entry.action,
+        userId: entry.user_id,
+        timestamp: new Date(),
+        commandId: entry.command_id,
+        approved_by: entry.approved_by,
+      }))
+      .digest('hex');
     
-    this.decisionLog.push(fullEntry);
+    const logData = insertDecisionLogSchema.parse({
+      decisionType: entry.decision_type || 'deployment',
+      commandId: entry.command_id!,
+      userId: entry.user_id!,
+      action: entry.action!,
+      approvalRequired: entry.approval_required || false,
+      approvedBy: entry.approved_by,
+      approvedAt: entry.approved_at,
+      executed: entry.executed || false,
+      result: entry.result,
+      metadata: JSON.stringify(metadata),
+      immutableHash,
+    });
     
-    console.log(`📋 Decision logged: ${fullEntry.id}`);
+    await this.storage.createDecisionLog(logData);
+    
+    console.log(`📋 Decision logged for command: ${entry.command_id}`);
   }
   
   /**
@@ -545,11 +576,17 @@ Sub-Agents تحت قيادتك:
     command_id: string,
     result: 'success' | 'failure' | 'rollback'
   ): Promise<void> {
-    const entry = this.decisionLog.find(e => e.command_id === command_id);
-    if (entry) {
-      entry.result = result;
-      entry.executed = true;
-    }
+    // Create a new decision log entry for the result
+    await this.logDecision({
+      decision_type: DecisionType.DEPLOYMENT,
+      command_id,
+      user_id: 'system',
+      action: `Execution result: ${result}`,
+      approval_required: false,
+      executed: true,
+      result,
+      metadata: { final_result: result },
+    });
   }
   
   /**
@@ -574,19 +611,5 @@ Sub-Agents تحت قيادتك:
    */
   private delay(seconds: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
-  }
-  
-  /**
-   * الحصول على Decision Log
-   */
-  getDecisionLog(): DecisionLogEntry[] {
-    return [...this.decisionLog];
-  }
-  
-  /**
-   * الحصول على Execution Plans النشطة
-   */
-  getActiveExecutions(): ExecutionPlan[] {
-    return Array.from(this.activeExecutions.values());
   }
 }
