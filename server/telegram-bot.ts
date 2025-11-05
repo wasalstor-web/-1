@@ -346,49 +346,43 @@ The logo should be:
       }
     });
 
-    // /execute command - Execute commands on VPS servers
+    // /execute command - Execute commands on VPS servers via SSH
     this.bot.onText(/\/execute (.+)/, async (msg, match) => {
       const chatId = msg.chat.id;
       const command = match?.[1];
 
       if (!command) {
-        this.bot?.sendMessage(chatId, '❌ يرجى إدخال الأمر المطلوب تنفيذه\n\nمثال: `/execute hostname`', { parse_mode: 'Markdown' });
+        this.bot?.sendMessage(chatId, '❌ يرجى إدخال الأمر المطلوب تنفيذه\n\nمثال: /execute hostname', { parse_mode: 'Markdown' });
         return;
       }
 
       try {
         const servers = await storage.getAllServers();
-        const activeServer = servers.find(s => s.isActive);
+        const activeServer = servers.find(s => s.isActive && s.sshEnabled);
 
         if (!activeServer) {
-          this.bot?.sendMessage(chatId, '❌ لا يوجد سيرفرات نشطة حالياً');
+          this.bot?.sendMessage(chatId, '❌ لا يوجد سيرفرات نشطة مع SSH مفعّل');
           return;
         }
 
-        const cmd = await storage.createServerCommand({
+        this.bot?.sendMessage(chatId, `🔄 *جاري التنفيذ عبر SSH...*\n\n🖥️ السيرفر: ${activeServer.name}\n⚡ الأمر: \`${command}\``, { parse_mode: 'Markdown' });
+
+        const { sshExecutor } = await import('./ssh-executor');
+        const result = await sshExecutor.executeCommand(activeServer, command.trim());
+
+        await storage.createServerCommand({
           serverId: activeServer.id,
           command: command.trim()
         });
 
-        this.bot?.sendMessage(chatId, `✅ تم إرسال الأمر للتنفيذ...\n\n🖥️ السيرفر: ${activeServer.name}\n⚡ الأمر: \`${command}\`\n\n⏳ جاري التنفيذ...`, { parse_mode: 'Markdown' });
-
-        setTimeout(async () => {
-          try {
-            const allCommands = await storage.getPendingCommands(activeServer.id);
-            const executedCmd = allCommands.find(c => c.id === cmd.id);
-
-            if (executedCmd && executedCmd.status === 'completed' && executedCmd.result !== null) {
-              const resultMsg = `✅ *تم التنفيذ بنجاح!*\n\n📤 النتيجة:\n\`\`\`\n${executedCmd.result.substring(0, 3000)}\n\`\`\`\n\n🔢 Exit Code: ${executedCmd.exitCode}`;
-              this.bot?.sendMessage(chatId, resultMsg, { parse_mode: 'Markdown' });
-            } else if (executedCmd && executedCmd.status === 'pending') {
-              this.bot?.sendMessage(chatId, '⏳ الأمر ما زال قيد التنفيذ...');
-            } else {
-              this.bot?.sendMessage(chatId, '⚠️ لم يتم استلام النتيجة. تأكد من تشغيل السكربت على السيرفر.');
-            }
-          } catch (error) {
-            console.error('Error checking command result:', error);
-          }
-        }, 15000);
+        if (result.success) {
+          const output = result.output.substring(0, 3000);
+          const resultMsg = `✅ *تم التنفيذ بنجاح!*\n\n📤 النتيجة:\n\`\`\`\n${output}\n\`\`\`\n\n🔢 Exit Code: ${result.exitCode}`;
+          this.bot?.sendMessage(chatId, resultMsg, { parse_mode: 'Markdown' });
+        } else {
+          const errorMsg = `❌ *فشل التنفيذ*\n\n⚠️ الخطأ: ${result.error || result.output}\n\n🔢 Exit Code: ${result.exitCode}`;
+          this.bot?.sendMessage(chatId, errorMsg, { parse_mode: 'Markdown' });
+        }
 
       } catch (error: any) {
         console.error('Error in /execute command:', error);
