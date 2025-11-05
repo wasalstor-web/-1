@@ -58,9 +58,13 @@ sudo systemctl status postgresql
 
 #### الخطوة 4: إنشاء قاعدة البيانات
 ```bash
+# Generate a secure password first
+DB_PASS=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+echo "Generated DB Password (SAVE THIS!): $DB_PASS"
+
 sudo -u postgres psql <<EOF
 CREATE DATABASE mubsat_ai;
-CREATE USER mubsat_user WITH PASSWORD 'MubsatAI@2025!Secure';
+CREATE USER mubsat_user WITH PASSWORD '$DB_PASS';
 GRANT ALL PRIVILEGES ON DATABASE mubsat_ai TO mubsat_user;
 \q
 EOF
@@ -74,10 +78,11 @@ cd /var/www/mubsat-ai
 
 #### الخطوة 6: إنشاء ملف .env
 ```bash
+# Use the DB_PASS variable from step 4
 cat > .env <<EOF
 NODE_ENV=production
 PORT=5000
-DATABASE_URL=postgresql://mubsat_user:MubsatAI@2025!Secure@localhost:5432/mubsat_ai
+DATABASE_URL=postgresql://mubsat_user:${DB_PASS}@localhost:5432/mubsat_ai
 SESSION_SECRET=$(openssl rand -base64 32)
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 EOF
@@ -98,7 +103,8 @@ rsync -avz --progress \
 ```bash
 cd /var/www/mubsat-ai
 export PATH=/root/.nvm/versions/node/v24.11.0/bin:$PATH
-npm install --production
+# Install ALL dependencies (including devDependencies needed for build)
+npm install
 ```
 
 #### الخطوة 9: بناء التطبيق
