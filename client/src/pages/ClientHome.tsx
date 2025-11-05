@@ -30,6 +30,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { contactFormSchema, type ContactForm } from '@shared/schema';
+import { motion } from 'framer-motion';
 
 export default function ClientHome() {
   const { toast } = useToast();
@@ -77,6 +78,43 @@ export default function ClientHome() {
 
   const onSubmit = (data: ContactForm) => {
     contactMutation.mutate(data);
+  };
+
+  // Animation variants for interactive effects
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.8 }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
   };
 
   const solutions = [
@@ -256,8 +294,13 @@ export default function ClientHome() {
       {/* Hero Section */}
       <section className="container py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <motion.div 
+            className="space-y-8"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.div className="space-y-4" variants={fadeInUp}>
               <h1 className="text-6xl font-bold leading-tight" data-testid="text-hero-title">
                 AI Made Simple
                 <br />
@@ -266,8 +309,8 @@ export default function ClientHome() {
               <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl" data-testid="text-hero-subtitle">
                 Transform your business with enterprise-grade AI solutions. Simple to use, powerful to deploy.
               </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
+            </motion.div>
+            <motion.div className="flex flex-col sm:flex-row gap-4" variants={fadeInUp}>
               <Button size="lg" className="h-12 px-8" data-testid="button-start-now">
                 Start Now
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -275,62 +318,113 @@ export default function ClientHome() {
               <Button size="lg" variant="outline" className="h-12 px-8" data-testid="button-book-demo">
                 Book a Demo
               </Button>
-            </div>
-            <div className="grid grid-cols-4 gap-6 pt-8">
+            </motion.div>
+            <motion.div 
+              className="grid grid-cols-4 gap-6 pt-8"
+              variants={staggerContainer}
+            >
               {stats.map((stat, index) => (
-                <div key={index} className="space-y-2" data-testid={`stat-${index}`}>
+                <motion.div 
+                  key={index} 
+                  className="space-y-2" 
+                  data-testid={`stat-${index}`}
+                  variants={fadeInUp}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <div className="flex items-center gap-2">
                     <stat.icon className="w-5 h-5 text-primary" />
                   </div>
                   <div className="text-3xl font-bold">{stat.value}</div>
                   <div className="text-xs text-muted-foreground">{stat.label}</div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
-          <div className="relative">
-            <div className="rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 p-8 shadow-2xl">
+            </motion.div>
+          </motion.div>
+          <motion.div 
+            className="relative"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <motion.div 
+              className="rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 p-8 shadow-2xl"
+              whileHover={{ scale: 1.02, rotateY: 2 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
               <div className="aspect-video bg-card rounded-xl flex items-center justify-center border-2">
                 <div className="text-center space-y-4">
-                  <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                  <motion.div 
+                    className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center"
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3, 
+                      repeat: Infinity,
+                      repeatType: "loop"
+                    }}
+                  >
                     <Sparkles className="w-10 h-10 text-primary" />
-                  </div>
+                  </motion.div>
                   <p className="text-sm text-muted-foreground">Dashboard Preview</p>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Solutions Section */}
       <section id="solutions" className="container py-24 bg-muted/50">
-        <div className="text-center space-y-4 mb-16">
+        <motion.div 
+          className="text-center space-y-4 mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeInUp}
+        >
           <h2 className="text-4xl font-bold" data-testid="text-solutions-title">
             Our Solutions
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Comprehensive AI solutions tailored for enterprise needs
           </p>
-        </div>
-        <div className="grid lg:grid-cols-3 gap-8">
+        </motion.div>
+        <motion.div 
+          className="grid lg:grid-cols-3 gap-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+        >
           {solutions.map((solution, index) => (
-            <Card key={index} className="p-8 hover-elevate active-elevate-2 transition-all" data-testid={`solution-card-${index}`}>
-              <CardHeader className="p-0 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <solution.icon className="w-7 h-7 text-primary" />
-                </div>
-                <CardTitle className="text-xl">{solution.title}</CardTitle>
-                <CardDescription className="text-base">{solution.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Button variant="ghost" className="p-0 h-auto font-medium" data-testid={`button-learn-more-${index}`}>
-                  Learn More <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </CardContent>
-            </Card>
+            <motion.div key={index} variants={scaleIn}>
+              <Card 
+                className="p-8 hover-elevate active-elevate-2 transition-all h-full" 
+                data-testid={`solution-card-${index}`}
+              >
+                <CardHeader className="p-0 mb-6">
+                  <motion.div 
+                    className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4"
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <solution.icon className="w-7 h-7 text-primary" />
+                  </motion.div>
+                  <CardTitle className="text-xl">{solution.title}</CardTitle>
+                  <CardDescription className="text-base">{solution.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Button variant="ghost" className="p-0 h-auto font-medium" data-testid={`button-learn-more-${index}`}>
+                    Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* Features Section */}
