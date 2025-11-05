@@ -83,11 +83,15 @@ export class TelegramAIBot {
 • Claude 3.5 Sonnet من Anthropic
 • Gemini 2.0 Flash من Google
 
-🎯 *الأوامر المتاحة:*
+🎯 *الأوامر الأساسية:*
 /start - بدء المحادثة
 /help - عرض المساعدة
 /model - اختيار نموذج AI
 /clear - مسح سجل المحادثة
+
+🎨 *أوامر التصميم:*
+/image - توليد صورة من وصف
+/logo - توليد شعار لمشروعك
 
 النموذج الحالي: *${MODELS[telegramUser.selectedModel as ModelKey].name}*
 
@@ -110,6 +114,10 @@ export class TelegramAIBot {
 /clear - مسح سجل المحادثة
 /help - عرض هذه المساعدة
 
+*أوامر التصميم:* 🎨
+/image - توليد صورة من وصف
+/logo - توليد شعار احترافي
+
 *النماذج المتاحة:*
 • GPT-4 Mini - سريع واقتصادي ✨
 • GPT-4 - قوي ودقيق 🚀
@@ -119,8 +127,10 @@ export class TelegramAIBot {
 *كيفية الاستخدام:*
 فقط أرسل رسالتك وسأجيبك مباشرة! أنا أحتفظ بسياق المحادثة لتجربة أفضل.
 
-*مثال:*
+*أمثلة:*
 \`اكتب لي كود Python لحساب الفيبوناتشي\`
+\`/image قطة لطيفة تلعب بالكرة\`
+\`/logo شركة تقنية حديثة\`
       `;
 
       this.bot?.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
@@ -160,6 +170,104 @@ export class TelegramAIBot {
       });
 
       this.bot?.sendMessage(chatId, '✅ تم مسح سجل المحادثة بنجاح!');
+    });
+
+    // /image command - Generate image
+    this.bot.onText(/\/image (.+)/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const prompt = match?.[1];
+
+      if (!prompt) {
+        this.bot?.sendMessage(chatId, '❌ يرجى إدخال وصف للصورة.\n\nمثال: `/image قطة لطيفة تلعب بالكرة`', { parse_mode: 'Markdown' });
+        return;
+      }
+
+      if (!openai) {
+        this.bot?.sendMessage(chatId, '⚠️ خدمة توليد الصور غير متاحة حالياً.');
+        return;
+      }
+
+      try {
+        this.bot?.sendChatAction(chatId, 'upload_photo');
+        this.bot?.sendMessage(chatId, '🎨 جاري توليد الصورة... قد يستغرق ذلك دقيقة واحدة...');
+
+        const response = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: prompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "standard",
+          style: "vivid",
+        });
+
+        const imageUrl = response.data?.[0]?.url;
+        const revisedPrompt = response.data?.[0]?.revised_prompt;
+
+        if (imageUrl) {
+          await this.bot?.sendPhoto(chatId, imageUrl, {
+            caption: `✅ *تم توليد الصورة بنجاح!*\n\n📝 الوصف المحسّن:\n${revisedPrompt || prompt}`,
+            parse_mode: 'Markdown'
+          });
+        } else {
+          this.bot?.sendMessage(chatId, '❌ فشل في توليد الصورة. حاول مرة أخرى.');
+        }
+      } catch (error: any) {
+        console.error('Error generating image:', error);
+        this.bot?.sendMessage(chatId, `❌ حدث خطأ أثناء توليد الصورة: ${error.message || 'خطأ غير معروف'}`);
+      }
+    });
+
+    // /logo command - Generate logo
+    this.bot.onText(/\/logo (.+)/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const businessName = match?.[1];
+
+      if (!businessName) {
+        this.bot?.sendMessage(chatId, '❌ يرجى إدخال اسم المشروع أو الشركة.\n\nمثال: `/logo شركة تقنية حديثة`', { parse_mode: 'Markdown' });
+        return;
+      }
+
+      if (!openai) {
+        this.bot?.sendMessage(chatId, '⚠️ خدمة توليد الشعارات غير متاحة حالياً.');
+        return;
+      }
+
+      try {
+        this.bot?.sendChatAction(chatId, 'upload_photo');
+        this.bot?.sendMessage(chatId, '🏷️ جاري توليد الشعار... قد يستغرق ذلك دقيقة واحدة...');
+
+        const logoPrompt = `Create a professional, modern logo for "${businessName}". 
+The logo should be:
+- Clean and minimalist
+- Professional and memorable
+- Suitable for digital and print
+- Vector-style illustration
+- On white background
+- Modern design`;
+
+        const response = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: logoPrompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "hd",
+          style: "natural",
+        });
+
+        const imageUrl = response.data?.[0]?.url;
+
+        if (imageUrl) {
+          await this.bot?.sendPhoto(chatId, imageUrl, {
+            caption: `✅ *تم توليد الشعار بنجاح!*\n\n🏢 الشركة: *${businessName}*\n\n💡 يمكنك طلب تعديلات أو توليد شعار جديد باستخدام /logo`,
+            parse_mode: 'Markdown'
+          });
+        } else {
+          this.bot?.sendMessage(chatId, '❌ فشل في توليد الشعار. حاول مرة أخرى.');
+        }
+      } catch (error: any) {
+        console.error('Error generating logo:', error);
+        this.bot?.sendMessage(chatId, `❌ حدث خطأ أثناء توليد الشعار: ${error.message || 'خطأ غير معروف'}`);
+      }
     });
 
     // Handle model selection callbacks
