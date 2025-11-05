@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { storage } from './storage';
 import { PLATFORM_SYSTEM_PROMPT } from './ai-system-prompt';
+import { IntelligentAssistant } from './intelligent-agent/intelligent-assistant';
 
 // AI Model configurations
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -22,8 +23,10 @@ type ModelKey = keyof typeof MODELS;
 export class TelegramAIBot {
   private bot: TelegramBot | null = null;
   private useWebhook: boolean = false;
+  private intelligentAssistant: IntelligentAssistant;
 
   constructor(token?: string, webhookUrl?: string) {
+    this.intelligentAssistant = new IntelligentAssistant();
     if (!token) {
       console.log('⚠️ TELEGRAM_BOT_TOKEN not provided. Telegram bot is disabled.');
       return;
@@ -93,6 +96,9 @@ export class TelegramAIBot {
 /image - توليد صورة من وصف
 /logo - توليد شعار لمشروعك
 
+🧠 *المساعد الذكي:*
+/smart - تفعيل المساعد الذكي المتقدم
+
 النموذج الحالي: *${MODELS[telegramUser.selectedModel as ModelKey].name}*
 
 أرسل أي رسالة وسأساعدك! 💬
@@ -117,6 +123,9 @@ export class TelegramAIBot {
 *أوامر التصميم:* 🎨
 /image - توليد صورة من وصف
 /logo - توليد شعار احترافي
+
+*المساعد الذكي:* 🧠
+/smart - تفعيل المساعد الذكي (فهم النوايا، تنفيذ الأوامر، VPS)
 
 *النماذج المتاحة:*
 • GPT-4 Mini - سريع واقتصادي ✨
@@ -267,6 +276,67 @@ The logo should be:
       } catch (error: any) {
         console.error('Error generating logo:', error);
         this.bot?.sendMessage(chatId, `❌ حدث خطأ أثناء توليد الشعار: ${error.message || 'خطأ غير معروف'}`);
+      }
+    });
+
+    // /smart command - Intelligent Assistant
+    this.bot.onText(/\/smart (.+)/, async (msg, match) => {
+      const chatId = msg.chat.id;
+      const userId = msg.from?.id;
+      const userMessage = match?.[1];
+
+      if (!userId || !userMessage) {
+        this.bot?.sendMessage(chatId, '❌ يرجى إدخال رسالتك بعد الأمر /smart\n\nمثال: `/smart تحقق من حالة السيرفر`', { parse_mode: 'Markdown' });
+        return;
+      }
+
+      try {
+        this.bot?.sendChatAction(chatId, 'typing');
+        this.bot?.sendMessage(chatId, '🧠 المساعد الذكي يحلل رسالتك...');
+
+        const response = await this.intelligentAssistant.processMessage(userId.toString(), userMessage);
+
+        let replyMessage = `🤖 *${response.message}*\n\n`;
+
+        // إضافة معلومات النية
+        if (response.intent) {
+          replyMessage += `📊 *تحليل النية:*\n`;
+          replyMessage += `• النوع: ${response.intent.type}\n`;
+          if (response.intent.action) {
+            replyMessage += `• الإجراء: ${response.intent.action}\n`;
+          }
+          replyMessage += `• الثقة: ${(response.intent.confidence * 100).toFixed(0)}%\n`;
+          if (response.intent.vpsTarget) {
+            replyMessage += `• VPS: ${response.intent.vpsTarget}\n`;
+          }
+          replyMessage += `\n`;
+        }
+
+        // إضافة خطة التنفيذ
+        if (response.executionPlan && response.executionPlan.length > 0) {
+          replyMessage += `📋 *خطة التنفيذ:*\n`;
+          response.executionPlan.forEach((step, idx) => {
+            replyMessage += `${idx + 1}. ${step}\n`;
+          });
+          replyMessage += `\n`;
+        }
+
+        // حالة التنفيذ
+        if (response.executed !== undefined) {
+          replyMessage += response.executed ? `✅ *تم التنفيذ بنجاح*` : `❌ *لم يتم التنفيذ*`;
+        }
+
+        this.bot?.sendMessage(chatId, replyMessage, { parse_mode: 'Markdown' });
+
+        // إضافة اقتراحات
+        if (response.suggestions && response.suggestions.length > 0) {
+          const suggestionsMsg = `💡 *اقتراحات:*\n${response.suggestions.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+          this.bot?.sendMessage(chatId, suggestionsMsg, { parse_mode: 'Markdown' });
+        }
+
+      } catch (error: any) {
+        console.error('Error in smart command:', error);
+        this.bot?.sendMessage(chatId, `❌ حدث خطأ: ${error.message || 'خطأ غير معروف'}`);
       }
     });
 
