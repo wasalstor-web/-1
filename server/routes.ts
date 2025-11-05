@@ -7,8 +7,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import { HfInference } from "@huggingface/inference";
 import { PLATFORM_SYSTEM_PROMPT } from "./ai-system-prompt";
+import type { TelegramAIBot } from "./telegram-bot";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, telegramBot?: TelegramAIBot | null): Promise<Server> {
   // Initialize AI clients only if API keys are available
   let openai: OpenAI | null = null;
   let anthropic: Anthropic | null = null;
@@ -561,8 +562,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       res.json({
-        url: response.data[0].url,
-        revised_prompt: response.data[0].revised_prompt,
+        url: response.data?.[0]?.url,
+        revised_prompt: response.data?.[0]?.revised_prompt,
       });
     } catch (error: any) {
       console.error("Error generating image:", error);
@@ -679,8 +680,8 @@ The logo should be:
       });
 
       res.json({
-        url: response.data[0].url,
-        revised_prompt: response.data[0].revised_prompt,
+        url: response.data?.[0]?.url,
+        revised_prompt: response.data?.[0]?.revised_prompt,
         businessName,
         industry,
       });
@@ -762,6 +763,20 @@ The logo should be:
     } catch (error: any) {
       console.error("Error generating brand identity:", error);
       res.status(500).json({ error: error.message || "Failed to generate brand identity" });
+    }
+  });
+
+  // Telegram Webhook endpoint
+  app.post("/api/telegram-webhook", (req, res) => {
+    try {
+      if (telegramBot && telegramBot.getBot()) {
+        // Process the update from Telegram
+        telegramBot.getBot()!.processUpdate(req.body);
+      }
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error handling Telegram webhook:", error);
+      res.sendStatus(500);
     }
   });
 

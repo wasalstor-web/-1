@@ -48,7 +48,37 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // Initialize Telegram Bot first (needed for routes)
+  let telegramBot: TelegramAIBot | null = null;
+  const isProduction = app.get("env") !== "development";
+  
+  if (process.env.TELEGRAM_BOT_TOKEN) {
+    if (isProduction) {
+      // Production: Use Webhook
+      // Replit deployments use .repl.co domain
+      const webhookUrl = process.env.WEBHOOK_URL || 
+        (process.env.REPL_SLUG && process.env.REPL_OWNER 
+          ? `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.repl.co`
+          : '');
+      
+      if (webhookUrl) {
+        telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN, webhookUrl);
+        log(`🤖 Telegram Bot started in production mode (webhook): ${webhookUrl}`);
+      } else {
+        log('⚠️ Webhook URL not configured. Set WEBHOOK_URL environment variable for production bot.');
+        log('⚠️ Telegram bot disabled in production mode');
+      }
+    } else {
+      // Development: Use Polling
+      telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN);
+      log('🤖 Telegram Bot started in development mode (polling)');
+    }
+  } else {
+    log('⚠️ TELEGRAM_BOT_TOKEN not provided. Telegram bot is disabled.');
+  }
+
+  // Register routes with Telegram bot instance
+  const server = await registerRoutes(app, telegramBot);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -79,17 +109,6 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
-
-  // Initialize Telegram Bot only in development
-  // In production, use webhook instead of polling to avoid conflicts
-  let telegramBot: TelegramAIBot | null = null;
-  
-  if (app.get("env") === "development" && process.env.TELEGRAM_BOT_TOKEN) {
-    telegramBot = new TelegramAIBot(process.env.TELEGRAM_BOT_TOKEN);
-    log('🤖 Telegram Bot started in development mode (polling)');
-  } else {
-    log('ℹ️ Telegram Bot disabled in production mode');
-  }
 
   // Graceful shutdown
   process.on('SIGINT', () => {
