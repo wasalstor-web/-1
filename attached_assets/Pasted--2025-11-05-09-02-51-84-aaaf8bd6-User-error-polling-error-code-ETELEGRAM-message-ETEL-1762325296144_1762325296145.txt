@@ -1,0 +1,126 @@
+
+2025-11-05 09:02:51.84
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:11:37.19
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:11:44.60
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:11:52.19
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:11:59.45
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:12:06.85
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:12:14.25
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:12:21.79
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:12:28.50
+aaaf8bd6
+System
+system: received signal terminated
+2025-11-05 09:12:29.18
+aaaf8bd6
+User
+error: [polling_error] {"code":"ETELEGRAM","message":"ETELEGRAM: 409 Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"}
+2025-11-05 09:19:01.48
+566af125
+System
+starting up user application
+2025-11-05 09:19:01.48
+566af125
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-11-05 09:19:01.48
+566af125
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-11-05 09:19:03.03
+566af125
+User
+> rest-express@1.0.0 start
+2025-11-05 09:19:03.03
+566af125
+User
+> NODE_ENV=production node dist/index.js
+2025-11-05 09:19:05.15
+566af125
+User
+🤖 Telegram Bot started in webhook mode: https://workspace-wasalstor.repl.co/api/telegram-webhook
+2025-11-05 09:19:05.21
+566af125
+User
+6:19:05 AM [express] 🤖 Telegram Bot started in production mode (webhook): https://workspace-wasalstor.repl.co
+2025-11-05 09:19:05.21
+566af125
+User
+6:19:05 AM [express] serving on port 5000
+2025-11-05 09:19:05.60
+566af125
+User
+Unhandled rejection Error: ETELEGRAM: 400 Bad Request: bad webhook: Failed to resolve host: Name or service not known
+2025-11-05 09:19:05.60
+566af125
+User
+at /home/runner/workspace/node_modules/node-telegram-bot-api/src/telegram.js:316:15
+2025-11-05 09:19:05.60
+566af125
+User
+at tryCatcher (/home/runner/workspace/node_modules/bluebird/js/release/util.js:16:23)
+2025-11-05 09:19:05.60
+566af125
+User
+at Promise._settlePromiseFromHandler (/home/runner/workspace/node_modules/bluebird/js/release/promise.js:547:31)
+2025-11-05 09:19:05.60
+566af125
+User
+at Promise._settlePromise (/home/runner/workspace/node_modules/bluebird/js/release/promise.js:604:18)
+2025-11-05 09:19:05.60
+566af125
+User
+at Promise._settlePromise0 (/home/runner/workspace/node_modules/bluebird/js/release/promise.js:649:10)
+2025-11-05 09:19:05.60
+566af125
+User
+at Promise._settlePromises (/home/runner/workspace/node_modules/bluebird/js/release/promise.js:729:18)
+2025-11-05 09:19:05.60
+566af125
+User
+at _drainQueueStep (/home/runner/workspace/node_modules/bluebird/js/release/async.js:93:12)
+2025-11-05 09:19:05.60
+566af125
+User
+at _drainQueue (/home/runner/workspace/node_modules/bluebird/js/release/async.js:86:9)
+2025-11-05 09:19:05.60
+566af125
+User
+at Async._drainQueues (/home/runner/workspace/node_modules/bluebird/js/release/async.js:102:5)
+2025-11-05 09:19:05.60
+566af125
+User
+at Async.drainQueues [as _onImmediate] (/home/runner/workspace/node_modules/bluebird/js/release/async.js:15:14)
+2025-11-05 09:19:05.60
+566af125
+User
+at process.processImmediate (node:internal/timers:483:21)
+2025-11-05 09:43:00.77
+566af125
+System
+system: received signal terminated
+
