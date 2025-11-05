@@ -122,7 +122,7 @@ export default function AIChatPage() {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
@@ -130,20 +130,67 @@ export default function AIChatPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold flex items-center gap-2">
-                  محادثة AI
+                  محادثة AI الموحدة
                   <Sparkles className="w-5 h-5 text-primary" />
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  وكيل ذكي متعدد النماذج - نفذ أي أمر تريده
+                  8 نماذج + وكلاء أذكياء في واجهة واحدة
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="gap-1">
                 <CheckCircle2 className="w-3 h-3 text-green-500" />
-                {connectedModels}/{totalModels} نموذج متصل
+                {connectedModels}/{totalModels} متصل
               </Badge>
             </div>
+          </div>
+          
+          {/* Model Selector */}
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium whitespace-nowrap">اختر النموذج/الوكيل:</label>
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger className="w-full max-w-md" data-testid="select-model">
+                <SelectValue placeholder="اختر النموذج..." />
+              </SelectTrigger>
+              <SelectContent>
+                {/* AI Models Group */}
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  🤖 نماذج الذكاء الاصطناعي
+                </div>
+                {(modelsData as any)?.models?.map((model: any) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{model.name}</span>
+                      {model.status === 'connected' ? (
+                        <CheckCircle2 className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <XCircle className="w-3 h-3 text-red-500" />
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+                
+                {/* Agents Group */}
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-2 pt-2">
+                  ⚡ الوكلاء الأذكياء
+                </div>
+                <SelectItem value="executive-agent">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-3 h-3" />
+                    <span>AI Executive Agent vMax</span>
+                    <CheckCircle2 className="w-3 h-3 text-green-500" />
+                  </div>
+                </SelectItem>
+                <SelectItem value="smart-agent">
+                  <div className="flex items-center gap-2">
+                    <Brain className="w-3 h-3" />
+                    <span>Smart Agent (متقدم)</span>
+                    <CheckCircle2 className="w-3 h-3 text-green-500" />
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </header>
@@ -169,6 +216,21 @@ export default function AIChatPage() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
+                      {/* Model Badge */}
+                      {message.model && message.model !== 'system' && (
+                        <Badge variant="secondary" className="mb-2 text-xs">
+                          {message.model === 'executive-agent' && '⚡ Executive Agent'}
+                          {message.model === 'smart-agent' && '🧠 Smart Agent'}
+                          {message.model === 'gpt-4' && '🤖 GPT-4'}
+                          {message.model === 'gpt-4o-mini' && '🤖 GPT-4 Mini'}
+                          {message.model === 'claude-3.5-sonnet' && '🧠 Claude 3.5'}
+                          {message.model === 'gemini-2.0-flash' && '✨ Gemini 2.0'}
+                          {message.model === 'qwen-2.5-coder' && '🚀 Qwen 2.5'}
+                          {message.model === 'llama-3.3' && '🚀 LLaMA 3.3'}
+                          {message.model === 'mistral-large' && '🚀 Mistral'}
+                          {message.model === 'deepseek-r1' && '🚀 DeepSeek'}
+                        </Badge>
+                      )}
                       <p className="whitespace-pre-wrap break-words" dir="auto">
                         {message.content}
                       </p>
