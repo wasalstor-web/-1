@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Send, Brain, Zap, Server, Trash2, CheckCircle2, XCircle, Info, Download, Code, Package } from "lucide-react";
+import { Loader2, Send, Brain, Zap, Server, Trash2, CheckCircle2, XCircle, Info, Download, Code, Package, Terminal, Activity, HardDrive, Cpu, MemoryStick } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -68,6 +69,9 @@ export default function IntelligentAssistant() {
   const [abiServerName, setAbiServerName] = useState("");
   const [abiServerType, setAbiServerType] = useState<'vps' | 'hostinger' | 'shared'>('vps');
   const [abiFiles, setAbiFiles] = useState<any>(null);
+  const [terminalCommand, setTerminalCommand] = useState("");
+  const [terminalOutput, setTerminalOutput] = useState("");
+  const [activeTab, setActiveTab] = useState("chat");
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const userIdRef = useRef<string>("");
@@ -82,6 +86,34 @@ export default function IntelligentAssistant() {
     }
   }
   const userId = userIdRef.current;
+
+  const { data: servers, isLoading: serversLoading } = useQuery({
+    queryKey: ['/api/servers'],
+    enabled: activeTab === 'server',
+  });
+
+  const executeCommandMutation = useMutation({
+    mutationFn: async ({ serverId, command }: { serverId: string; command: string }) => {
+      const response = await apiRequest("POST", `/api/servers/${serverId}/execute`, { command });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setTerminalOutput(prev => prev + `\n$ ${terminalCommand}\n${data.output || data.error || 'No output'}\n`);
+      setTerminalCommand("");
+      toast({
+        title: data.success ? "✅ تم التنفيذ" : "❌ خطأ",
+        description: data.success ? "تم تنفيذ الأمر بنجاح" : data.error,
+        variant: data.success ? "default" : "destructive",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "❌ خطأ",
+        description: error.message || "فشل تنفيذ الأمر",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
