@@ -14,6 +14,7 @@ import ProductDetails from "@/pages/ProductDetails";
 import Settings from "@/pages/Settings";
 import Marketplace from "@/pages/Marketplace";
 import AiChat from "@/pages/AiChat";
+import AIChatPage from "@/pages/ai-chat";
 import ImageGenerator from "@/pages/ImageGenerator";
 import IntelligentAssistant from "@/pages/IntelligentAssistant";
 import ServerManager from "@/pages/ServerManager";
@@ -61,7 +62,7 @@ function App() {
             <Route path="/ssh-test" component={QuickSSH} />
             
             {/* AI Chat - Full Screen (No Sidebar) */}
-            <Route path="/admin/ai-chat" component={AiChat} />
+            <Route path="/chat" component={AIChatPage} />
             
             {/* Admin Panel - With Sidebar */}
             <Route path="/admin">
