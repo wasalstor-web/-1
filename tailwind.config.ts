@@ -16,6 +16,17 @@ export default {
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
+        // Gradient colors for AI platform
+        'cyan': {
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
+        },
+        'purple': {
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7e22ce',
+        },
         card: {
           DEFAULT: "hsl(var(--card) / <alpha-value>)",
           foreground: "hsl(var(--card-foreground) / <alpha-value>)",
