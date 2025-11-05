@@ -16,7 +16,9 @@ import {
   type AiConversation,
   type InsertAiConversation,
   type AiMessage,
-  type InsertAiMessage
+  type InsertAiMessage,
+  type TelegramUser,
+  type InsertTelegramUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { hashPassword } from "./utils/auth";
@@ -72,6 +74,11 @@ export interface IStorage {
   // AI Message methods
   getMessagesByConversation(conversationId: string): Promise<AiMessage[]>;
   createAiMessage(message: InsertAiMessage): Promise<AiMessage>;
+
+  // Telegram User methods
+  getTelegramUser(telegramUserId: number): Promise<TelegramUser | undefined>;
+  createTelegramUser(user: InsertTelegramUser): Promise<TelegramUser>;
+  updateTelegramUser(telegramUserId: number, updates: Partial<InsertTelegramUser>): Promise<TelegramUser | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -84,6 +91,7 @@ export class MemStorage implements IStorage {
   private orderItems: Map<string, OrderItem>;
   private aiConversations: Map<string, AiConversation>;
   private aiMessages: Map<string, AiMessage>;
+  private telegramUsers: Map<number, TelegramUser>;
 
   constructor() {
     this.users = new Map();
@@ -95,6 +103,7 @@ export class MemStorage implements IStorage {
     this.orderItems = new Map();
     this.aiConversations = new Map();
     this.aiMessages = new Map();
+    this.telegramUsers = new Map();
     this.seedData();
   }
 
@@ -818,6 +827,41 @@ export class MemStorage implements IStorage {
     await this.updateAiConversation(insertMsg.conversationId, {});
     
     return message;
+  }
+
+  // Telegram User methods
+  async getTelegramUser(telegramUserId: number): Promise<TelegramUser | undefined> {
+    return this.telegramUsers.get(telegramUserId);
+  }
+
+  async createTelegramUser(insertUser: InsertTelegramUser): Promise<TelegramUser> {
+    const id = randomUUID();
+    const user: TelegramUser = {
+      id,
+      telegramUserId: insertUser.telegramUserId,
+      username: insertUser.username ?? null,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
+      selectedModel: insertUser.selectedModel ?? 'gpt-4o-mini',
+      conversationHistory: insertUser.conversationHistory ?? '[]',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.telegramUsers.set(insertUser.telegramUserId, user);
+    return user;
+  }
+
+  async updateTelegramUser(telegramUserId: number, updates: Partial<InsertTelegramUser>): Promise<TelegramUser | undefined> {
+    const existing = this.telegramUsers.get(telegramUserId);
+    if (!existing) return undefined;
+
+    const updated: TelegramUser = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.telegramUsers.set(telegramUserId, updated);
+    return updated;
   }
 }
 
