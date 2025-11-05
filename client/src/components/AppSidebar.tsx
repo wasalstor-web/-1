@@ -1,4 +1,4 @@
-import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag } from "lucide-react";
+import { Home, FolderOpen, Sparkles, Settings, Moon, Sun, ShoppingBag, Bot } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sidebar,
@@ -24,6 +24,11 @@ const menuItems = [
     title: "المتجر",
     url: "/marketplace",
     icon: ShoppingBag,
+  },
+  {
+    title: "AI Developer",
+    url: "/ai-chat",
+    icon: Bot,
   },
   {
     title: "المشاريع",
