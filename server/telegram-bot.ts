@@ -21,18 +21,34 @@ type ModelKey = keyof typeof MODELS;
 
 export class TelegramAIBot {
   private bot: TelegramBot | null = null;
+  private useWebhook: boolean = false;
 
-  constructor(token?: string) {
+  constructor(token?: string, webhookUrl?: string) {
     if (!token) {
       console.log('⚠️ TELEGRAM_BOT_TOKEN not provided. Telegram bot is disabled.');
       return;
     }
 
-    this.bot = new TelegramBot(token, { polling: true });
+    // Use webhook in production, polling in development
+    this.useWebhook = !!webhookUrl;
+
+    if (this.useWebhook && webhookUrl) {
+      // Webhook mode (Production)
+      this.bot = new TelegramBot(token, { webHook: true });
+      this.bot.setWebHook(`${webhookUrl}/api/telegram-webhook`);
+      console.log(`🤖 Telegram Bot started in webhook mode: ${webhookUrl}/api/telegram-webhook`);
+    } else {
+      // Polling mode (Development)
+      this.bot = new TelegramBot(token, { polling: true });
+      console.log('🤖 Telegram Bot started in polling mode (development)');
+    }
+
     this.setupCommands();
     this.setupMessageHandler();
-    
-    console.log('🤖 Telegram Bot started successfully!');
+  }
+
+  getBot() {
+    return this.bot;
   }
 
   private setupCommands() {
