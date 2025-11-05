@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2, Send, Brain, Zap, Server, Info, Terminal, Activity, HardDrive, Cpu, MemoryStick, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Send, Brain, Zap, Server, Info, Terminal, Activity, HardDrive, Cpu, MemoryStick, CheckCircle2, XCircle, Rocket, Database, Package, PlayCircle, Settings } from "lucide-react";
 
 interface AssistantMessage {
   id: string;
@@ -386,6 +386,94 @@ export default function IntelligentAssistant() {
                   <Cpu className="w-3 h-3 ml-1" />
                   العمليات
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-cyan-500/30 bg-gradient-to-br from-cyan-500/5 to-purple-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="w-5 h-5 text-cyan-400" />
+                نشر التطبيق على Hostinger
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("انشر منصة مبسط AI على السيرفر الرئيسي بالكامل")}
+                  className="w-full justify-start text-xs bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-500/30"
+                  data-testid="button-deploy-full"
+                >
+                  <Rocket className="w-3 h-3 ml-1" />
+                  نشر كامل تلقائي
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("sudo apt update && sudo apt upgrade -y")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-update"
+                >
+                  <Package className="w-3 h-3 ml-1" />
+                  1. تحديث النظام
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-node"
+                >
+                  <Settings className="w-3 h-3 ml-1" />
+                  2. تثبيت Node.js 20
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("sudo apt install -y postgresql postgresql-contrib && sudo systemctl start postgresql")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-postgres"
+                >
+                  <Database className="w-3 h-3 ml-1" />
+                  3. تثبيت PostgreSQL
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("sudo npm install -g pm2 && sudo apt install -y nginx")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-services"
+                >
+                  <Server className="w-3 h-3 ml-1" />
+                  4. تثبيت PM2 + Nginx
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("sudo mkdir -p /var/www/mubsat-ai && sudo chown -R $USER:$USER /var/www/mubsat-ai")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-dir"
+                >
+                  <Terminal className="w-3 h-3 ml-1" />
+                  5. إنشاء المجلد
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("pm2 status")}
+                  className="w-full justify-start text-xs"
+                  data-testid="button-deploy-status"
+                >
+                  <PlayCircle className="w-3 h-3 ml-1" />
+                  التحقق من الحالة
+                </Button>
+              </div>
+              <div className="mt-3 pt-3 border-t">
+                <p className="text-xs text-muted-foreground mb-2">
+                  💡 نصيحة: استخدم "نشر كامل تلقائي" لتنفيذ جميع الخطوات دفعة واحدة
+                </p>
               </div>
             </CardContent>
           </Card>
